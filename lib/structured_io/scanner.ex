@@ -104,13 +104,13 @@ defmodule StructuredIO.Scanner do
 
   def scan_through(scan_data, through_data) do
     case scan("", scan_data, through_data) do
-      nil              -> nil
-      {_, match, rest} -> {match, rest}
+      nil           -> nil
+      {match, rest} -> {match, rest}
     end
   end
 
 
-  @spec scan(binary, binary, binary) :: {binary | nil, match, remaining} | nil
+  @spec scan(binary, binary, binary) :: {match, remaining} | nil
 
   defp scan(_, "", _), do: nil
 
@@ -125,7 +125,7 @@ defmodule StructuredIO.Scanner do
         rest = binary_part(scanning,
                            scanning_for_size,
                            byte_size(scanning) - scanning_for_size)
-        {nil, before <> scanned, rest}
+        {before <> scanned, rest}
       else
         scanning_first = binary_part(scanning, 0, 1)
         scanning_rest = binary_part(scanning, 1, byte_size(scanning) - 1)
