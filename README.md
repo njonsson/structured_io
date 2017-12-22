@@ -21,26 +21,38 @@ Now we have a running _StructuredIO_ process.
 
 ```elixir
 iex> StructuredIO.write structured_io,
-...>                    "<elem>foo</elem"
+...>                    "  <p>foo</p"
 :ok
 ```
 
-We’ve written some markup to the stream. Note that the `<elem>` element is not
-properly closed.
+We’ve written some markup to the stream. Note that the `<p>` element is preceded
+by whitespace and is not properly closed.
 
 ```elixir
 iex> StructuredIO.read_across structured_io,
-...>                          "<elem>",
-...>                          "</elem>"
+...>                          "<p>",
+...>                          "</p>"
 ""
 ```
 
-No `<elem>` element is read because the stream doesn’t contain a complete
-element.
+No `<p>` element is read because the stream doesn’t begin with a `<p>`.
+
+```elixir
+iex> StructuredIO.read_to structured_io,
+...>                      "<p>"
+"  "
+iex> StructuredIO.read_across structured_io,
+...>                          "<p>",
+...>                          "</p>"
+""
+```
+
+We managed to get past the whitespace, but no `<p>` element is read because the
+stream doesn’t contain a complete element.
 
 ```elixir
 iex> StructuredIO.write structured_io,
-...>                    "><elem>bar</elem>"
+...>                    "><hr /><p>bar</p>"
 :ok
 ```
 
@@ -49,21 +61,24 @@ written to the stream.
 
 ```elixir
 iex> StructuredIO.read_across structured_io,
-...>                          "<elem>",
-...>                          "</elem>"
-"<elem>foo</elem>"
+...>                          "<p>",
+...>                          "</p>"
+"<p>foo</p>"
+iex> StructuredIO.read_through structured_io,
+...>                           "<hr />"
+"<hr />"
 iex> StructuredIO.read_across structured_io,
-...>                          "<elem>",
-...>                          "</elem>"
-"<elem>bar</elem>"
+...>                          "<p>",
+...>                          "</p>"
+"<p>bar</p>"
 ```
 
 We’ve read one element at a time from the available data in the stream.
 
 ```elixir
 iex> StructuredIO.read_across structured_io,
-...>                          "<elem>",
-...>                          "</elem>"
+...>                          "<p>",
+...>                          "</p>"
 ""
 ```
 
