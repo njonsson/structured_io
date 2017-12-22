@@ -30,8 +30,8 @@ defmodule StructuredIO do
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
-  `from` and ending with the specified `through`. The operation is
-  Unicode-unsafe.
+  `from` and ending with the specified `through`, using the specified `timeout`
+  (defaults to 5,000 milliseconds). The operation is Unicode-unsafe.
 
   If the data read does not begin with `from`, the result is an empty binary
   (`""`). Likewise, if `through` is not encountered, the result is an empty
@@ -64,15 +64,20 @@ defmodule StructuredIO do
       ""
   """
   @spec binread_across(GenServer.server, binary, binary) :: Scanner.match
-  def binread_across(structured_io, from, through) do
+  @spec binread_across(GenServer.server,
+                       binary,
+                       binary,
+                       timeout) :: Scanner.match
+  def binread_across(structured_io, from, through, timeout \\ 5000) do
     request = {:binread_across, from, through}
-    GenServer.call structured_io, request
+    GenServer.call structured_io, request, timeout
   end
 
 
   @doc """
   Reads data from the specified `structured_io` if and until the specified
-  `through` is encountered. The operation is Unicode-unsafe.
+  `through` is encountered, using the specified `timeout` (defaults to 5,000
+  milliseconds). The operation is Unicode-unsafe.
 
   If `through` is not encountered, the result is an empty binary (`""`).
 
@@ -99,15 +104,16 @@ defmodule StructuredIO do
       ""
   """
   @spec binread_through(GenServer.server, binary) :: Scanner.match
-  def binread_through(structured_io, through) do
+  @spec binread_through(GenServer.server, binary, timeout) :: Scanner.match
+  def binread_through(structured_io, through, timeout \\ 5000) do
     request = {:binread_through, through}
-    GenServer.call structured_io, request
+    GenServer.call structured_io, request, timeout
   end
 
 
   @doc """
-  Asynchronously writes `iodata` as a binary to the specified `structured_io`.
-  The operation is Unicode-unsafe.
+  Asynchronously writes the specified `iodata` as a binary to the specified
+  `structured_io`.  The operation is Unicode-unsafe.
 
   See `#{inspect __MODULE__}.binread_across/3` and
   `#{inspect __MODULE__}.binread_through/2` for examples.
@@ -121,7 +127,8 @@ defmodule StructuredIO do
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
-  `from` and ending with the specified `through`.
+  `from` and ending with the specified `through`, using the specified `timeout`
+  (defaults to 5,000 milliseconds).
 
   If the data read does not begin with `from`, the result is an empty binary
   (`""`). Likewise, if `through` is not encountered, the result is an empty
@@ -154,15 +161,17 @@ defmodule StructuredIO do
       ""
   """
   @spec read_across(GenServer.server, binary, binary) :: binary
-  def read_across(structured_io, from, through) do
+  @spec read_across(GenServer.server, binary, binary, timeout) :: binary
+  def read_across(structured_io, from, through, timeout \\ 5000) do
     request = {:read_across, from, through}
-    GenServer.call structured_io, request
+    GenServer.call structured_io, request, timeout
   end
 
 
   @doc """
   Reads data from the specified `structured_io` if and until the specified
-  `through` is encountered.
+  `through` is encountered, using the specified `timeout` (defaults to 5,000
+  milliseconds).
 
   If `through` is not encountered, the result is an empty binary (`""`).
 
@@ -189,9 +198,10 @@ defmodule StructuredIO do
       ""
   """
   @spec read_through(GenServer.server, binary) :: binary
-  def read_through(structured_io, through) do
+  @spec read_through(GenServer.server, binary, timeout) :: binary
+  def read_through(structured_io, through, timeout \\ 5000) do
     request = {:read_through, through}
-    GenServer.call structured_io, request
+    GenServer.call structured_io, request, timeout
   end
 
 
@@ -224,7 +234,7 @@ defmodule StructuredIO do
 
   @doc """
   Synchronously stops the specified `structured_io` process with the specified
-  `reason` (defaults to `:normal`) and `timeout` (defaults to `:infinity`).
+  `reason` (defaults to `:normal`) and `timeout` (defaults to infinity).
   """
   @spec stop(GenServer.server) :: :ok
   @spec stop(GenServer.server, term) :: :ok
@@ -235,7 +245,8 @@ defmodule StructuredIO do
 
 
   @doc """
-  Asynchronously writes `chardata` as a binary to the specified `structured_io`.
+  Asynchronously writes the specified `chardata` as a binary to the specified
+  `structured_io`.
 
   See `#{inspect __MODULE__}.read_across/3` and
   `#{inspect __MODULE__}.read_through/2` for examples.
