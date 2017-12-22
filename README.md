@@ -102,7 +102,7 @@ dependencies in your project’s _mix.exs_ file:
 ```elixir
 def deps do
   [
-    {:structured_io, "~> 0.1.0"}
+    {:structured_io, "~> 0.2.0"}
   ]
 end
 ```
