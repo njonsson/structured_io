@@ -5,9 +5,6 @@ defmodule StructuredIO.Scanner do
   """
 
 
-  require Logger
-
-
   @typedoc """
   The data matched in a scan.
   """
@@ -117,22 +114,22 @@ defmodule StructuredIO.Scanner do
 
   defp scan(_, "", _), do: nil
 
-  defp scan(previously_scanned_data, scan_data, through_data) do
-    scan_data_size = byte_size(scan_data)
-    through_data_size = byte_size(through_data)
-    if scan_data_size < through_data_size do
+  defp scan(before, scanning, scanning_for) do
+    scanning_size = byte_size(scanning)
+    scanning_for_size = byte_size(scanning_for)
+    if scanning_size < scanning_for_size do
       nil
     else
-      scanned = binary_part(scan_data, 0, through_data_size)
-      if scanned == through_data do
-        rest = binary_part(scan_data,
-                           through_data_size,
-                           byte_size(scan_data) - through_data_size)
-        {nil, previously_scanned_data <> scanned, rest}
+      scanned = binary_part(scanning, 0, scanning_for_size)
+      if scanned == scanning_for do
+        rest = binary_part(scanning,
+                           scanning_for_size,
+                           byte_size(scanning) - scanning_for_size)
+        {nil, before <> scanned, rest}
       else
-        first = binary_part(scan_data, 0, 1)
-        rest = binary_part(scan_data, 1, byte_size(scan_data) - 1)
-        case scan(previously_scanned_data <> first, rest, through_data) do
+        scanning_first = binary_part(scanning, 0, 1)
+        scanning_rest = binary_part(scanning, 1, byte_size(scanning) - 1)
+        case scan(before <> scanning_first, scanning_rest, scanning_for) do
           nil   -> nil
           other -> other
         end
