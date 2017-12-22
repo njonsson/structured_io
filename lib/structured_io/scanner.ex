@@ -73,6 +73,46 @@ defmodule StructuredIO.Scanner do
   end
 
 
+  @doc """
+  Reads from the specified `scan_data` if and until the specified `through_data`
+  is encountered.
+
+  If `scan_data` does not contain `through_data`, the result is `nil`.
+
+  ## Examples
+
+      iex> StructuredIO.Scanner.scan_through "foo<br /",
+      ...>                                   "<br />"
+      nil
+
+      iex> StructuredIO.Scanner.scan_through "foo<br />bar<br />",
+      ...>                                   "<br />"
+      {"foo<br />",
+       "bar<br />"}
+
+      iex> StructuredIO.Scanner.scan_through <<1, 2, 3, 255, 255>>,
+      ...>                                   <<255, 255, 255>>
+      nil
+
+      iex> StructuredIO.Scanner.scan_through <<1, 2, 3, 255, 255, 255, 4, 5, 6, 255, 255, 255>>,
+      ...>                                   <<255, 255, 255>>
+      {<<1, 2, 3, 255, 255, 255>>,
+       <<4, 5, 6, 255, 255, 255>>}
+  """
+  @spec scan_through(binary, binary) :: {match, remaining} | nil
+
+  def scan_through(""=_scan_data, _through_data), do: nil
+
+  def scan_through(_scan_data, ""=_through_data), do: nil
+
+  def scan_through(scan_data, through_data) do
+    case scan("", scan_data, through_data) do
+      nil              -> nil
+      {_, match, rest} -> {match, rest}
+    end
+  end
+
+
   @spec scan(binary, binary, binary) :: {binary | nil, match, remaining} | nil
 
   defp scan(_, "", _), do: nil
@@ -97,20 +137,6 @@ defmodule StructuredIO.Scanner do
           other -> other
         end
       end
-    end
-  end
-
-
-  @spec scan_through(binary, binary) :: {match, remaining} | nil
-
-  defp scan_through(""=_scan_data, _through_data), do: nil
-
-  defp scan_through(_scan_data, ""=_through_data), do: nil
-
-  defp scan_through(scan_data, through_data) do
-    case scan("", scan_data, through_data) do
-      nil              -> nil
-      {_, match, rest} -> {match, rest}
     end
   end
 end
