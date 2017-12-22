@@ -90,6 +90,38 @@ defmodule StructuredIOTest do
     end
   end
 
+  describe ".binread_to/2" do
+    test "before .binwrite/2", %{structured_io: structured_io} do
+      opener = <<0, 0, 0>>
+      assert StructuredIO.binread_to(structured_io, opener) == ""
+    end
+
+    @tag :slow
+    test "with a large dataset", %{structured_io: structured_io} do
+      opener = <<0, 0, 0, 0, 0>>
+      with_random_io_lists %{size: 100, count: 200_000}, fn io_list ->
+        :ok = StructuredIO.binwrite(structured_io, io_list)
+      end
+      :ok = StructuredIO.binwrite(structured_io, opener)
+      result = StructuredIO.binread_to(structured_io, opener, 12_000)
+      result_byte_size = byte_size(result)
+      assert result_byte_size == 20_000_000
+      end_of_result = binary_part(result,
+                                  result_byte_size - byte_size(opener),
+                                  byte_size(opener))
+      assert end_of_result != opener
+    end
+
+    test "after .write/2", %{structured_io: structured_io} do
+      opener = "<elem>"
+      scan_data = "foo" <> opener
+      :ok = StructuredIO.write(structured_io, scan_data)
+      assert StructuredIO.binread_to(structured_io, opener) ==
+             {:error,
+              "In Unicode mode -- call StructuredIO.read_to/2 instead"}
+    end
+  end
+
   describe ".read_across/3" do
     test "before .write/2", %{structured_io: structured_io} do
       opener = "<elem>"
@@ -121,6 +153,22 @@ defmodule StructuredIOTest do
       assert StructuredIO.read_through(structured_io, delimiter) ==
              {:error,
               "In binary mode -- call StructuredIO.binread_through/2 instead"}
+    end
+  end
+
+  describe ".read_to/2" do
+    test "before .write/2", %{structured_io: structured_io} do
+      opener = "<elem>"
+      assert StructuredIO.read_to(structured_io, opener) == ""
+    end
+
+    test "after .binwrite/2", %{structured_io: structured_io} do
+      opener = <<0, 0, 0>>
+      scan_data = <<1, 2, 3, 255, 255, 255>> <> opener
+      :ok = StructuredIO.binwrite(structured_io, scan_data)
+      assert StructuredIO.read_to(structured_io, opener) ==
+             {:error,
+              "In binary mode -- call StructuredIO.binread_to/2 instead"}
     end
   end
 end

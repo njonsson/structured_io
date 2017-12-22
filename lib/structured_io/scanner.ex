@@ -18,7 +18,7 @@ defmodule StructuredIO.Scanner do
 
   @doc """
   Reads from the specified `scan_data` beginning with the specified `from_data`
-  and ending with the specified `through_data`.
+  and ending with the specified `through_data`, inclusive.
 
   If `scan_data` does not both begin with `from_data` and contain
   `through_data`, the result is `nil`.
@@ -72,7 +72,7 @@ defmodule StructuredIO.Scanner do
 
   @doc """
   Reads from the specified `scan_data` if and until the specified `through_data`
-  is encountered.
+  is encountered, including `through_data`.
 
   If `scan_data` does not contain `through_data`, the result is `nil`.
 
@@ -105,12 +105,52 @@ defmodule StructuredIO.Scanner do
   def scan_through(scan_data, through_data) do
     case scan("", scan_data, through_data) do
       nil           -> nil
-      {match, rest} -> {match, rest}
+      {match, rest} -> {match <> through_data, rest}
     end
   end
 
 
-  @spec scan(binary, binary, binary) :: {match, remaining} | nil
+  @doc """
+  Reads from the specified `scan_data` if and until the specified `to_data` is
+  encountered, excluding `to_data`.
+
+  If `scan_data` does not contain `to_data`, the result is `nil`.
+
+  ## Examples
+
+      iex> StructuredIO.Scanner.scan_to "foo</elem><elem",
+      ...>                              "<elem>"
+      nil
+
+      iex> StructuredIO.Scanner.scan_to "foo</elem><elem>bar</elem><elem>baz",
+      ...>                              "<elem>"
+      {"foo</elem>",
+       "<elem>bar</elem><elem>baz"}
+
+      iex> StructuredIO.Scanner.scan_to <<1, 2, 3, 255, 255, 255, 0, 0>>,
+      ...>                              <<0, 0, 0>>
+      nil
+
+      iex> StructuredIO.Scanner.scan_to <<1, 2, 3, 255, 255, 255, 0, 0, 0, 4, 5, 6, 255, 255, 255, 0, 0, 0, 7, 8, 9>>,
+      ...>                              <<0, 0, 0>>
+      {<<1, 2, 3, 255, 255, 255>>,
+       <<0, 0, 0, 4, 5, 6, 255, 255, 255, 0, 0, 0, 7, 8, 9>>}
+  """
+  @spec scan_to(binary, binary) :: {match, remaining} | nil
+
+  def scan_to(""=_scan_data, _to_data), do: nil
+
+  def scan_to(_scan_data, ""=_to_data), do: nil
+
+  def scan_to(scan_data, to_data) do
+    case scan("", scan_data, to_data) do
+      nil           -> nil
+      {match, rest} -> {match, to_data <> rest}
+    end
+  end
+
+
+  @spec scan(binary, binary, binary) :: {binary, binary} | nil
 
   defp scan(_, "", _), do: nil
 
@@ -125,7 +165,7 @@ defmodule StructuredIO.Scanner do
         rest = binary_part(scanning,
                            scanning_for_size,
                            byte_size(scanning) - scanning_for_size)
-        {before <> scanned, rest}
+        {before, rest}
       else
         scanning_first = binary_part(scanning, 0, 1)
         scanning_rest = binary_part(scanning, 1, byte_size(scanning) - 1)

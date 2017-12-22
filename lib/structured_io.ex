@@ -76,8 +76,8 @@ defmodule StructuredIO do
 
   @doc """
   Reads data from the specified `structured_io` if and until the specified
-  `through` is encountered, using the specified `timeout` (defaults to 5,000
-  milliseconds). The operation is Unicode-unsafe.
+  `through` is encountered, including `through`, using the specified `timeout`
+  (defaults to 5,000 milliseconds). The operation is Unicode-unsafe.
 
   If `through` is not encountered, the result is an empty binary (`""`).
 
@@ -112,11 +112,55 @@ defmodule StructuredIO do
 
 
   @doc """
+  Reads data from the specified `structured_io` if and until the specified `to`
+  is encountered, excluding `to`, using the specified `timeout` (defaults to
+  5,000 milliseconds). The operation is Unicode-unsafe.
+
+  If `to` is not encountered, the result is an empty binary (`""`).
+
+  ## Examples
+
+      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> StructuredIO.binwrite structured_io,
+      ...>                       <<1, 2, 3, 255, 255, 255, 0, 0>>
+      :ok
+      iex> StructuredIO.binread_to structured_io,
+      ...>                         <<0, 0, 0>>
+      ""
+      iex> StructuredIO.binwrite structured_io,
+      ...>                       <<0, 4, 5, 6, 255, 255, 255, 0, 0, 0, 7, 8, 9>>
+      :ok
+      iex> StructuredIO.binread_to structured_io,
+      ...>                         <<0, 0, 0>>
+      <<1, 2, 3, 255, 255, 255>>
+      iex> StructuredIO.binread_to structured_io,
+      ...>                         <<0, 0, 0>>
+      ""
+      iex> StructuredIO.binread_through structured_io,
+      ...>                              <<0, 0, 0>>
+      <<0, 0, 0>>
+      iex> StructuredIO.binread_to structured_io,
+      ...>                         <<0, 0, 0>>
+      <<4, 5, 6, 255, 255, 255>>
+      iex> StructuredIO.binread_to structured_io,
+      ...>                         <<0, 0, 0>>
+      ""
+  """
+  @spec binread_to(GenServer.server, binary) :: Scanner.match
+  @spec binread_to(GenServer.server, binary, timeout) :: Scanner.match
+  def binread_to(structured_io, to, timeout \\ 5000) do
+    request = {:binread_to, to}
+    GenServer.call structured_io, request, timeout
+  end
+
+
+  @doc """
   Asynchronously writes the specified `iodata` as a binary to the specified
   `structured_io`.  The operation is Unicode-unsafe.
 
-  See `#{inspect __MODULE__}.binread_across/3` and
-  `#{inspect __MODULE__}.binread_through/2` for examples.
+  See `#{inspect __MODULE__}.binread_across/3`,
+  `#{inspect __MODULE__}.binread_through/2`, and
+  `#{inspect __MODULE__}.binread_to/2` for examples.
   """
   @spec binwrite(GenServer.server, iodata) :: :ok | error
   def binwrite(structured_io, iodata) do
@@ -170,8 +214,8 @@ defmodule StructuredIO do
 
   @doc """
   Reads data from the specified `structured_io` if and until the specified
-  `through` is encountered, using the specified `timeout` (defaults to 5,000
-  milliseconds).
+  `through` is encountered, including `through`, using the specified `timeout`
+  (defaults to 5,000 milliseconds).
 
   If `through` is not encountered, the result is an empty binary (`""`).
 
@@ -206,6 +250,49 @@ defmodule StructuredIO do
 
 
   @doc """
+  Reads data from the specified `structured_io` if and until the specified `to`
+  is encountered, excluding `to`, using the specified `timeout` (defaults to
+  5,000 milliseconds).
+
+  If `through` is not encountered, the result is an empty binary (`""`).
+
+  ## Examples
+
+      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> StructuredIO.write structured_io,
+      ...>                    "foo</elem><elem"
+      :ok
+      iex> StructuredIO.read_to structured_io,
+      ...>                      "<elem>"
+      ""
+      iex> StructuredIO.write structured_io,
+      ...>                    ">bar</elem><elem>baz"
+      :ok
+      iex> StructuredIO.read_to structured_io,
+      ...>                      "<elem>"
+      "foo</elem>"
+      iex> StructuredIO.read_to structured_io,
+      ...>                      "<elem>"
+      ""
+      iex> StructuredIO.read_through structured_io,
+      ...>                           "<elem>"
+      "<elem>"
+      iex> StructuredIO.read_to structured_io,
+      ...>                      "<elem>"
+      "bar</elem>"
+      iex> StructuredIO.read_to structured_io,
+      ...>                      "<elem>"
+      ""
+  """
+  @spec read_to(GenServer.server, binary) :: binary
+  @spec read_to(GenServer.server, binary, timeout) :: binary
+  def read_to(structured_io, to, timeout \\ 5000) do
+    request = {:read_to, to}
+    GenServer.call structured_io, request, timeout
+  end
+
+
+  @doc """
   Starts a `#{inspect __MODULE__}` process without links (outside a
   supervision tree) with the specified `options`.
 
@@ -222,8 +309,9 @@ defmodule StructuredIO do
 
   See `#{inspect __MODULE__}.binread_across/3`,
   `#{inspect __MODULE__}.binread_through/2`,
-  `#{inspect __MODULE__}.read_across/3`, and
-  `#{inspect __MODULE__}.read_through/2` for examples.
+  `#{inspect __MODULE__}.binread_to/2`, `#{inspect __MODULE__}.read_across/3`,
+  `#{inspect __MODULE__}.read_through/2`, and `#{inspect __MODULE__}.read_to/2`
+  for examples.
   """
   @spec start_link :: GenServer.on_start
   @spec start_link(GenServer.options) :: GenServer.on_start
@@ -248,8 +336,9 @@ defmodule StructuredIO do
   Asynchronously writes the specified `chardata` as a binary to the specified
   `structured_io`.
 
-  See `#{inspect __MODULE__}.read_across/3` and
-  `#{inspect __MODULE__}.read_through/2` for examples.
+  See `#{inspect __MODULE__}.read_across/3`,
+  `#{inspect __MODULE__}.read_through/2`, and `#{inspect __MODULE__}.read_to/2`
+  for examples.
   """
   @spec write(GenServer.server, IO.chardata | String.Chars.t) :: :ok | error
   def write(structured_io, chardata) do
@@ -289,6 +378,20 @@ defmodule StructuredIO do
     iodata
     |> IO.iodata_to_binary
     |> Scanner.scan_through(binread_through)
+    |> read_reply(state)
+  end
+
+
+  def handle_call({:binread_to, _}, _from, %{mode: :unicode}=state) do
+    reply = mode_error("Unicode", "read_to/2")
+
+    {:reply, reply, state}
+  end
+
+  def handle_call({:binread_to, binread_to}, _from, %{data: iodata}=state) do
+    iodata
+    |> IO.iodata_to_binary
+    |> Scanner.scan_to(binread_to)
     |> read_reply(state)
   end
 
@@ -343,6 +446,20 @@ defmodule StructuredIO do
     chardata
     |> IO.chardata_to_string
     |> Scanner.scan_through(read_through)
+    |> read_reply(state)
+  end
+
+
+  def handle_call({:read_to, _}, _from, %{mode: :binary}=state) do
+    reply = mode_error("binary", "binread_to/2")
+
+    {:reply, reply, state}
+  end
+
+  def handle_call({:read_to, read_to}, _from, %{data: chardata}=state) do
+    chardata
+    |> IO.chardata_to_string
+    |> Scanner.scan_to(read_to)
     |> read_reply(state)
   end
 
