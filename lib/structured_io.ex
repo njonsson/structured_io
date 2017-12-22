@@ -197,66 +197,39 @@ defmodule StructuredIO do
 
   @doc """
   Starts a `#{inspect __MODULE__}` process without links (outside a
-  supervision tree).
-
-  See `#{inspect __MODULE__}.start_link/0`.
-  """
-  @spec start() :: GenServer.on_start
-  def start(), do: GenServer.start(__MODULE__, %State{})
-
-  @doc """
-  Starts a `#{inspect __MODULE__}` process without links (outside a
   supervision tree) with the specified `options`.
 
   See `#{inspect __MODULE__}.start_link/2`.
   """
-  @spec start([], GenServer.options) :: GenServer.on_start
-  def start([]=_args, options) do
-    GenServer.start __MODULE__, %State{}, options
-  end
+  @spec start :: GenServer.on_start
+  @spec start(GenServer.options) :: GenServer.on_start
+  def start(options \\ []), do: GenServer.start(__MODULE__, %State{}, options)
 
 
   @doc """
-  Starts a `#{inspect __MODULE__}` process linked to the current process.
+  Starts a `#{inspect __MODULE__}` process linked to the current process with
+  the specified `options`.
 
   See `#{inspect __MODULE__}.binread_across/3`,
   `#{inspect __MODULE__}.binread_through/2`,
   `#{inspect __MODULE__}.read_across/3`, and
   `#{inspect __MODULE__}.read_through/2` for examples.
   """
-  @spec start_link() :: GenServer.on_start
-  def start_link(), do: GenServer.start_link(__MODULE__, %State{})
-
-  @doc """
-  Starts a `#{inspect __MODULE__}` process linked to the current process with
-  the specified `options`.
-  """
-  @spec start_link([], GenServer.options) :: GenServer.on_start
-  def start_link([]=_args, options) do
+  @spec start_link :: GenServer.on_start
+  @spec start_link(GenServer.options) :: GenServer.on_start
+  def start_link(options \\ []) do
     GenServer.start_link __MODULE__, %State{}, options
   end
 
 
   @doc """
-  Synchronously stops the specified `structured_io` process with a reason of
-  `:normal` and an infinite timeout.
+  Synchronously stops the specified `structured_io` process with the specified
+  `reason` (defaults to `:normal`) and `timeout` (defaults to `:infinity`).
   """
   @spec stop(GenServer.server) :: :ok
-  def stop(structured_io), do: GenServer.stop(structured_io)
-
-  @doc """
-  Synchronously stops the specified `structured_io` process with the specified
-  `reason` and an infinite timeout.
-  """
   @spec stop(GenServer.server, term) :: :ok
-  def stop(structured_io, reason), do: GenServer.stop(structured_io, reason)
-
-  @doc """
-  Synchronously stops the specified `structured_io` process with the specified
-  `reason` and `timeout`.
-  """
   @spec stop(GenServer.server, term, timeout) :: :ok
-  def stop(structured_io, reason, timeout) do
+  def stop(structured_io, reason \\ :normal, timeout \\ :infinity) do
     GenServer.stop structured_io, reason, timeout
   end
 
