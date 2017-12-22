@@ -47,7 +47,7 @@ defmodule StructuredIO.Mixfile do
                      README.md
                      lib
                      mix.exs},
-     maintainers: ["Nils Jonsson <structured_io@nilsjonsson.com>"],
+     maintainers: ["Nils Jonsson <structured-io@nilsjonsson.com>"],
      licenses:    ["MIT"],
      links:       %{"Home"   => "https://njonsson.github.io/structured_io",
                     "Source" => "https://github.com/njonsson/structured_io",
