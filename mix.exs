@@ -12,7 +12,13 @@ defmodule StructuredIO.Mixfile do
       description: description(),
       package: package(),
       source_url: "https://github.com/njonsson/structured_io",
-      homepage_url: "https://njonsson.github.io/structured_io"
+      homepage_url: "https://njonsson.github.io/structured_io",
+      preferred_cli_env: %{:coveralls          => :test,
+                           :"coveralls.detail" => :test,
+                           :"coveralls.html"   => :test,
+                           :"coveralls.json"   => :test,
+                           :"coveralls.post"   => :test},
+      test_coverage: [tool: ExCoveralls]
     ]
   end
 
@@ -24,8 +30,9 @@ defmodule StructuredIO.Mixfile do
 
   defp deps do
     [
-      {:dialyxir, "~> 0.5",  only: :dev, runtime: false},
-      {:ex_doc,   "~> 0.18", only: :dev, runtime: false}
+      {:dialyxir,    "~> 0.5",  only: :dev,  runtime: false},
+      {:excoveralls, "~> 0.7",  only: :test, runtime: false},
+      {:ex_doc,      "~> 0.18", only: :dev,  runtime: false}
     ]
   end
 
