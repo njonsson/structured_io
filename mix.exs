@@ -8,7 +8,11 @@ defmodule StructuredIO.Mixfile do
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
       deps: deps(),
-      docs: docs()
+      docs: docs(),
+      description: description(),
+      package: package(),
+      source_url: "https://github.com/njonsson/structured_io",
+      homepage_url: "https://njonsson.github.io/structured_io"
     ]
   end
 
@@ -31,6 +35,23 @@ defmodule StructuredIO.Mixfile do
               "History.md": [filename: "history", title: "Project history"]],
      # logo: "assets/logo.png",
      main: "about"]
+  end
+
+  defp description do
+    "Mimics Elixir’s ‘IO’ module, but for structured data"
+  end
+
+  defp package do
+    [files:       ~w{History.md
+                     License.md
+                     README.md
+                     lib
+                     mix.exs},
+     maintainers: ["Nils Jonsson <structured_io@nilsjonsson.com>"],
+     licenses:    ["MIT"],
+     links:       %{"Home"   => "https://njonsson.github.io/structured_io",
+                    "Source" => "https://github.com/njonsson/structured_io",
+                    "Issues" => "https://github.com/njonsson/structured_io/issues"}]
   end
 
   defp version, do: "0.1.0"
