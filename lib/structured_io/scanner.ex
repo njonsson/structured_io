@@ -57,14 +57,13 @@ defmodule StructuredIO.Scanner do
 
   def scan_across(scan_data, from_data, through_data) do
     from_data_size = byte_size(from_data)
-    if binary_part(scan_data, 0, from_data_size) == from_data do
-      rest = binary_part(scan_data,
-                         from_data_size,
-                         byte_size(scan_data) - from_data_size)
-      case scan_through(rest, through_data) do
-        nil -> nil
-        {scanned_through, after_through} ->
-          {from_data <> scanned_through, after_through}
+    <<scan_data_beginning::binary-size(from_data_size),
+      scan_data_after_from::binary>> = scan_data
+    if scan_data_beginning == from_data do
+      with {scanned_through,
+            after_through_data} <- scan_through(scan_data_after_from,
+                                                through_data) do
+        {from_data <> scanned_through, after_through_data}
       end
     end
   end
@@ -103,9 +102,8 @@ defmodule StructuredIO.Scanner do
   def scan_through(_scan_data, ""=_through_data), do: nil
 
   def scan_through(scan_data, through_data) do
-    case scan("", scan_data, through_data) do
-      nil           -> nil
-      {match, rest} -> {match <> through_data, rest}
+    with {match, remainder} <- scan("", scan_data, through_data) do
+      {match <> through_data, remainder}
     end
   end
 
@@ -143,9 +141,8 @@ defmodule StructuredIO.Scanner do
   def scan_to(_scan_data, ""=_to_data), do: nil
 
   def scan_to(scan_data, to_data) do
-    case scan("", scan_data, to_data) do
-      nil           -> nil
-      {match, rest} -> {match, to_data <> rest}
+    with {match, remainder} <- scan("", scan_data, to_data) do
+      {match, to_data <> remainder}
     end
   end
 
@@ -157,22 +154,14 @@ defmodule StructuredIO.Scanner do
   defp scan(before, scanning, scanning_for) do
     scanning_size = byte_size(scanning)
     scanning_for_size = byte_size(scanning_for)
-    if scanning_size < scanning_for_size do
-      nil
-    else
-      scanned = binary_part(scanning, 0, scanning_for_size)
+    unless scanning_size < scanning_for_size do
+      <<scanned::binary-size(scanning_for_size),
+        after_scanning_for::binary>> = scanning
       if scanned == scanning_for do
-        rest = binary_part(scanning,
-                           scanning_for_size,
-                           byte_size(scanning) - scanning_for_size)
-        {before, rest}
+        {before, after_scanning_for}
       else
-        scanning_first = binary_part(scanning, 0, 1)
-        scanning_rest = binary_part(scanning, 1, byte_size(scanning) - 1)
-        case scan(before <> scanning_first, scanning_rest, scanning_for) do
-          nil   -> nil
-          other -> other
-        end
+        <<scanning_first::binary-size(1), scanning_rest::binary>> = scanning
+        scan((before <> scanning_first), scanning_rest, scanning_for)
       end
     end
   end

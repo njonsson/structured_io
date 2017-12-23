@@ -518,8 +518,8 @@ defmodule StructuredIO do
 
   defp read_reply(nil, state), do: {:reply, "", state}
 
-  defp read_reply({match, remaining}, state) do
-    new_state = %{state | data: remaining}
+  defp read_reply({match, remainder}, state) do
+    new_state = %{state | data: remainder}
 
     {:reply, match, new_state}
   end
