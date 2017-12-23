@@ -513,7 +513,7 @@ defmodule StructuredIO do
   end
 
 
-  @spec read_reply(nil | {Scanner.match, Scanner.remaining},
+  @spec read_reply(nil | {Scanner.match, Scanner.remainder},
                    State.t) :: {:reply, Scanner.match, State.t}
 
   defp read_reply(nil, state), do: {:reply, "", state}

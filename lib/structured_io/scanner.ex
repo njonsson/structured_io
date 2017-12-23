@@ -13,7 +13,7 @@ defmodule StructuredIO.Scanner do
   @typedoc """
   The data remaining after the `t:match/0` in a scan.
   """
-  @type remaining :: binary
+  @type remainder :: binary
 
 
   @doc """
@@ -47,7 +47,7 @@ defmodule StructuredIO.Scanner do
       {<<0, 0, 0, 1, 2, 3, 255, 255, 255>>,
        <<0, 0, 0, 4, 5, 6, 255, 255, 255>>}
   """
-  @spec scan_across(binary, binary, binary) :: {match, remaining} | nil
+  @spec scan_across(binary, binary, binary) :: {match, remainder} | nil
 
   def scan_across(""=_scan_data, _from_data, _through_data), do: nil
 
@@ -96,7 +96,7 @@ defmodule StructuredIO.Scanner do
       {<<1, 2, 3, 255, 255, 255>>,
        <<4, 5, 6, 255, 255, 255>>}
   """
-  @spec scan_through(binary, binary) :: {match, remaining} | nil
+  @spec scan_through(binary, binary) :: {match, remainder} | nil
 
   def scan_through(""=_scan_data, _through_data), do: nil
 
@@ -136,7 +136,7 @@ defmodule StructuredIO.Scanner do
       {<<1, 2, 3, 255, 255, 255>>,
        <<0, 0, 0, 4, 5, 6, 255, 255, 255, 0, 0, 0, 7, 8, 9>>}
   """
-  @spec scan_to(binary, binary) :: {match, remaining} | nil
+  @spec scan_to(binary, binary) :: {match, remainder} | nil
 
   def scan_to(""=_scan_data, _to_data), do: nil
 
