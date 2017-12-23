@@ -5,7 +5,7 @@ defmodule StructuredIO.Mixfile do
     [
       app: :structured_io,
       version: version(),
-      elixir: "~> 1.5",
+      elixir: "~> 1.4",
       start_permanent: Mix.env == :prod,
       deps: deps(),
       docs: docs(),
