@@ -254,7 +254,7 @@ defmodule StructuredIO do
   is encountered, excluding `to`, using the specified `timeout` (defaults to
   5,000 milliseconds).
 
-  If `through` is not encountered, the result is an empty binary (`""`).
+  If `to` is not encountered, the result is an empty binary (`""`).
 
   ## Examples
 
