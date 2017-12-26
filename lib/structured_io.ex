@@ -5,7 +5,7 @@ defmodule StructuredIO do
 
   ## Encoding
 
-  The process operates in either **binary mode** or **Unicode mode**, depending
+  The process operates in either **binary mode** or **Unicode mode** depending
   on the functions you call. The functions named `.binwrite` and `.binread_*`
   put the process in binary mode. The functions named `.write` and `.read_*` put
   the process in Unicode mode. Mixing the use of binary-mode functions and
