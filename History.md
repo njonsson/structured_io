@@ -1,5 +1,12 @@
 # Version history for the _StructuredIO_ project
 
+## v0.3.0
+
+**Tue 12/26/2017**
+
+* Prevent _UnicodeConversionError_ in read functions, returning an error tuple
+  instead
+
 ## v0.2.0
 
 **Fri 12/22/2017**
