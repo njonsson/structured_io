@@ -117,8 +117,7 @@ defmodule StructuredIOTest do
       scan_data = "foo" <> opener
       :ok = StructuredIO.write(structured_io, scan_data)
       assert StructuredIO.binread_to(structured_io, opener) ==
-             {:error,
-              "In Unicode mode -- call StructuredIO.read_to/2 instead"}
+             {:error, "In Unicode mode -- call StructuredIO.read_to/2 instead"}
     end
   end
 

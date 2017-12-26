@@ -57,13 +57,15 @@ defmodule StructuredIO.Scanner do
 
   def scan_across(scan_data, from_data, through_data) do
     from_data_size = byte_size(from_data)
-    <<scan_data_beginning::binary-size(from_data_size),
-      scan_data_after_from::binary>> = scan_data
-    if scan_data_beginning == from_data do
-      with {scanned_through,
-            after_through_data} <- scan_through(scan_data_after_from,
-                                                through_data) do
-        {from_data <> scanned_through, after_through_data}
+    if from_data_size <= byte_size(scan_data) do
+      <<scan_data_beginning::binary-size(from_data_size),
+        scan_data_after_from::binary>> = scan_data
+      if scan_data_beginning == from_data do
+        with {scanned_through,
+              after_through_data} <- scan_through(scan_data_after_from,
+                                                  through_data) do
+          {from_data <> scanned_through, after_through_data}
+        end
       end
     end
   end
@@ -116,23 +118,23 @@ defmodule StructuredIO.Scanner do
 
   ## Examples
 
-      iex> StructuredIO.Scanner.scan_to "foo</elem><elem",
-      ...>                              "<elem>"
+      iex> StructuredIO.Scanner.scan_to "foo<br /",
+      ...>                              "<br />"
       nil
 
-      iex> StructuredIO.Scanner.scan_to "foo</elem><elem>bar</elem><elem>baz",
-      ...>                              "<elem>"
-      {"foo</elem>",
-       "<elem>bar</elem><elem>baz"}
+      iex> StructuredIO.Scanner.scan_to "foo<br />bar<br />",
+      ...>                              "<br />"
+      {"foo",
+       "<br />bar<br />"}
 
-      iex> StructuredIO.Scanner.scan_to <<1, 2, 3, 255, 255, 255, 0, 0>>,
-      ...>                              <<0, 0, 0>>
+      iex> StructuredIO.Scanner.scan_to <<1, 2, 3, 255, 255>>,
+      ...>                              <<255, 255, 255>>
       nil
 
-      iex> StructuredIO.Scanner.scan_to <<1, 2, 3, 255, 255, 255, 0, 0, 0, 4, 5, 6, 255, 255, 255, 0, 0, 0, 7, 8, 9>>,
-      ...>                              <<0, 0, 0>>
-      {<<1, 2, 3, 255, 255, 255>>,
-       <<0, 0, 0, 4, 5, 6, 255, 255, 255, 0, 0, 0, 7, 8, 9>>}
+      iex> StructuredIO.Scanner.scan_to <<1, 2, 3, 255, 255, 255, 4, 5, 6, 255, 255, 255>>,
+      ...>                              <<255, 255, 255>>
+      {<<1, 2, 3>>,
+       <<255, 255, 255, 4, 5, 6, 255, 255, 255>>}
   """
   @spec scan_to(binary, binary) :: {match, remainder} | nil
 
