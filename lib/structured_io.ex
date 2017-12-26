@@ -628,7 +628,7 @@ defmodule StructuredIO do
   the specified `options`.
 
   See `#{inspect __MODULE__}.binread_across/3`,
-  See `#{inspect __MODULE__}.binread_between/3`,
+  `#{inspect __MODULE__}.binread_between/3`,
   `#{inspect __MODULE__}.binread_through/2`,
   `#{inspect __MODULE__}.binread_to/2`, `#{inspect __MODULE__}.read_across/3`,
   `#{inspect __MODULE__}.read_between/3`,
