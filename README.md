@@ -16,9 +16,10 @@ arrives in streaming fashion over TCP.
 
 ## Usage
 
-Here’s a contrived example that shows how to read structured data from a stream.
-This example depicts Unicode data, but binary data of any kind can be read and
-written with the `binread_across/3` and `binwrite/2` functions.
+Here’s a contrived example that shows how to write to and read structured data
+from a stream using the `StructuredIO.write` and `.read_*` functions. This
+example depicts Unicode data, but binary data of any kind can be written and
+read using the `StructuredIO.binwrite` and `StructuredIO.binread_*` functions.
 
 ```elixir
 iex> {:ok, structured_io} = StructuredIO.start_link
@@ -74,13 +75,14 @@ iex> StructuredIO.read_across structured_io,
 iex> StructuredIO.read_through structured_io,
 ...>                           "<hr />"
 "<hr />"
-iex> StructuredIO.read_across structured_io,
-...>                          "<p>",
-...>                          "</p>"
-"<p>bar</p>"
+iex> StructuredIO.read_between structured_io,
+...>                           "<p>",
+...>                           "</p>"
+"bar"
 ```
 
-We’ve read one element at a time from the available data in the stream.
+We’ve read one element at a time from the available data in the stream. The read
+operations demonstrate both seeking and skipping.
 
 ```elixir
 iex> StructuredIO.read_across structured_io,
