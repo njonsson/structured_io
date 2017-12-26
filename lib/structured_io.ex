@@ -43,8 +43,8 @@ defmodule StructuredIO do
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
-  `from` and ending with the specified `through`, using the specified `timeout`
-  (defaults to 5,000 milliseconds).
+  `from` and ending with the specified `through`, inclusive, using the specified
+  `timeout` (defaults to 5,000 milliseconds).
 
   If the data read does not begin with `from`, the result is an empty binary
   (`""`). Likewise, if `through` is not encountered, the result is an empty
@@ -110,6 +110,84 @@ defmodule StructuredIO do
                        timeout) :: binary | error
   def binread_across(structured_io, from, through, timeout \\ 5000) do
     request = {:binread_across, from, through}
+    structured_io
+    |> GenServer.call(request, timeout)
+    |> convert_if_error
+  end
+
+
+  @doc """
+  Reads data from the specified `structured_io` beginning with the specified
+  `after_data` and ending with the specified `before_data`, exclusive, using the
+  specified `timeout` (defaults to 5,000 milliseconds).
+
+  If the data read does not begin with `after_data`, the result is an empty
+  binary (`""`). Likewise, if `before_data` is not encountered, the result is an
+  empty binary.
+
+  ## Examples
+
+      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> StructuredIO.binwrite structured_io,
+      ...>                       <<0, 0, 0, 1, 2, 3, 255, 255>>
+      :ok
+      iex> StructuredIO.binread_between structured_io,
+      ...>                              <<0, 0, 0>>,
+      ...>                              <<255, 255, 255>>
+      ""
+      iex> StructuredIO.binwrite structured_io,
+      ...>                       <<255, 0, 0, 0, 4, 5, 6, 255, 255, 255>>
+      :ok
+      iex> StructuredIO.binread_between structured_io,
+      ...>                              <<0, 0, 0>>,
+      ...>                              <<255, 255, 255>>
+      <<1, 2, 3>>
+      iex> StructuredIO.binread_between structured_io,
+      ...>                              <<0, 0, 0>>,
+      ...>                              <<255, 255, 255>>
+      <<4, 5, 6>>
+      iex> StructuredIO.binread_between structured_io,
+      ...>                              <<0, 0, 0>>,
+      ...>                              <<255, 255, 255>>
+      ""
+
+      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> StructuredIO.binwrite structured_io,
+      ...>                       "<elem>"
+      :ok
+      iex> <<fragment1::binary-size(3), fragment2::binary>> = "😕"
+      iex> StructuredIO.binwrite structured_io,
+      ...>                       fragment1
+      :ok
+      iex> StructuredIO.binread_between structured_io,
+      ...>                              "<elem>",
+      ...>                              "</elem>"
+      ""
+      iex> StructuredIO.binwrite structured_io,
+      ...>                       fragment2
+      :ok
+      iex> StructuredIO.binwrite structured_io,
+      ...>                       "</elem>"
+      :ok
+      iex> StructuredIO.binread_between structured_io,
+      ...>                              "<elem>",
+      ...>                              "</elem>"
+      "😕"
+      iex> StructuredIO.binread_between structured_io,
+      ...>                              "<elem>",
+      ...>                              "</elem>"
+      ""
+  """
+  @spec binread_between(GenServer.server, binary, binary) :: binary | error
+  @spec binread_between(GenServer.server,
+                        binary,
+                        binary,
+                        timeout) :: binary | error
+  def binread_between(structured_io,
+                      after_data,
+                      before_data,
+                      timeout \\ 5000) do
+    request = {:binread_between, after_data, before_data}
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
@@ -244,6 +322,7 @@ defmodule StructuredIO do
   `structured_io`.
 
   See `#{inspect __MODULE__}.binread_across/3`,
+  `#{inspect __MODULE__}.binread_between/3`,
   `#{inspect __MODULE__}.binread_through/2`, and
   `#{inspect __MODULE__}.binread_to/2` for examples.
   """
@@ -258,8 +337,8 @@ defmodule StructuredIO do
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
-  `from` and ending with the specified `through`, using the specified `timeout`
-  (defaults to 5,000 milliseconds).
+  `from` and ending with the specified `through`, inclusive, using the specified
+  `timeout` (defaults to 5,000 milliseconds).
 
   If the data read does not begin with `from`, the result is an empty binary
   (`""`). Likewise, if `through` is not encountered, the result is an empty
@@ -326,6 +405,82 @@ defmodule StructuredIO do
                     timeout) :: binary | error
   def read_across(structured_io, from, through, timeout \\ 5000) do
     request = {:read_across, from, through}
+    structured_io
+    |> GenServer.call(request, timeout)
+    |> convert_if_error
+  end
+
+
+  @doc """
+  Reads data from the specified `structured_io` beginning with the specified
+  `after_data` and ending with the specified `before_data`, exclusive, using the
+  specified `timeout` (defaults to 5,000 milliseconds).
+
+  If the data read does not begin with `after_data`, the result is an empty
+  binary (`""`). Likewise, if `before_data` is not encountered, the result is an
+  empty binary.
+
+  ## Examples
+
+      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> StructuredIO.write structured_io,
+      ...>                    "<elem>foo</elem"
+      :ok
+      iex> StructuredIO.read_between structured_io,
+      ...>                           "<elem>",
+      ...>                           "</elem>"
+      ""
+      iex> StructuredIO.write structured_io,
+      ...>                    "><elem>bar</elem>"
+      :ok
+      iex> StructuredIO.read_between structured_io,
+      ...>                           "<elem>",
+      ...>                           "</elem>"
+      "foo"
+      iex> StructuredIO.read_between structured_io,
+      ...>                           "<elem>",
+      ...>                           "</elem>"
+      "bar"
+      iex> StructuredIO.read_between structured_io,
+      ...>                           "<elem>",
+      ...>                           "</elem>"
+      ""
+
+      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> StructuredIO.write structured_io,
+      ...>                    "<elem>"
+      :ok
+      iex> <<fragment1::binary-size(3), fragment2::binary>> = "😕"
+      iex> StructuredIO.write structured_io,
+      ...>                    fragment1
+      :ok
+      iex> StructuredIO.read_between structured_io,
+      ...>                           "<elem>",
+      ...>                           "</elem>"
+      {:error,
+       "UnicodeConversionError: incomplete encoding starting at <<240, 159, 152>>"}
+      iex> StructuredIO.write structured_io,
+      ...>                    fragment2
+      :ok
+      iex> StructuredIO.write structured_io,
+      ...>                    "</elem>"
+      :ok
+      iex> StructuredIO.read_between structured_io,
+      ...>                           "<elem>",
+      ...>                           "</elem>"
+      "😕"
+      iex> StructuredIO.read_between structured_io,
+      ...>                           "<elem>",
+      ...>                           "</elem>"
+      ""
+  """
+  @spec read_between(GenServer.server, binary, binary) :: binary | error
+  @spec read_between(GenServer.server,
+                     binary,
+                     binary,
+                     timeout) :: binary | error
+  def read_between(structured_io, after_data, before_data, timeout \\ 5000) do
+    request = {:read_between, after_data, before_data}
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
@@ -473,8 +628,10 @@ defmodule StructuredIO do
   the specified `options`.
 
   See `#{inspect __MODULE__}.binread_across/3`,
+  See `#{inspect __MODULE__}.binread_between/3`,
   `#{inspect __MODULE__}.binread_through/2`,
   `#{inspect __MODULE__}.binread_to/2`, `#{inspect __MODULE__}.read_across/3`,
+  `#{inspect __MODULE__}.read_between/3`,
   `#{inspect __MODULE__}.read_through/2`, and `#{inspect __MODULE__}.read_to/2`
   for examples.
   """
@@ -502,6 +659,7 @@ defmodule StructuredIO do
   `structured_io`.
 
   See `#{inspect __MODULE__}.read_across/3`,
+  `#{inspect __MODULE__}.read_between/3`,
   `#{inspect __MODULE__}.read_through/2`, and `#{inspect __MODULE__}.read_to/2`
   for examples.
   """
@@ -529,6 +687,22 @@ defmodule StructuredIO do
     iodata
     |> IO.iodata_to_binary
     |> Scanner.scan_across(binread_from, binread_through)
+    |> read_reply(state)
+  end
+
+
+  def handle_call({:binread_between, _, _}, _from, %{mode: :unicode}=state) do
+    reply = mode_error("Unicode", "read_between/3")
+
+    {:reply, reply, state}
+  end
+
+  def handle_call({:binread_between, after_data, before_data},
+                  _from,
+                  %{data: iodata}=state) do
+    iodata
+    |> IO.iodata_to_binary
+    |> Scanner.scan_between(after_data, before_data)
     |> read_reply(state)
   end
 
@@ -602,6 +776,28 @@ defmodule StructuredIO do
       string ->
         string
         |> Scanner.scan_across(read_from, read_through)
+        |> read_reply(state)
+    end
+  end
+
+
+  def handle_call({:read_between, _, _}, _from, %{mode: :binary}=state) do
+    reply = mode_error("binary", "binread_between/3")
+
+    {:reply, reply, state}
+  end
+
+  def handle_call({:read_between, after_data, before_data},
+                  _from,
+                  %{data: chardata}=state) do
+    try do
+      IO.chardata_to_string chardata
+    rescue
+      e in UnicodeConversionError -> {:reply, {:error, e}, state}
+    else
+      string ->
+        string
+        |> Scanner.scan_between(after_data, before_data)
         |> read_reply(state)
     end
   end

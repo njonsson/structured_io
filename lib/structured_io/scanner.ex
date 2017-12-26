@@ -62,9 +62,66 @@ defmodule StructuredIO.Scanner do
         scan_data_after_from::binary>> = scan_data
       if scan_data_beginning == from_data do
         with {scanned_through,
-              after_through_data} <- scan_through(scan_data_after_from,
-                                                  through_data) do
-          {from_data <> scanned_through, after_through_data}
+              remainder} <- scan_through(scan_data_after_from, through_data) do
+          {from_data <> scanned_through, remainder}
+        end
+      end
+    end
+  end
+
+
+  @doc """
+  Reads from the specified `scan_data` beginning with the specified `after_data`
+  and ending with the specified `before_data`, exclusive.
+
+  If `scan_data` does not both begin with `after_data` and contain
+  `before_data`, the result is `nil`.
+
+  ## Examples
+
+      iex> StructuredIO.Scanner.scan_between "<elem>foo</elem",
+      ...>                                   "<elem>",
+      ...>                                   "</elem>"
+      nil
+
+      iex> StructuredIO.Scanner.scan_between "<elem>foo</elem><elem>bar</elem>",
+      ...>                                   "<elem>",
+      ...>                                   "</elem>"
+      {"foo",
+       "<elem>bar</elem>"}
+
+      iex> StructuredIO.Scanner.scan_between <<0, 0, 0, 1, 2, 3, 255, 255>>,
+      ...>                                   <<0, 0, 0>>,
+      ...>                                   <<255, 255, 255>>
+      nil
+
+      iex> StructuredIO.Scanner.scan_between <<0, 0, 0, 1, 2, 3, 255, 255, 255, 0, 0, 0, 4, 5, 6, 255, 255, 255>>,
+      ...>                                   <<0, 0, 0>>,
+      ...>                                   <<255, 255, 255>>
+      {<<1, 2, 3>>,
+       <<0, 0, 0, 4, 5, 6, 255, 255, 255>>}
+  """
+  @spec scan_between(binary, binary, binary) :: {match, remainder} | nil
+
+  def scan_between(""=_scan_data, _after_data, _before_data), do: nil
+
+  def scan_between(_scan_data, ""=_after_data, _before_data), do: nil
+
+  def scan_between(_scan_data, _after_data, ""=_before_data), do: nil
+
+  def scan_between(scan_data, after_data, before_data) do
+    after_data_size = byte_size(after_data)
+    if after_data_size <= byte_size(scan_data) do
+      <<scan_data_beginning::binary-size(after_data_size),
+        scan_data_after_after::binary>> = scan_data
+      if scan_data_beginning == after_data do
+        with {match,
+              before_plus_remainder} <- scan_to(scan_data_after_after,
+                                                before_data) do
+          before_data_size = byte_size(before_data)
+          <<_::binary-size(before_data_size),
+            remainder::binary>> = before_plus_remainder
+          {match, remainder}
         end
       end
     end
