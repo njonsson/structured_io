@@ -1,11 +1,20 @@
 # Version history for the _StructuredIO_ project
 
+## v0.4.0
+
+**Tue 12/26/2017**
+
+* Introduce new *StructuredIO* functions:
+  - *.binread_between*
+  - *.read_between*
+* Introduce new *StructuredIO.Scanner* function *.scan_between*
+
 ## v0.3.0
 
 **Tue 12/26/2017**
 
-* Prevent _UnicodeConversionError_ in read functions, returning an error tuple
-  instead
+* Prevent [_UnicodeConversionError_][Elixir-UnicodeConversionError] in
+  *StructuredIO* read-oriented functions, returning an error tuple instead
 
 ## v0.2.0
 
@@ -26,3 +35,5 @@
 **Thu 12/21/2017**
 
 (First release)
+
+[Elixir-UnicodeConversionError]: https://hexdocs.pm/elixir/UnicodeConversionError.html "Elixir’s ‘UnicodeConversionError’ exception at HexDocs"
