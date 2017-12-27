@@ -382,7 +382,7 @@ defmodule StructuredIO do
       ...>                          "<elem>",
       ...>                          "</elem>"
       {:error,
-       "UnicodeConversionError: incomplete encoding starting at <<240, 159, 152>>"}
+       "UnicodeConversionError: incomplete encoding starting at \#{inspect fragment1}"}
       iex> StructuredIO.write structured_io,
       ...>                    fragment2
       :ok
@@ -458,7 +458,7 @@ defmodule StructuredIO do
       ...>                           "<elem>",
       ...>                           "</elem>"
       {:error,
-       "UnicodeConversionError: incomplete encoding starting at <<240, 159, 152>>"}
+       "UnicodeConversionError: incomplete encoding starting at \#{inspect fragment1}"}
       iex> StructuredIO.write structured_io,
       ...>                    fragment2
       :ok
@@ -524,7 +524,7 @@ defmodule StructuredIO do
       iex> StructuredIO.read_through structured_io,
       ...>                           "<br />"
       {:error,
-       "UnicodeConversionError: incomplete encoding starting at <<240, 159, 152>>"}
+       "UnicodeConversionError: incomplete encoding starting at \#{inspect fragment1}"}
       iex> StructuredIO.write structured_io,
       ...>                    fragment2
       :ok
@@ -588,7 +588,7 @@ defmodule StructuredIO do
       iex> StructuredIO.read_to structured_io,
       ...>                      "<br />"
       {:error,
-       "UnicodeConversionError: incomplete encoding starting at <<240, 159, 152>>"}
+       "UnicodeConversionError: incomplete encoding starting at \#{inspect fragment1}"}
       iex> StructuredIO.write structured_io,
       ...>                    fragment2
       :ok
