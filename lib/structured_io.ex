@@ -881,6 +881,10 @@ defmodule StructuredIO do
   end
 
 
+  @doc false
+  def init(args), do: {:ok, args}
+
+
   @spec build_log_message(binary) :: binary
   defp build_log_message(message) do
     "#{message} in #{inspect __MODULE__} #{inspect self()}"
