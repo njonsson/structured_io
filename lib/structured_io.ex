@@ -52,7 +52,8 @@ defmodule StructuredIO do
 
   ## Examples
 
-      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link
       iex> StructuredIO.binwrite structured_io,
       ...>                       <<0, 0, 0, 1, 2, 3, 255, 255>>
       :ok
@@ -76,7 +77,8 @@ defmodule StructuredIO do
       ...>                             <<255, 255, 255>>
       ""
 
-      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link
       iex> StructuredIO.binwrite structured_io,
       ...>                       "<elem>"
       :ok
@@ -127,7 +129,8 @@ defmodule StructuredIO do
 
   ## Examples
 
-      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link
       iex> StructuredIO.binwrite structured_io,
       ...>                       <<0, 0, 0, 1, 2, 3, 255, 255>>
       :ok
@@ -151,7 +154,8 @@ defmodule StructuredIO do
       ...>                              <<255, 255, 255>>
       ""
 
-      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link
       iex> StructuredIO.binwrite structured_io,
       ...>                       "<elem>"
       :ok
@@ -203,7 +207,8 @@ defmodule StructuredIO do
 
   ## Examples
 
-      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link
       iex> StructuredIO.binwrite structured_io,
       ...>                       <<1, 2, 3, 255, 255>>
       :ok
@@ -223,7 +228,8 @@ defmodule StructuredIO do
       ...>                              <<255, 255, 255>>
       ""
 
-      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link
       iex> <<fragment1::binary-size(3), fragment2::binary>> = "😕"
       iex> StructuredIO.binwrite structured_io,
       ...>                       fragment1
@@ -263,7 +269,8 @@ defmodule StructuredIO do
 
   ## Examples
 
-      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link
       iex> StructuredIO.binwrite structured_io,
       ...>                       <<1, 2, 3, 255, 255>>
       :ok
@@ -286,7 +293,8 @@ defmodule StructuredIO do
       ...>                         <<255, 255, 255>>
       ""
 
-      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link
       iex> <<fragment1::binary-size(3), fragment2::binary>> = "😕"
       iex> StructuredIO.binwrite structured_io,
       ...>                       fragment1
@@ -346,7 +354,8 @@ defmodule StructuredIO do
 
   ## Examples
 
-      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link
       iex> StructuredIO.write structured_io,
       ...>                    "<elem>foo</elem"
       :ok
@@ -370,7 +379,8 @@ defmodule StructuredIO do
       ...>                          "</elem>"
       ""
 
-      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link
       iex> StructuredIO.write structured_io,
       ...>                    "<elem>"
       :ok
@@ -422,7 +432,8 @@ defmodule StructuredIO do
 
   ## Examples
 
-      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link
       iex> StructuredIO.write structured_io,
       ...>                    "<elem>foo</elem"
       :ok
@@ -446,7 +457,8 @@ defmodule StructuredIO do
       ...>                           "</elem>"
       ""
 
-      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link
       iex> StructuredIO.write structured_io,
       ...>                    "<elem>"
       :ok
@@ -496,7 +508,8 @@ defmodule StructuredIO do
 
   ## Examples
 
-      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link
       iex> StructuredIO.write structured_io,
       ...>                    "foo<br /"
       :ok
@@ -516,7 +529,8 @@ defmodule StructuredIO do
       ...>                           "<br />"
       ""
 
-      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link
       iex> <<fragment1::binary-size(3), fragment2::binary>> = "😕"
       iex> StructuredIO.write structured_io,
       ...>                    fragment1
@@ -557,7 +571,8 @@ defmodule StructuredIO do
 
   ## Examples
 
-      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link
       iex> StructuredIO.write structured_io,
       ...>                    "foo<br /"
       :ok
@@ -580,7 +595,8 @@ defmodule StructuredIO do
       ...>                      "<br />"
       ""
 
-      iex> {:ok, structured_io} = StructuredIO.start_link
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link
       iex> <<fragment1::binary-size(3), fragment2::binary>> = "😕"
       iex> StructuredIO.write structured_io,
       ...>                    fragment1
