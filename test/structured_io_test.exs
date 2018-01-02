@@ -122,7 +122,7 @@ defmodule StructuredIOTest do
     end
 
     test "after .write/2", %{structured_io: structured_io} do
-      delimiter = "<br />"
+      delimiter = "<br/>"
       scan_data = "foo" <> delimiter
       :ok = StructuredIO.write(structured_io, scan_data)
       assert StructuredIO.binread_through(structured_io, delimiter) ==
@@ -200,7 +200,7 @@ defmodule StructuredIOTest do
 
   describe ".read_through/2" do
     test "before .write/2", %{structured_io: structured_io} do
-      delimiter = "<br />"
+      delimiter = "<br/>"
       assert StructuredIO.read_through(structured_io, delimiter) == ""
     end
 

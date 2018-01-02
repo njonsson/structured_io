@@ -235,19 +235,19 @@ defmodule StructuredIO do
       ...>                       fragment1
       :ok
       iex> StructuredIO.binread_through structured_io,
-      ...>                              "<br />"
+      ...>                              "<br/>"
       ""
       iex> StructuredIO.binwrite structured_io,
       ...>                       fragment2
       :ok
       iex> StructuredIO.binwrite structured_io,
-      ...>                       "<br />"
+      ...>                       "<br/>"
       :ok
       iex> StructuredIO.binread_through structured_io,
-      ...>                              "<br />"
-      "😕<br />"
+      ...>                              "<br/>"
+      "😕<br/>"
       iex> StructuredIO.binread_through structured_io,
-      ...>                              "<br />"
+      ...>                              "<br/>"
       ""
   """
   @spec binread_through(GenServer.server, binary) :: binary | error
@@ -300,19 +300,19 @@ defmodule StructuredIO do
       ...>                       fragment1
       :ok
       iex> StructuredIO.binread_to structured_io,
-      ...>                         "<br />"
+      ...>                         "<br/>"
       ""
       iex> StructuredIO.binwrite structured_io,
       ...>                       fragment2
       :ok
       iex> StructuredIO.binwrite structured_io,
-      ...>                       "<br />"
+      ...>                       "<br/>"
       :ok
       iex> StructuredIO.binread_to structured_io,
-      ...>                         "<br />"
+      ...>                         "<br/>"
       "😕"
       iex> StructuredIO.binread_to structured_io,
-      ...>                         "<br />"
+      ...>                         "<br/>"
       ""
   """
   @spec binread_to(GenServer.server, binary) :: binary | error
@@ -511,22 +511,22 @@ defmodule StructuredIO do
       iex> {:ok,
       ...>  structured_io} = StructuredIO.start_link
       iex> StructuredIO.write structured_io,
-      ...>                    "foo<br /"
+      ...>                    "foo<br/"
       :ok
       iex> StructuredIO.read_through structured_io,
-      ...>                           "<br />"
+      ...>                           "<br/>"
       ""
       iex> StructuredIO.write structured_io,
-      ...>                    ">bar<br />"
+      ...>                    ">bar<br/>"
       :ok
       iex> StructuredIO.read_through structured_io,
-      ...>                           "<br />"
-      "foo<br />"
+      ...>                           "<br/>"
+      "foo<br/>"
       iex> StructuredIO.read_through structured_io,
-      ...>                           "<br />"
-      "bar<br />"
+      ...>                           "<br/>"
+      "bar<br/>"
       iex> StructuredIO.read_through structured_io,
-      ...>                           "<br />"
+      ...>                           "<br/>"
       ""
 
       iex> {:ok,
@@ -536,20 +536,20 @@ defmodule StructuredIO do
       ...>                    fragment1
       :ok
       iex> StructuredIO.read_through structured_io,
-      ...>                           "<br />"
+      ...>                           "<br/>"
       {:error,
        "UnicodeConversionError: incomplete encoding starting at \#{inspect fragment1}"}
       iex> StructuredIO.write structured_io,
       ...>                    fragment2
       :ok
       iex> StructuredIO.write structured_io,
-      ...>                    "<br />"
+      ...>                    "<br/>"
       :ok
       iex> StructuredIO.read_through structured_io,
-      ...>                           "<br />"
-      "😕<br />"
+      ...>                           "<br/>"
+      "😕<br/>"
       iex> StructuredIO.read_through structured_io,
-      ...>                           "<br />"
+      ...>                           "<br/>"
       ""
   """
   @spec read_through(GenServer.server, binary) :: binary | error
@@ -574,25 +574,25 @@ defmodule StructuredIO do
       iex> {:ok,
       ...>  structured_io} = StructuredIO.start_link
       iex> StructuredIO.write structured_io,
-      ...>                    "foo<br /"
+      ...>                    "foo<br/"
       :ok
       iex> StructuredIO.read_to structured_io,
-      ...>                      "<br />"
+      ...>                      "<br/>"
       ""
       iex> StructuredIO.write structured_io,
-      ...>                    ">bar<br />"
+      ...>                    ">bar<br/>"
       :ok
       iex> StructuredIO.read_to structured_io,
-      ...>                      "<br />"
+      ...>                      "<br/>"
       "foo"
       iex> StructuredIO.read_through structured_io,
-      ...>                           "<br />"
-      "<br />"
+      ...>                           "<br/>"
+      "<br/>"
       iex> StructuredIO.read_to structured_io,
-      ...>                      "<br />"
+      ...>                      "<br/>"
       "bar"
       iex> StructuredIO.read_to structured_io,
-      ...>                      "<br />"
+      ...>                      "<br/>"
       ""
 
       iex> {:ok,
@@ -602,20 +602,20 @@ defmodule StructuredIO do
       ...>                    fragment1
       :ok
       iex> StructuredIO.read_to structured_io,
-      ...>                      "<br />"
+      ...>                      "<br/>"
       {:error,
        "UnicodeConversionError: incomplete encoding starting at \#{inspect fragment1}"}
       iex> StructuredIO.write structured_io,
       ...>                    fragment2
       :ok
       iex> StructuredIO.write structured_io,
-      ...>                    "<br />"
+      ...>                    "<br/>"
       :ok
       iex> StructuredIO.read_to structured_io,
-      ...>                      "<br />"
+      ...>                      "<br/>"
       "😕"
       iex> StructuredIO.read_to structured_io,
-      ...>                      "<br />"
+      ...>                      "<br/>"
       ""
   """
   @spec read_to(GenServer.server, binary) :: binary | error

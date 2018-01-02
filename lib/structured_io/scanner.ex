@@ -137,13 +137,13 @@ defmodule StructuredIO.Scanner do
   ## Examples
 
       iex> StructuredIO.Scanner.scan_through "foo<br /",
-      ...>                                   "<br />"
+      ...>                                   "<br/>"
       nil
 
-      iex> StructuredIO.Scanner.scan_through "foo<br />bar<br />",
-      ...>                                   "<br />"
-      {"foo<br />",
-       "bar<br />"}
+      iex> StructuredIO.Scanner.scan_through "foo<br/>bar<br/>",
+      ...>                                   "<br/>"
+      {"foo<br/>",
+       "bar<br/>"}
 
       iex> StructuredIO.Scanner.scan_through <<1, 2, 3, 255, 255>>,
       ...>                                   <<255, 255, 255>>
@@ -176,13 +176,13 @@ defmodule StructuredIO.Scanner do
   ## Examples
 
       iex> StructuredIO.Scanner.scan_to "foo<br /",
-      ...>                              "<br />"
+      ...>                              "<br/>"
       nil
 
-      iex> StructuredIO.Scanner.scan_to "foo<br />bar<br />",
-      ...>                              "<br />"
+      iex> StructuredIO.Scanner.scan_to "foo<br/>bar<br/>",
+      ...>                              "<br/>"
       {"foo",
-       "<br />bar<br />"}
+       "<br/>bar<br/>"}
 
       iex> StructuredIO.Scanner.scan_to <<1, 2, 3, 255, 255>>,
       ...>                              <<255, 255, 255>>
