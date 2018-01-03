@@ -37,6 +37,25 @@ defmodule StructuredIO do
 
 
   @typedoc """
+  A binary value which marks the beginning of an enclosed data element.
+
+  See `#{inspect __MODULE__}.read_across/3` and
+  `#{inspect __MODULE__}.read_between/3`.
+  """
+  @type left :: Scanner.left
+
+
+  @typedoc """
+  The portion of a binary value matched in a read operation.
+
+  See `#{inspect __MODULE__}.read_across/3`,
+  `#{inspect __MODULE__}.read_between/3`,
+  `#{inspect __MODULE__}.read_through/2`, and `#{inspect __MODULE__}.read_to/2`.
+  """
+  @type match :: Scanner.match
+
+
+  @typedoc """
   A mode of operation for the process: either binary or Unicode.
 
   See `#{inspect __MODULE__}.start/2` and `#{inspect __MODULE__}.start_link/2`.
@@ -46,23 +65,33 @@ defmodule StructuredIO do
   @valid_modes [:binary, :unicode]
 
 
+  @typedoc """
+  A binary value which marks the end of an enclosed or terminated data element.
+
+  See `#{inspect __MODULE__}.read_across/3`,
+  `#{inspect __MODULE__}.read_between/3`,
+  `#{inspect __MODULE__}.read_through/2`, and `#{inspect __MODULE__}.read_to/2`.
+  """
+  @type right :: Scanner.right
+
+
   @doc false
   defdelegate binread_across(structured_io,
-                             from,
-                             through,
+                             left,
+                             right,
                              timeout \\ 5000), to: Deprecated
 
 
   @doc false
   defdelegate binread_between(structured_io,
-                              after_data,
-                              before_data,
+                              left,
+                              right,
                               timeout \\ 5000), to: Deprecated
 
 
   @doc false
   defdelegate binread_through(structured_io,
-                              through,
+                              right,
                               timeout \\ 5000), to: Deprecated
 
 
@@ -98,11 +127,11 @@ defmodule StructuredIO do
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
-  `from` and ending with the specified `through`, inclusive, using the specified
+  `left` and ending with the specified `right`, inclusive, using the specified
   `timeout` (defaults to 5,000 milliseconds).
 
-  If the data read does not begin with `from`, the result is an empty binary
-  (`""`). Likewise, if `through` is not encountered, the result is an empty
+  If the data read does not begin with `left`, the result is an empty binary
+  (`""`). Likewise, if `right` is not encountered, the result is an empty
   binary.
 
   ## Examples
@@ -214,10 +243,10 @@ defmodule StructuredIO do
       ...>                          "</elem>"
       ""
   """
-  @spec read_across(GenServer.server, binary, binary) :: binary | error
-  @spec read_across(GenServer.server, binary, binary, timeout) :: binary | error
-  def read_across(structured_io, from, through, timeout \\ 5000) do
-    request = {:read_across, from, through}
+  @spec read_across(GenServer.server, left, right) :: match | error
+  @spec read_across(GenServer.server, left, right, timeout) :: match | error
+  def read_across(structured_io, left, right, timeout \\ 5000) do
+    request = {:read_across, left, right}
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
@@ -226,12 +255,12 @@ defmodule StructuredIO do
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
-  `after_data` and ending with the specified `before_data`, exclusive, using the
-  specified `timeout` (defaults to 5,000 milliseconds).
+  `left` and ending with the specified `right`, exclusive, using the specified
+  `timeout` (defaults to 5,000 milliseconds).
 
-  If the data read does not begin with `after_data`, the result is an empty
-  binary (`""`). Likewise, if `before_data` is not encountered, the result is an
-  empty binary.
+  If the data read does not begin with `left`, the result is an empty binary
+  (`""`). Likewise, if `right` is not encountered, the result is an empty
+  binary.
 
   ## Examples
 
@@ -342,13 +371,10 @@ defmodule StructuredIO do
       ...>                           "</elem>"
       ""
   """
-  @spec read_between(GenServer.server, binary, binary) :: binary | error
-  @spec read_between(GenServer.server,
-                     binary,
-                     binary,
-                     timeout) :: binary | error
-  def read_between(structured_io, after_data, before_data, timeout \\ 5000) do
-    request = {:read_between, after_data, before_data}
+  @spec read_between(GenServer.server, left, right) :: match | error
+  @spec read_between(GenServer.server, left, right, timeout) :: match | error
+  def read_between(structured_io, left, right, timeout \\ 5000) do
+    request = {:read_between, left, right}
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
@@ -357,10 +383,10 @@ defmodule StructuredIO do
 
   @doc """
   Reads data from the specified `structured_io` if and until the specified
-  `through` is encountered, including `through`, using the specified `timeout`
+  `right` is encountered, including `right`, using the specified `timeout`
   (defaults to 5,000 milliseconds).
 
-  If `through` is not encountered, the result is an empty binary (`""`).
+  If `right` is not encountered, the result is an empty binary (`""`).
 
   ## Examples
 
@@ -451,10 +477,10 @@ defmodule StructuredIO do
       ...>                           "<br/>"
       ""
   """
-  @spec read_through(GenServer.server, binary) :: binary | error
-  @spec read_through(GenServer.server, binary, timeout) :: binary | error
-  def read_through(structured_io, through, timeout \\ 5000) do
-    request = {:read_through, through}
+  @spec read_through(GenServer.server, right) :: match | error
+  @spec read_through(GenServer.server, right, timeout) :: match | error
+  def read_through(structured_io, right, timeout \\ 5000) do
+    request = {:read_through, right}
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
@@ -462,11 +488,11 @@ defmodule StructuredIO do
 
 
   @doc """
-  Reads data from the specified `structured_io` if and until the specified `to`
-  is encountered, excluding `to`, using the specified `timeout` (defaults to
-  5,000 milliseconds).
+  Reads data from the specified `structured_io` if and until the specified
+  `right` is encountered, excluding `right`, using the specified `timeout`
+  (defaults to 5,000 milliseconds).
 
-  If `to` is not encountered, the result is an empty binary (`""`).
+  If `right` is not encountered, the result is an empty binary (`""`).
 
   ## Examples
 
@@ -563,10 +589,10 @@ defmodule StructuredIO do
       ...>                      "<br/>"
       ""
   """
-  @spec read_to(GenServer.server, binary) :: binary | error
-  @spec read_to(GenServer.server, binary, timeout) :: binary | error
-  def read_to(structured_io, to, timeout \\ 5000) do
-    request = {:read_to, to}
+  @spec read_to(GenServer.server, right) :: match | error
+  @spec read_to(GenServer.server, right, timeout) :: match | error
+  def read_to(structured_io, right, timeout \\ 5000) do
+    request = {:read_to, right}
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
@@ -578,8 +604,8 @@ defmodule StructuredIO do
 
 
   @doc """
-  Starts a `#{inspect __MODULE__}` process without links (outside a
-  supervision tree) with the specified `mode` and `options`.
+  Starts a `#{inspect __MODULE__}` process without links (outside a supervision
+  tree) with the specified `mode` and `options`.
 
   ## Examples
 
@@ -661,37 +687,37 @@ defmodule StructuredIO do
   def handle_call(:mode, _from, %{mode: mode}=state), do: {:reply, mode, state}
 
 
-  def handle_call({:read_across, after_data, before_data}, _from, state) do
+  def handle_call({:read_across, left, right}, _from, state) do
     case binary_data(state) do
       {:error, _}=error ->
         {:reply, error, state}
       {:ok, binary} ->
         binary
-        |> Scanner.scan_across(after_data, before_data)
+        |> Scanner.scan_across(left, right)
         |> read_reply(state)
     end
   end
 
 
-  def handle_call({:read_between, after_data, before_data}, _from, state) do
+  def handle_call({:read_between, left, right}, _from, state) do
     case binary_data(state) do
       {:error, _}=error ->
         {:reply, error, state}
       {:ok, binary} ->
         binary
-        |> Scanner.scan_between(after_data, before_data)
+        |> Scanner.scan_between(left, right)
         |> read_reply(state)
     end
   end
 
 
-  def handle_call({:read_through, read_through}, _from, state) do
+  def handle_call({:read_through, right}, _from, state) do
     case binary_data(state) do
       {:error, _}=error ->
         {:reply, error, state}
       {:ok, binary} ->
         binary
-        |> Scanner.scan_through(read_through)
+        |> Scanner.scan_through(right)
         |> read_reply(state)
     end
   end
@@ -778,7 +804,7 @@ defmodule StructuredIO do
 
 
   @spec read_reply(nil | {Scanner.match, Scanner.remainder},
-                   State.t) :: {:reply, binary, State.t}
+                   State.t) :: {:reply, Scanner.match, State.t}
 
   defp read_reply(nil, state), do: {:reply, "", state}
 

@@ -19,11 +19,11 @@ defmodule StructuredIO.Deprecated do
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
-  `from` and ending with the specified `through`, inclusive, using the specified
+  `left` and ending with the specified `right`, inclusive, using the specified
   `timeout` (defaults to 5,000 milliseconds).
 
-  If the data read does not begin with `from`, the result is an empty binary
-  (`""`). Likewise, if `through` is not encountered, the result is an empty
+  If the data read does not begin with `left`, the result is an empty binary
+  (`""`). Likewise, if `right` is not encountered, the result is an empty
   binary.
 
   ## Examples
@@ -82,15 +82,16 @@ defmodule StructuredIO.Deprecated do
       ""
   """
   @spec binread_across(GenServer.server,
-                       binary,
-                       binary) :: binary | StructuredIO.error
+                       StructuredIO.left,
+                       StructuredIO.right) :: StructuredIO.match |
+                                              StructuredIO.error
   @spec binread_across(GenServer.server,
-                       binary,
-                       binary,
-                       timeout) :: binary | StructuredIO.error
-  def binread_across(structured_io, from, through, timeout \\ 5000) do
+                       StructuredIO.left,
+                       StructuredIO.right,
+                       timeout) :: StructuredIO.match | StructuredIO.error
+  def binread_across(structured_io, left, right, timeout \\ 5000) do
     log_warning_about_bin_function :binread_across, :read_across
-    request = {:deprecated_binread_across, from, through}
+    request = {:deprecated_binread_across, left, right}
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
@@ -99,12 +100,12 @@ defmodule StructuredIO.Deprecated do
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
-  `after_data` and ending with the specified `before_data`, exclusive, using the
-  specified `timeout` (defaults to 5,000 milliseconds).
+  `left` and ending with the specified `right`, exclusive, using the specified
+  `timeout` (defaults to 5,000 milliseconds).
 
-  If the data read does not begin with `after_data`, the result is an empty
-  binary (`""`). Likewise, if `before_data` is not encountered, the result is an
-  empty binary.
+  If the data read does not begin with `left`, the result is an empty binary
+  (`""`). Likewise, if `right` is not encountered, the result is an empty
+  binary.
 
   ## Examples
 
@@ -162,18 +163,16 @@ defmodule StructuredIO.Deprecated do
       ""
   """
   @spec binread_between(GenServer.server,
-                        binary,
-                        binary) :: binary | StructuredIO.error
+                        StructuredIO.left,
+                        StructuredIO.right) :: StructuredIO.match |
+                                               StructuredIO.error
   @spec binread_between(GenServer.server,
-                        binary,
-                        binary,
-                        timeout) :: binary | StructuredIO.error
-  def binread_between(structured_io,
-                      after_data,
-                      before_data,
-                      timeout \\ 5000) do
+                        StructuredIO.left,
+                        StructuredIO.right,
+                        timeout) :: StructuredIO.match | StructuredIO.error
+  def binread_between(structured_io, left, right, timeout \\ 5000) do
     log_warning_about_bin_function :binread_between, :read_between
-    request = {:deprecated_binread_between, after_data, before_data}
+    request = {:deprecated_binread_between, left, right}
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
@@ -182,10 +181,10 @@ defmodule StructuredIO.Deprecated do
 
   @doc """
   Reads data from the specified `structured_io` if and until the specified
-  `through` is encountered, including `through`, using the specified `timeout`
+  `right` is encountered, including `right`, using the specified `timeout`
   (defaults to 5,000 milliseconds).
 
-  If `through` is not encountered, the result is an empty binary (`""`).
+  If `right` is not encountered, the result is an empty binary (`""`).
 
   ## Examples
 
@@ -232,13 +231,15 @@ defmodule StructuredIO.Deprecated do
       ...>                              "<br/>"
       ""
   """
-  @spec binread_through(GenServer.server, binary) :: binary | StructuredIO.error
   @spec binread_through(GenServer.server,
-                        binary,
-                        timeout) :: binary | StructuredIO.error
-  def binread_through(structured_io, through, timeout \\ 5000) do
+                        StructuredIO.right) :: StructuredIO.match |
+                                               StructuredIO.error
+  @spec binread_through(GenServer.server,
+                        StructuredIO.right,
+                        timeout) :: StructuredIO.match | StructuredIO.error
+  def binread_through(structured_io, right, timeout \\ 5000) do
     log_warning_about_bin_function :binread_through, :read_through
-    request = {:deprecated_binread_through, through}
+    request = {:deprecated_binread_through, right}
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
@@ -246,11 +247,11 @@ defmodule StructuredIO.Deprecated do
 
 
   @doc """
-  Reads data from the specified `structured_io` if and until the specified `to`
-  is encountered, excluding `to`, using the specified `timeout` (defaults to
-  5,000 milliseconds).
+  Reads data from the specified `structured_io` if and until the specified
+  `right` is encountered, excluding `right`, using the specified `timeout`
+  (defaults to 5,000 milliseconds).
 
-  If `to` is not encountered, the result is an empty binary (`""`).
+  If `right` is not encountered, the result is an empty binary (`""`).
 
   ## Examples
 
@@ -300,13 +301,15 @@ defmodule StructuredIO.Deprecated do
       ...>                         "<br/>"
       ""
   """
-  @spec binread_to(GenServer.server, binary) :: binary | StructuredIO.error
   @spec binread_to(GenServer.server,
-                   binary,
-                   timeout) :: binary | StructuredIO.error
-  def binread_to(structured_io, to, timeout \\ 5000) do
+                   StructuredIO.right) :: StructuredIO.match |
+                                          StructuredIO.error
+  @spec binread_to(GenServer.server,
+                   StructuredIO.right,
+                   timeout) :: StructuredIO.match | StructuredIO.error
+  def binread_to(structured_io, right, timeout \\ 5000) do
     log_warning_about_bin_function :binread_to, :read_to
-    request = {:deprecated_binread_to, to}
+    request = {:deprecated_binread_to, right}
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
@@ -334,11 +337,11 @@ defmodule StructuredIO.Deprecated do
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
-  `from` and ending with the specified `through`, inclusive, using the specified
+  `left` and ending with the specified `right`, inclusive, using the specified
   `timeout` (defaults to 5,000 milliseconds).
 
-  If the data read does not begin with `from`, the result is an empty binary
-  (`""`). Likewise, if `through` is not encountered, the result is an empty
+  If the data read does not begin with `left`, the result is an empty binary
+  (`""`). Likewise, if `right` is not encountered, the result is an empty
   binary.
 
   ## Examples
@@ -398,14 +401,15 @@ defmodule StructuredIO.Deprecated do
       ""
   """
   @spec read_across(GenServer.server,
-                    binary,
-                    binary) :: binary | StructuredIO.error
+                    StructuredIO.left,
+                    StructuredIO.right) :: StructuredIO.match |
+                                           StructuredIO.error
   @spec read_across(GenServer.server,
-                    binary,
-                    binary,
-                    timeout) :: binary | StructuredIO.error
-  def read_across(structured_io, from, through, timeout \\ 5000) do
-    request = {:deprecated_read_across, from, through}
+                    StructuredIO.left,
+                    StructuredIO.right,
+                    timeout) :: StructuredIO.match | StructuredIO.error
+  def read_across(structured_io, left, right, timeout \\ 5000) do
+    request = {:deprecated_read_across, left, right}
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
@@ -414,12 +418,12 @@ defmodule StructuredIO.Deprecated do
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
-  `after_data` and ending with the specified `before_data`, exclusive, using the
-  specified `timeout` (defaults to 5,000 milliseconds).
+  `left` and ending with the specified `right`, exclusive, using the specified
+  `timeout` (defaults to 5,000 milliseconds).
 
-  If the data read does not begin with `after_data`, the result is an empty
-  binary (`""`). Likewise, if `before_data` is not encountered, the result is an
-  empty binary.
+  If the data read does not begin with `left`, the result is an empty binary
+  (`""`). Likewise, if `right` is not encountered, the result is an empty
+  binary.
 
   ## Examples
 
@@ -478,14 +482,15 @@ defmodule StructuredIO.Deprecated do
       ""
   """
   @spec read_between(GenServer.server,
-                     binary,
-                     binary) :: binary | StructuredIO.error
+                     StructuredIO.left,
+                     StructuredIO.right) :: StructuredIO.match |
+                                            StructuredIO.error
   @spec read_between(GenServer.server,
-                     binary,
-                     binary,
-                     timeout) :: binary | StructuredIO.error
-  def read_between(structured_io, after_data, before_data, timeout \\ 5000) do
-    request = {:deprecated_read_between, after_data, before_data}
+                     StructuredIO.left,
+                     StructuredIO.right,
+                     timeout) :: StructuredIO.match | StructuredIO.error
+  def read_between(structured_io, left, right, timeout \\ 5000) do
+    request = {:deprecated_read_between, left, right}
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
@@ -494,10 +499,10 @@ defmodule StructuredIO.Deprecated do
 
   @doc """
   Reads data from the specified `structured_io` if and until the specified
-  `through` is encountered, including `through`, using the specified `timeout`
+  `right` is encountered, including `right`, using the specified `timeout`
   (defaults to 5,000 milliseconds).
 
-  If `through` is not encountered, the result is an empty binary (`""`).
+  If `right` is not encountered, the result is an empty binary (`""`).
 
   ## Examples
 
@@ -545,12 +550,14 @@ defmodule StructuredIO.Deprecated do
       ...>                           "<br/>"
       ""
   """
-  @spec read_through(GenServer.server, binary) :: binary | StructuredIO.error
   @spec read_through(GenServer.server,
-                     binary,
-                     timeout) :: binary | StructuredIO.error
-  def read_through(structured_io, through, timeout \\ 5000) do
-    request = {:deprecated_read_through, through}
+                     StructuredIO.right) :: StructuredIO.match |
+                                            StructuredIO.error
+  @spec read_through(GenServer.server,
+                     StructuredIO.right,
+                     timeout) :: StructuredIO.match | StructuredIO.error
+  def read_through(structured_io, right, timeout \\ 5000) do
+    request = {:deprecated_read_through, right}
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
@@ -558,11 +565,11 @@ defmodule StructuredIO.Deprecated do
 
 
   @doc """
-  Reads data from the specified `structured_io` if and until the specified `to`
-  is encountered, excluding `to`, using the specified `timeout` (defaults to
-  5,000 milliseconds).
+  Reads data from the specified `structured_io` if and until the specified
+  `right` is encountered, excluding `right`, using the specified `timeout`
+  (defaults to 5,000 milliseconds).
 
-  If `to` is not encountered, the result is an empty binary (`""`).
+  If `right` is not encountered, the result is an empty binary (`""`).
 
   ## Examples
 
@@ -613,12 +620,13 @@ defmodule StructuredIO.Deprecated do
       ...>                      "<br/>"
       ""
   """
-  @spec read_to(GenServer.server, binary) :: binary | StructuredIO.error
   @spec read_to(GenServer.server,
-                binary,
-                timeout) :: binary | StructuredIO.error
-  def read_to(structured_io, to, timeout \\ 5000) do
-    request = {:deprecated_read_to, to}
+                StructuredIO.right) :: StructuredIO.match | StructuredIO.error
+  @spec read_to(GenServer.server,
+                StructuredIO.right,
+                timeout) :: StructuredIO.match | StructuredIO.error
+  def read_to(structured_io, right, timeout \\ 5000) do
+    request = {:deprecated_read_to, right}
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
@@ -671,12 +679,12 @@ defmodule StructuredIO.Deprecated do
   end
 
   @doc false
-  def handle_call({:deprecated_binread_across, binread_from, binread_through},
+  def handle_call({:deprecated_binread_across, left, right},
                   _from,
                   %{data: iodata}=state) do
     iodata
     |> IO.iodata_to_binary
-    |> Scanner.scan_across(binread_from, binread_through)
+    |> Scanner.scan_across(left, right)
     |> read_reply(state)
   end
 
@@ -691,12 +699,12 @@ defmodule StructuredIO.Deprecated do
   end
 
   @doc false
-  def handle_call({:deprecated_binread_between, after_data, before_data},
+  def handle_call({:deprecated_binread_between, left, right},
                   _from,
                   %{data: iodata}=state) do
     iodata
     |> IO.iodata_to_binary
-    |> Scanner.scan_between(after_data, before_data)
+    |> Scanner.scan_between(left, right)
     |> read_reply(state)
   end
 
@@ -711,12 +719,12 @@ defmodule StructuredIO.Deprecated do
   end
 
   @doc false
-  def handle_call({:deprecated_binread_through, binread_through},
+  def handle_call({:deprecated_binread_through, right},
                   _from,
                   %{data: iodata}=state) do
     iodata
     |> IO.iodata_to_binary
-    |> Scanner.scan_through(binread_through)
+    |> Scanner.scan_through(right)
     |> read_reply(state)
   end
 
@@ -731,12 +739,12 @@ defmodule StructuredIO.Deprecated do
   end
 
   @doc false
-  def handle_call({:deprecated_binread_to, binread_to},
+  def handle_call({:deprecated_binread_to, right},
                   _from,
                   %{data: iodata}=state) do
     iodata
     |> IO.iodata_to_binary
-    |> Scanner.scan_to(binread_to)
+    |> Scanner.scan_to(right)
     |> read_reply(state)
   end
 
@@ -766,7 +774,7 @@ defmodule StructuredIO.Deprecated do
   end
 
   @doc false
-  def handle_call({:deprecated_read_across, read_from, read_through},
+  def handle_call({:deprecated_read_across, left, right},
                   _from,
                   %{data: chardata}=state) do
     try do
@@ -776,7 +784,7 @@ defmodule StructuredIO.Deprecated do
     else
       string ->
         string
-        |> Scanner.scan_across(read_from, read_through)
+        |> Scanner.scan_across(left, right)
         |> read_reply(state)
     end
   end
@@ -792,7 +800,7 @@ defmodule StructuredIO.Deprecated do
   end
 
   @doc false
-  def handle_call({:deprecated_read_between, after_data, before_data},
+  def handle_call({:deprecated_read_between, left, right},
                   _from,
                   %{data: chardata}=state) do
     try do
@@ -802,7 +810,7 @@ defmodule StructuredIO.Deprecated do
     else
       string ->
         string
-        |> Scanner.scan_between(after_data, before_data)
+        |> Scanner.scan_between(left, right)
         |> read_reply(state)
     end
   end
@@ -818,7 +826,7 @@ defmodule StructuredIO.Deprecated do
   end
 
   @doc false
-  def handle_call({:deprecated_read_through, read_through},
+  def handle_call({:deprecated_read_through, right},
                   _from,
                   %{data: chardata}=state) do
     try do
@@ -828,7 +836,7 @@ defmodule StructuredIO.Deprecated do
     else
       string ->
         string
-        |> Scanner.scan_through(read_through)
+        |> Scanner.scan_through(right)
         |> read_reply(state)
     end
   end
@@ -940,7 +948,7 @@ defmodule StructuredIO.Deprecated do
 
 
   @spec read_reply(nil | {Scanner.match, Scanner.remainder},
-                   State.t) :: {:reply, binary, State.t}
+                   State.t) :: {:reply, Scanner.match, State.t}
 
   defp read_reply(nil, state), do: {:reply, "", state}
 

@@ -6,22 +6,35 @@ defmodule StructuredIO.Scanner do
 
 
   @typedoc """
-  The data matched in a scan.
+  A binary value which marks the beginning of an enclosed data element.
+  """
+  @type left :: binary
+
+
+  @typedoc """
+  The portion of a binary value matched in a scan.
   """
   @type match :: binary
 
+
   @typedoc """
-  The data remaining after the `t:match/0` in a scan.
+  The portion of a binary value remaining after the `t:match/0` in a scan.
   """
   @type remainder :: binary
 
 
-  @doc """
-  Reads from the specified `scan_data` beginning with the specified `from_data`
-  and ending with the specified `through_data`, inclusive.
+  @typedoc """
+  A binary value which marks the end of an enclosed or terminated data element.
+  """
+  @type right :: binary
 
-  If `scan_data` does not both begin with `from_data` and contain
-  `through_data`, the result is `nil`.
+
+  @doc """
+  Reads from the specified `data` beginning with the specified `left` and ending
+  with the specified `right`, inclusive.
+
+  If `data` does not both begin with `left` and contain `right`, the result is
+  `nil`.
 
   ## Examples
 
@@ -47,23 +60,23 @@ defmodule StructuredIO.Scanner do
       {<<0, 0, 0, 1, 2, 3, 255, 255, 255>>,
        <<0, 0, 0, 4, 5, 6, 255, 255, 255>>}
   """
-  @spec scan_across(binary, binary, binary) :: {match, remainder} | nil
+  @spec scan_across(binary, left, right) :: {match, remainder} | nil
 
-  def scan_across(""=_scan_data, _from_data, _through_data), do: nil
+  def scan_across(""=_data, _left, _right), do: nil
 
-  def scan_across(_scan_data, ""=_from_data, _through_data), do: nil
+  def scan_across(_data, ""=_left, _right), do: nil
 
-  def scan_across(_scan_data, _from_data, ""=_through_data), do: nil
+  def scan_across(_data, _left, ""=_right), do: nil
 
-  def scan_across(scan_data, from_data, through_data) do
-    from_data_size = byte_size(from_data)
-    if from_data_size <= byte_size(scan_data) do
-      <<scan_data_beginning::binary-size(from_data_size),
-        scan_data_after_from::binary>> = scan_data
-      if scan_data_beginning == from_data do
+  def scan_across(data, left, right) do
+    left_size = byte_size(left)
+    if left_size <= byte_size(data) do
+      <<data_beginning::binary-size(left_size),
+        data_after_left::binary>> = data
+      if data_beginning == left do
         with {scanned_through,
-              remainder} <- scan_through(scan_data_after_from, through_data) do
-          {from_data <> scanned_through, remainder}
+              remainder} <- scan_through(data_after_left, right) do
+          {left <> scanned_through, remainder}
         end
       end
     end
@@ -71,11 +84,11 @@ defmodule StructuredIO.Scanner do
 
 
   @doc """
-  Reads from the specified `scan_data` beginning with the specified `after_data`
-  and ending with the specified `before_data`, exclusive.
+  Reads from the specified `data` beginning with the specified `left` and ending
+  with the specified `right`, exclusive.
 
-  If `scan_data` does not both begin with `after_data` and contain
-  `before_data`, the result is `nil`.
+  If `data` does not both begin with `left` and contain `right`, the result is
+  `nil`.
 
   ## Examples
 
@@ -101,26 +114,26 @@ defmodule StructuredIO.Scanner do
       {<<1, 2, 3>>,
        <<0, 0, 0, 4, 5, 6, 255, 255, 255>>}
   """
-  @spec scan_between(binary, binary, binary) :: {match, remainder} | nil
+  @spec scan_between(binary, left, right) :: {match, remainder} | nil
 
-  def scan_between(""=_scan_data, _after_data, _before_data), do: nil
+  def scan_between(""=_data, _left, _right), do: nil
 
-  def scan_between(_scan_data, ""=_after_data, _before_data), do: nil
+  def scan_between(_data, ""=_left, _right), do: nil
 
-  def scan_between(_scan_data, _after_data, ""=_before_data), do: nil
+  def scan_between(_data, _left, ""=_right), do: nil
 
-  def scan_between(scan_data, after_data, before_data) do
-    after_data_size = byte_size(after_data)
-    if after_data_size <= byte_size(scan_data) do
-      <<scan_data_beginning::binary-size(after_data_size),
-        scan_data_after_after::binary>> = scan_data
-      if scan_data_beginning == after_data do
+  def scan_between(data, left, right) do
+    left_size = byte_size(left)
+    if left_size <= byte_size(data) do
+      <<data_beginning::binary-size(left_size),
+        data_after_left::binary>> = data
+      if data_beginning == left do
         with {match,
-              before_plus_remainder} <- scan_to(scan_data_after_after,
-                                                before_data) do
-          before_data_size = byte_size(before_data)
-          <<_::binary-size(before_data_size),
-            remainder::binary>> = before_plus_remainder
+              right_plus_remainder} <- scan_to(data_after_left,
+                                                right) do
+          right_size = byte_size(right)
+          <<_::binary-size(right_size),
+            remainder::binary>> = right_plus_remainder
           {match, remainder}
         end
       end
@@ -129,10 +142,10 @@ defmodule StructuredIO.Scanner do
 
 
   @doc """
-  Reads from the specified `scan_data` if and until the specified `through_data`
-  is encountered, including `through_data`.
+  Reads from the specified `data` if and until the specified `right` is
+  encountered, including `right`.
 
-  If `scan_data` does not contain `through_data`, the result is `nil`.
+  If `data` does not contain `right`, the result is `nil`.
 
   ## Examples
 
@@ -154,24 +167,24 @@ defmodule StructuredIO.Scanner do
       {<<1, 2, 3, 255, 255, 255>>,
        <<4, 5, 6, 255, 255, 255>>}
   """
-  @spec scan_through(binary, binary) :: {match, remainder} | nil
+  @spec scan_through(binary, right) :: {match, remainder} | nil
 
-  def scan_through(""=_scan_data, _through_data), do: nil
+  def scan_through(""=_data, _right), do: nil
 
-  def scan_through(_scan_data, ""=_through_data), do: nil
+  def scan_through(_data, ""=_right), do: nil
 
-  def scan_through(scan_data, through_data) do
-    with {match, remainder} <- scan("", scan_data, through_data) do
-      {match <> through_data, remainder}
+  def scan_through(data, right) do
+    with {match, remainder} <- scan("", data, right) do
+      {match <> right, remainder}
     end
   end
 
 
   @doc """
-  Reads from the specified `scan_data` if and until the specified `to_data` is
-  encountered, excluding `to_data`.
+  Reads from the specified `data` if and until the specified `right` is
+  encountered, excluding `right`.
 
-  If `scan_data` does not contain `to_data`, the result is `nil`.
+  If `data` does not contain `right`, the result is `nil`.
 
   ## Examples
 
@@ -193,15 +206,15 @@ defmodule StructuredIO.Scanner do
       {<<1, 2, 3>>,
        <<255, 255, 255, 4, 5, 6, 255, 255, 255>>}
   """
-  @spec scan_to(binary, binary) :: {match, remainder} | nil
+  @spec scan_to(binary, right) :: {match, remainder} | nil
 
-  def scan_to(""=_scan_data, _to_data), do: nil
+  def scan_to(""=_data, _right), do: nil
 
-  def scan_to(_scan_data, ""=_to_data), do: nil
+  def scan_to(_data, ""=_right), do: nil
 
-  def scan_to(scan_data, to_data) do
-    with {match, remainder} <- scan("", scan_data, to_data) do
-      {match, to_data <> remainder}
+  def scan_to(data, right) do
+    with {match, remainder} <- scan("", data, right) do
+      {match, right <> remainder}
     end
   end
 
