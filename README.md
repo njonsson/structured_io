@@ -6,8 +6,11 @@
 [<img alt="Hex release" src="https://img.shields.io/hexpm/v/structured_io.svg" />][Hex-release]
 
 _StructuredIO_ resembles Elixir’s [_IO_][Elixir-IO] module. The difference is
-that whereas _IO_ can handle a stream of bytes or lines, _StructuredIO_ can
-handle a stream of structured data, such as markup or other application data.
+that whereas _IO_ gives you sequential access to a freeform stream of bytes or
+lines of data, _StructuredIO_ guarantees that when you read data it conforms to
+a structure that you specify. Reads are contingent on the data’s conformity to a
+structure. That is to say, only complete data elements are read, so that your
+application can more easily handle truncated or streaming application data.
 
 You may find _StructuredIO_ useful for reassembling application data that
 arrives in streaming fashion over TCP.

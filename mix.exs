@@ -45,7 +45,7 @@ defmodule StructuredIO.Mixfile do
   end
 
   defp description do
-    "Mimics Elixir’s ‘IO’ module, but for structured data"
+    "Resembles Elixir’s ‘IO’ module, but guarantees the reading of structured data"
   end
 
   defp package do
