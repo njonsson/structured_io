@@ -23,8 +23,7 @@ data that arrives in streaming fashion over TCP.
 Here’s a contrived example that shows how to write to and read structured data
 using the `StructuredIO.write` and `.read_*` functions. This example depicts
 Unicode data, but binary data of any kind can be written and read, too. See
-[the <small>API</small> reference][HexDocs-project-API-reference] for detailed
-examples.
+[the API reference][HexDocs-project-API-reference] for detailed examples.
 
 ```elixir
 iex> {:ok, structured_io} = StructuredIO.start_link(:unicode)
