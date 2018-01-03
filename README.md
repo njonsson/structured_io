@@ -15,14 +15,16 @@ application data.
 Among other applications, you may find _StructuredIO_ useful for reassembling
 data that arrives in streaming fashion over TCP.
 
-**See what’s changed lately by reading [the project history][project-history].**
+**See what’s changed lately by reading
+[the project history][GitHub-project-history].**
 
 ## Usage
 
 Here’s a contrived example that shows how to write to and read structured data
 using the `StructuredIO.write` and `.read_*` functions. This example depicts
-Unicode data, but binary data of any kind can be written and read, too. See the
-<small>API</small> documentation for detailed examples.
+Unicode data, but binary data of any kind can be written and read, too. See
+[the <small>API</small> reference][HexDocs-project-API-reference] for detailed
+examples.
 
 ```elixir
 iex> {:ok, structured_io} = StructuredIO.start_link(:unicode)
@@ -128,42 +130,43 @@ end
 
 To submit a patch to the project:
 
-1. [Fork][fork-project] the official repository.
+1. [Fork][GitHub-fork-project] the official repository.
 2. Create your feature branch: `git checkout -b my-new-feature`.
 3. Commit your changes: `git commit -am 'Add some feature'`.
 4. Push to the branch: `git push origin my-new-feature`.
-5. [Create][compare-project-branches] a new pull request.
+5. [Create][GitHub-compare-project-branches] a new pull request.
 
 After cloning the repository, `mix deps.get` to install dependencies. Then
-`mix test` to run the tests. You can also `iex` to get an interactive prompt that
-will allow you to experiment. To build this package, `mix hex.build`.
+`mix test` to run the tests. You can also `iex` to get an interactive prompt
+that will allow you to experiment. To build this package, `mix hex.build`.
 
 To release a new version:
 
-1. Update [the project history in _History.md_][project-history], and then
-   commit.
-2. Update the version number in [_mix.exs_][mix-dot-exs-file] respecting
+1. Update [the project history in _History.md_][GitHub-project-history], and
+   then commit.
+2. Update the version number in [_mix.exs_][GitHub-mix-dot-exs-file] respecting
    [Semantic Versioning][Semantic-Versioning], update
    [the “Installation” section](#installation) of
-   [this readme][readme-dot-md-file] to reference the new version, and then
-   commit.
+   [this readme][GitHub-readme-dot-md-file] to reference the new version, and
+   then commit.
 3. Build and publish [the Hex package][Hex-release] with `mix hex.publish`.
 4. Tag with a name like `vMAJOR.MINOR.PATCH` corresponding to the new version,
    and then push commits and tags.
 
 ## License
 
-Released under the [MIT License][MIT-License].
+Released under the [MIT License][GitHub-project-MIT-License].
 
-[Travis-CI-build-status]:         http://travis-ci.org/njonsson/structured_io                                  "Travis CI build status for ‘StructuredIO’"
-[HexFaktor-deps-status]:          https://beta.hexfaktor.org/github/njonsson/structured_io                     "HexFaktor dependencies status for ‘StructuredIO’"
-[Coveralls-test-coverage-status]: https://coveralls.io/r/njonsson/structured_io?branch=master                  "Coveralls test coverage status"
-[Hex-release]:                    https://hex.pm/packages/structured_io                                        "Hex release of ‘StructuredIO’"
-[Elixir-IO]:                      https://hexdocs.pm/elixir/IO.html                                            "Elixir’s ‘IO’ module at HexDocs"
-[project-history]:                https://github.com/njonsson/structured_io/blob/master/History.md             "‘StructuredIO’ project history"
-[fork-project]:                   https://github.com/njonsson/structured_io/fork                               "Fork the official repository of ‘StructuredIO’"
-[compare-project-branches]:       https://github.com/njonsson/structured_io/compare                            "Compare branches of ‘StructuredIO’ repositories"
-[mix-dot-exs-file]:               https://github.com/njonsson/structured_io/blob/master/mix.exs                "‘StructuredIO’ project ‘mix.exs’ file"
-[Semantic-Versioning]:            http://semver.org/
-[readme-dot-md-file]:             https://github.com/njonsson/structured_io/blob/master/README.md#installation "‘StructuredIO’ project ‘README.md’ file"
-[MIT-License]:                    http://github.com/njonsson/structured_io/blob/master/License.md              "MIT License claim for ‘StructuredIO’"
+[Travis-CI-build-status]:          http://travis-ci.org/njonsson/structured_io                                  "Travis CI build status for ‘StructuredIO’"
+[HexFaktor-deps-status]:           https://beta.hexfaktor.org/github/njonsson/structured_io                     "HexFaktor dependencies status for ‘StructuredIO’"
+[Coveralls-test-coverage-status]:  https://coveralls.io/r/njonsson/structured_io?branch=master                  "Coveralls test coverage status"
+[Hex-release]:                     https://hex.pm/packages/structured_io                                        "Hex release of ‘StructuredIO’"
+[Elixir-IO]:                       https://hexdocs.pm/elixir/IO.html                                            "Elixir’s ‘IO’ module at HexDocs"
+[HexDocs-project-API-reference]:   https://hexdocs.pm/structured_io/api-reference.html                          "‘StructuredIO’ API reference at HexDocs"
+[GitHub-project-history]:          https://github.com/njonsson/structured_io/blob/master/History.md             "‘StructuredIO’ project history"
+[GitHub-fork-project]:             https://github.com/njonsson/structured_io/fork                               "Fork the official repository of ‘StructuredIO’"
+[GitHub-compare-project-branches]: https://github.com/njonsson/structured_io/compare                            "Compare branches of ‘StructuredIO’ repositories"
+[GitHub-mix-dot-exs-file]:         https://github.com/njonsson/structured_io/blob/master/mix.exs                "‘StructuredIO’ project ‘mix.exs’ file"
+[Semantic-Versioning]:             http://semver.org/
+[GitHub-readme-dot-md-file]:       https://github.com/njonsson/structured_io/blob/master/README.md#installation "‘StructuredIO’ project ‘README.md’ file"
+[GitHub-project-MIT-License]:      http://github.com/njonsson/structured_io/blob/master/License.md              "MIT License claim for ‘StructuredIO’"
