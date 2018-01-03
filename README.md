@@ -8,12 +8,12 @@
 _StructuredIO_ resembles Elixir’s [_IO_][Elixir-IO] module. The difference is
 that whereas _IO_ gives you sequential access to a freeform stream of bytes or
 lines of data, _StructuredIO_ guarantees that when you read data it conforms to
-a structure that you specify. Reads are contingent on the data’s conformity to a
-structure. That is to say, only complete data elements are read, so that your
-application can more easily handle truncated or streaming application data.
+a structure that you specify. That is to say, only complete data elements are
+read, so that your application can more easily handle truncated or streaming
+application data.
 
-You may find _StructuredIO_ useful for reassembling application data that
-arrives in streaming fashion over TCP.
+Among other applications, you may find _StructuredIO_ useful for reassembling
+data that arrives in streaming fashion over TCP.
 
 **See what’s changed lately by reading [the project history][project-history].**
 
