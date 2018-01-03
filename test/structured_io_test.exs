@@ -3,8 +3,10 @@ defmodule StructuredIOTest do
   doctest StructuredIO
 
   setup do
-    {:ok, structured_io} = StructuredIO.start_link
-    {:ok, structured_io: structured_io}
+    {:ok, structured_io_binary_mode} = StructuredIO.start_link(:binary)
+    {:ok, structured_io_unicode_mode} = StructuredIO.start_link(:unicode)
+    {:ok, structured_io_binary_mode: structured_io_binary_mode,
+          structured_io_unicode_mode: structured_io_unicode_mode}
   end
 
   def with_random_io_lists(%{size: size, count: count}, fun) do
@@ -15,23 +17,23 @@ defmodule StructuredIOTest do
     end
   end
 
-  describe ".binread_across/3" do
-    test "before .binwrite/2", %{structured_io: structured_io} do
+  describe ".read_across/3" do
+    test "before .write/2", %{structured_io_binary_mode: structured_io} do
       opener = <<0, 0, 0>>
       closer = <<255, 255, 255>>
-      assert StructuredIO.binread_across(structured_io, opener, closer) == ""
+      assert StructuredIO.read_across(structured_io, opener, closer) == ""
     end
 
     @tag :slow
-    test "with a large dataset", %{structured_io: structured_io} do
+    test "with a large dataset", %{structured_io_binary_mode: structured_io} do
       opener = <<0, 0, 0>>
       closer = <<255, 255, 255>>
-      :ok = StructuredIO.binwrite(structured_io, opener)
+      :ok = StructuredIO.write(structured_io, opener)
       with_random_io_lists %{size: 100, count: 200_000}, fn io_list ->
-        :ok = StructuredIO.binwrite(structured_io, io_list)
+        :ok = StructuredIO.write(structured_io, io_list)
       end
-      :ok = StructuredIO.binwrite(structured_io, closer)
-      result = StructuredIO.binread_across(structured_io,
+      :ok = StructuredIO.write(structured_io, closer)
+      result = StructuredIO.read_across(structured_io,
                                            opener,
                                            closer,
                                            12_000)
@@ -46,35 +48,25 @@ defmodule StructuredIOTest do
                                   byte_size(closer))
       assert end_of_result == closer
     end
-
-    test "after .write/2", %{structured_io: structured_io} do
-      opener = "<elem>"
-      closer = "</elem>"
-      scan_data = opener <> "foo" <> closer
-      :ok = StructuredIO.write(structured_io, scan_data)
-      assert StructuredIO.binread_across(structured_io, opener, closer) ==
-             {:error,
-              "In Unicode mode -- call StructuredIO.read_across/3 instead"}
-    end
   end
 
-  describe ".binread_between/3" do
-    test "before .binwrite/2", %{structured_io: structured_io} do
+  describe ".read_between/3" do
+    test "before .write/2", %{structured_io_binary_mode: structured_io} do
       opener = <<0, 0, 0>>
       closer = <<255, 255, 255>>
-      assert StructuredIO.binread_between(structured_io, opener, closer) == ""
+      assert StructuredIO.read_between(structured_io, opener, closer) == ""
     end
 
     @tag :slow
-    test "with a large dataset", %{structured_io: structured_io} do
+    test "with a large dataset", %{structured_io_binary_mode: structured_io} do
       opener = <<0, 0, 0>>
       closer = <<255, 255, 255>>
-      :ok = StructuredIO.binwrite(structured_io, opener)
+      :ok = StructuredIO.write(structured_io, opener)
       with_random_io_lists %{size: 100, count: 200_000}, fn io_list ->
-        :ok = StructuredIO.binwrite(structured_io, io_list)
+        :ok = StructuredIO.write(structured_io, io_list)
       end
-      :ok = StructuredIO.binwrite(structured_io, closer)
-      result = StructuredIO.binread_between(structured_io,
+      :ok = StructuredIO.write(structured_io, closer)
+      result = StructuredIO.read_between(structured_io,
                                             opener,
                                             closer,
                                             12_000)
@@ -87,32 +79,22 @@ defmodule StructuredIOTest do
                                   byte_size(closer))
       refute end_of_result == closer
     end
-
-    test "after .write/2", %{structured_io: structured_io} do
-      opener = "<elem>"
-      closer = "</elem>"
-      scan_data = opener <> "foo" <> closer
-      :ok = StructuredIO.write(structured_io, scan_data)
-      assert StructuredIO.binread_between(structured_io, opener, closer) ==
-             {:error,
-              "In Unicode mode -- call StructuredIO.read_between/3 instead"}
-    end
   end
 
-  describe ".binread_through/2" do
-    test "before .binwrite/2", %{structured_io: structured_io} do
+  describe ".read_through/2" do
+    test "before .write/2", %{structured_io_binary_mode: structured_io} do
       delimiter = <<255, 255, 255>>
-      assert StructuredIO.binread_through(structured_io, delimiter) == ""
+      assert StructuredIO.read_through(structured_io, delimiter) == ""
     end
 
     @tag :slow
-    test "with a large dataset", %{structured_io: structured_io} do
+    test "with a large dataset", %{structured_io_binary_mode: structured_io} do
       delimiter = <<255, 255, 255, 255, 255>>
       with_random_io_lists %{size: 100, count: 200_000}, fn io_list ->
-        :ok = StructuredIO.binwrite(structured_io, io_list)
+        :ok = StructuredIO.write(structured_io, io_list)
       end
-      :ok = StructuredIO.binwrite(structured_io, delimiter)
-      result = StructuredIO.binread_through(structured_io, delimiter, 12_000)
+      :ok = StructuredIO.write(structured_io, delimiter)
+      result = StructuredIO.read_through(structured_io, delimiter, 12_000)
       result_byte_size = byte_size(result)
       assert result_byte_size == 20_000_000 + byte_size(delimiter)
       end_of_result = binary_part(result,
@@ -120,113 +102,28 @@ defmodule StructuredIOTest do
                                   byte_size(delimiter))
       assert end_of_result == delimiter
     end
-
-    test "after .write/2", %{structured_io: structured_io} do
-      delimiter = "<br/>"
-      scan_data = "foo" <> delimiter
-      :ok = StructuredIO.write(structured_io, scan_data)
-      assert StructuredIO.binread_through(structured_io, delimiter) ==
-             {:error,
-              "In Unicode mode -- call StructuredIO.read_through/2 instead"}
-    end
   end
 
-  describe ".binread_to/2" do
-    test "before .binwrite/2", %{structured_io: structured_io} do
+  describe ".read_to/2" do
+    test "before .write/2", %{structured_io_binary_mode: structured_io} do
       opener = <<0, 0, 0>>
-      assert StructuredIO.binread_to(structured_io, opener) == ""
+      assert StructuredIO.read_to(structured_io, opener) == ""
     end
 
     @tag :slow
-    test "with a large dataset", %{structured_io: structured_io} do
+    test "with a large dataset", %{structured_io_binary_mode: structured_io} do
       opener = <<0, 0, 0, 0, 0>>
       with_random_io_lists %{size: 100, count: 200_000}, fn io_list ->
-        :ok = StructuredIO.binwrite(structured_io, io_list)
+        :ok = StructuredIO.write(structured_io, io_list)
       end
-      :ok = StructuredIO.binwrite(structured_io, opener)
-      result = StructuredIO.binread_to(structured_io, opener, 12_000)
+      :ok = StructuredIO.write(structured_io, opener)
+      result = StructuredIO.read_to(structured_io, opener, 12_000)
       result_byte_size = byte_size(result)
       assert result_byte_size == 20_000_000
       end_of_result = binary_part(result,
                                   result_byte_size - byte_size(opener),
                                   byte_size(opener))
       assert end_of_result != opener
-    end
-
-    test "after .write/2", %{structured_io: structured_io} do
-      opener = "<elem>"
-      scan_data = "foo" <> opener
-      :ok = StructuredIO.write(structured_io, scan_data)
-      assert StructuredIO.binread_to(structured_io, opener) ==
-             {:error, "In Unicode mode -- call StructuredIO.read_to/2 instead"}
-    end
-  end
-
-  describe ".read_across/3" do
-    test "before .write/2", %{structured_io: structured_io} do
-      opener = "<elem>"
-      closer = "</elem>"
-      assert StructuredIO.read_across(structured_io, opener, closer) == ""
-    end
-
-    test "after .binwrite/2", %{structured_io: structured_io} do
-      opener = <<0, 0, 0>>
-      closer = <<255, 255, 255>>
-      scan_data = opener <> <<1, 2, 3>> <> closer
-      :ok = StructuredIO.binwrite(structured_io, scan_data)
-      assert StructuredIO.read_across(structured_io, opener, closer) ==
-             {:error,
-              "In binary mode -- call StructuredIO.binread_across/3 instead"}
-    end
-  end
-
-  describe ".read_between/3" do
-    test "before .write/2", %{structured_io: structured_io} do
-      opener = "<elem>"
-      closer = "</elem>"
-      assert StructuredIO.read_between(structured_io, opener, closer) == ""
-    end
-
-    test "after .binwrite/2", %{structured_io: structured_io} do
-      opener = <<0, 0, 0>>
-      closer = <<255, 255, 255>>
-      scan_data = opener <> <<1, 2, 3>> <> closer
-      :ok = StructuredIO.binwrite(structured_io, scan_data)
-      assert StructuredIO.read_between(structured_io, opener, closer) ==
-             {:error,
-              "In binary mode -- call StructuredIO.binread_between/3 instead"}
-    end
-  end
-
-  describe ".read_through/2" do
-    test "before .write/2", %{structured_io: structured_io} do
-      delimiter = "<br/>"
-      assert StructuredIO.read_through(structured_io, delimiter) == ""
-    end
-
-    test "after .binwrite/2", %{structured_io: structured_io} do
-      delimiter = <<255, 255, 255>>
-      scan_data = <<1, 2, 3>> <> delimiter
-      :ok = StructuredIO.binwrite(structured_io, scan_data)
-      assert StructuredIO.read_through(structured_io, delimiter) ==
-             {:error,
-              "In binary mode -- call StructuredIO.binread_through/2 instead"}
-    end
-  end
-
-  describe ".read_to/2" do
-    test "before .write/2", %{structured_io: structured_io} do
-      opener = "<elem>"
-      assert StructuredIO.read_to(structured_io, opener) == ""
-    end
-
-    test "after .binwrite/2", %{structured_io: structured_io} do
-      delimiter = <<255, 255, 255>>
-      scan_data = <<1, 2, 3>> <> delimiter
-      :ok = StructuredIO.binwrite(structured_io, scan_data)
-      assert StructuredIO.read_to(structured_io, delimiter) ==
-             {:error,
-              "In binary mode -- call StructuredIO.binread_to/2 instead"}
     end
   end
 end

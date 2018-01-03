@@ -17,15 +17,16 @@ arrives in streaming fashion over TCP.
 ## Usage
 
 Here’s a contrived example that shows how to write to and read structured data
-from a stream using the `StructuredIO.write` and `.read_*` functions. This
-example depicts Unicode data, but binary data of any kind can be written and
-read using the `StructuredIO.binwrite` and `StructuredIO.binread_*` functions.
+using the `StructuredIO.write` and `.read_*` functions. This example depicts
+Unicode data, but binary data of any kind can be written and read, too. See the
+<small>API</small> documentation for detailed examples.
 
 ```elixir
-iex> {:ok, structured_io} = StructuredIO.start_link
+iex> {:ok, structured_io} = StructuredIO.start_link(:unicode)
 ```
 
-Now we have a running _StructuredIO_ process.
+Now we have a running _StructuredIO_ process that expects properly encoded
+Unicode data.
 
 ```elixir
 iex> StructuredIO.write structured_io,

@@ -5,15 +5,11 @@ defmodule StructuredIO do
 
   ## Encoding
 
-  The process operates in either **binary mode** or **Unicode mode** depending
-  on the functions you call. The functions named `.binwrite` and `.binread_*`
-  put the process in binary mode. The functions named `.write` and `.read_*` put
-  the process in Unicode mode. Mixing the use of binary-mode functions and
-  Unicode-mode functions results in an `t:error/0`.
-
-  When calling the `.binread_*` functions, the result is a binary, regardless of
-  whether the data read is `String.valid?/1`. In contrast, the `.read_*`
-  functions return an `t:error/0` if the data read is not properly encoded
+  The process operates in either **binary mode** or **Unicode mode** (see
+  `#{inspect __MODULE__}.start/2` and `#{inspect __MODULE__}.start_link/2`).
+  When in binary mode, the result of a read operation is a binary, regardless of
+  whether the data read is `String.valid?/1`. In Unicode mode, the result of a
+  read operation is an `t:error/0` if the data read is not properly encoded
   Unicode data.
   """
 
@@ -24,15 +20,14 @@ defmodule StructuredIO do
     defstruct data: [], mode: nil
 
     @typedoc false
-    @type t :: %__MODULE__{data: iodata, mode: nil | :binary | :unicode}
+    @type t :: %__MODULE__{data: iodata | IO.chardata | String.Chars.t,
+                           mode: StructuredIO.mode}
   end
 
 
   use GenServer
 
-  require Logger
-
-  alias StructuredIO.Scanner
+  alias StructuredIO.{Deprecated,Scanner}
 
 
   @typedoc """
@@ -41,6 +36,66 @@ defmodule StructuredIO do
   @type error :: {:error, atom | binary}
 
 
+  @typedoc """
+  A mode of operation for the process: either binary or Unicode.
+
+  See `#{inspect __MODULE__}.start/2` and `#{inspect __MODULE__}.start_link/2`.
+  """
+  @type mode :: :binary | :unicode
+
+  @valid_modes [:binary, :unicode]
+
+
+  @doc false
+  defdelegate binread_across(structured_io,
+                             from,
+                             through,
+                             timeout \\ 5000), to: Deprecated
+
+
+  @doc false
+  defdelegate binread_between(structured_io,
+                              after_data,
+                              before_data,
+                              timeout \\ 5000), to: Deprecated
+
+
+  @doc false
+  defdelegate binread_through(structured_io,
+                              through,
+                              timeout \\ 5000), to: Deprecated
+
+
+  @doc false
+  defdelegate binread_to(structured_io, to, timeout \\ 5000), to: Deprecated
+
+
+  @doc false
+  defdelegate binwrite(structured_io, iodata), to: Deprecated
+
+
+  @doc """
+  Gets the mode of the specified `structured_io`.
+
+  ## Examples
+
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:binary)
+      iex> StructuredIO.mode structured_io
+      :binary
+
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:unicode)
+      iex> StructuredIO.mode structured_io
+      :unicode
+  """
+  @spec mode(GenServer.server) :: mode
+  def mode(structured_io) do
+    request = :mode
+    GenServer.call structured_io, request
+  end
+
+
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
   `from` and ending with the specified `through`, inclusive, using the specified
@@ -53,309 +108,32 @@ defmodule StructuredIO do
   ## Examples
 
       iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       <<0, 0, 0, 1, 2, 3, 255, 255>>
+      ...>  structured_io} = StructuredIO.start_link(:binary)
+      iex> StructuredIO.write structured_io,
+      ...>                    <<0, 0, 0, 1, 2, 3, 255, 255>>
       :ok
-      iex> StructuredIO.binread_across structured_io,
-      ...>                             <<0, 0, 0>>,
-      ...>                             <<255, 255, 255>>
+      iex> StructuredIO.read_across structured_io,
+      ...>                          <<0, 0, 0>>,
+      ...>                          <<255, 255, 255>>
       ""
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       <<255, 0, 0, 0, 4, 5, 6, 255, 255, 255>>
+      iex> StructuredIO.write structured_io,
+      ...>                    <<255, 0, 0, 0, 4, 5, 6, 255, 255, 255>>
       :ok
-      iex> StructuredIO.binread_across structured_io,
-      ...>                             <<0, 0, 0>>,
-      ...>                             <<255, 255, 255>>
+      iex> StructuredIO.read_across structured_io,
+      ...>                          <<0, 0, 0>>,
+      ...>                          <<255, 255, 255>>
       <<0, 0, 0, 1, 2, 3, 255, 255, 255>>
-      iex> StructuredIO.binread_across structured_io,
-      ...>                             <<0, 0, 0>>,
-      ...>                             <<255, 255, 255>>
+      iex> StructuredIO.read_across structured_io,
+      ...>                          <<0, 0, 0>>,
+      ...>                          <<255, 255, 255>>
       <<0, 0, 0, 4, 5, 6, 255, 255, 255>>
-      iex> StructuredIO.binread_across structured_io,
-      ...>                             <<0, 0, 0>>,
-      ...>                             <<255, 255, 255>>
+      iex> StructuredIO.read_across structured_io,
+      ...>                          <<0, 0, 0>>,
+      ...>                          <<255, 255, 255>>
       ""
 
       iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       "<elem>"
-      :ok
-      iex> <<fragment1::binary-size(3), fragment2::binary>> = "😕"
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       fragment1
-      :ok
-      iex> StructuredIO.binread_across structured_io,
-      ...>                             "<elem>",
-      ...>                             "</elem>"
-      ""
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       fragment2
-      :ok
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       "</elem>"
-      :ok
-      iex> StructuredIO.binread_across structured_io,
-      ...>                             "<elem>",
-      ...>                             "</elem>"
-      "<elem>😕</elem>"
-      iex> StructuredIO.binread_across structured_io,
-      ...>                             "<elem>",
-      ...>                             "</elem>"
-      ""
-  """
-  @spec binread_across(GenServer.server, binary, binary) :: binary | error
-  @spec binread_across(GenServer.server,
-                       binary,
-                       binary,
-                       timeout) :: binary | error
-  def binread_across(structured_io, from, through, timeout \\ 5000) do
-    request = {:binread_across, from, through}
-    structured_io
-    |> GenServer.call(request, timeout)
-    |> convert_if_error
-  end
-
-
-  @doc """
-  Reads data from the specified `structured_io` beginning with the specified
-  `after_data` and ending with the specified `before_data`, exclusive, using the
-  specified `timeout` (defaults to 5,000 milliseconds).
-
-  If the data read does not begin with `after_data`, the result is an empty
-  binary (`""`). Likewise, if `before_data` is not encountered, the result is an
-  empty binary.
-
-  ## Examples
-
-      iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       <<0, 0, 0, 1, 2, 3, 255, 255>>
-      :ok
-      iex> StructuredIO.binread_between structured_io,
-      ...>                              <<0, 0, 0>>,
-      ...>                              <<255, 255, 255>>
-      ""
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       <<255, 0, 0, 0, 4, 5, 6, 255, 255, 255>>
-      :ok
-      iex> StructuredIO.binread_between structured_io,
-      ...>                              <<0, 0, 0>>,
-      ...>                              <<255, 255, 255>>
-      <<1, 2, 3>>
-      iex> StructuredIO.binread_between structured_io,
-      ...>                              <<0, 0, 0>>,
-      ...>                              <<255, 255, 255>>
-      <<4, 5, 6>>
-      iex> StructuredIO.binread_between structured_io,
-      ...>                              <<0, 0, 0>>,
-      ...>                              <<255, 255, 255>>
-      ""
-
-      iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       "<elem>"
-      :ok
-      iex> <<fragment1::binary-size(3), fragment2::binary>> = "😕"
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       fragment1
-      :ok
-      iex> StructuredIO.binread_between structured_io,
-      ...>                              "<elem>",
-      ...>                              "</elem>"
-      ""
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       fragment2
-      :ok
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       "</elem>"
-      :ok
-      iex> StructuredIO.binread_between structured_io,
-      ...>                              "<elem>",
-      ...>                              "</elem>"
-      "😕"
-      iex> StructuredIO.binread_between structured_io,
-      ...>                              "<elem>",
-      ...>                              "</elem>"
-      ""
-  """
-  @spec binread_between(GenServer.server, binary, binary) :: binary | error
-  @spec binread_between(GenServer.server,
-                        binary,
-                        binary,
-                        timeout) :: binary | error
-  def binread_between(structured_io,
-                      after_data,
-                      before_data,
-                      timeout \\ 5000) do
-    request = {:binread_between, after_data, before_data}
-    structured_io
-    |> GenServer.call(request, timeout)
-    |> convert_if_error
-  end
-
-
-  @doc """
-  Reads data from the specified `structured_io` if and until the specified
-  `through` is encountered, including `through`, using the specified `timeout`
-  (defaults to 5,000 milliseconds).
-
-  If `through` is not encountered, the result is an empty binary (`""`).
-
-  ## Examples
-
-      iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       <<1, 2, 3, 255, 255>>
-      :ok
-      iex> StructuredIO.binread_through structured_io,
-      ...>                              <<255, 255, 255>>
-      ""
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       <<255, 4, 5, 6, 255, 255, 255>>
-      :ok
-      iex> StructuredIO.binread_through structured_io,
-      ...>                              <<255, 255, 255>>
-      <<1, 2, 3, 255, 255, 255>>
-      iex> StructuredIO.binread_through structured_io,
-      ...>                              <<255, 255, 255>>
-      <<4, 5, 6, 255, 255, 255>>
-      iex> StructuredIO.binread_through structured_io,
-      ...>                              <<255, 255, 255>>
-      ""
-
-      iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link
-      iex> <<fragment1::binary-size(3), fragment2::binary>> = "😕"
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       fragment1
-      :ok
-      iex> StructuredIO.binread_through structured_io,
-      ...>                              "<br/>"
-      ""
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       fragment2
-      :ok
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       "<br/>"
-      :ok
-      iex> StructuredIO.binread_through structured_io,
-      ...>                              "<br/>"
-      "😕<br/>"
-      iex> StructuredIO.binread_through structured_io,
-      ...>                              "<br/>"
-      ""
-  """
-  @spec binread_through(GenServer.server, binary) :: binary | error
-  @spec binread_through(GenServer.server, binary, timeout) :: binary | error
-  def binread_through(structured_io, through, timeout \\ 5000) do
-    request = {:binread_through, through}
-    structured_io
-    |> GenServer.call(request, timeout)
-    |> convert_if_error
-  end
-
-
-  @doc """
-  Reads data from the specified `structured_io` if and until the specified `to`
-  is encountered, excluding `to`, using the specified `timeout` (defaults to
-  5,000 milliseconds).
-
-  If `to` is not encountered, the result is an empty binary (`""`).
-
-  ## Examples
-
-      iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       <<1, 2, 3, 255, 255>>
-      :ok
-      iex> StructuredIO.binread_to structured_io,
-      ...>                         <<255, 255, 255>>
-      ""
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       <<255, 4, 5, 6, 255, 255, 255>>
-      :ok
-      iex> StructuredIO.binread_to structured_io,
-      ...>                         <<255, 255, 255>>
-      <<1, 2, 3>>
-      iex> StructuredIO.binread_through structured_io,
-      ...>                              <<255, 255, 255>>
-      <<255, 255, 255>>
-      iex> StructuredIO.binread_to structured_io,
-      ...>                         <<255, 255, 255>>
-      <<4, 5, 6>>
-      iex> StructuredIO.binread_to structured_io,
-      ...>                         <<255, 255, 255>>
-      ""
-
-      iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link
-      iex> <<fragment1::binary-size(3), fragment2::binary>> = "😕"
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       fragment1
-      :ok
-      iex> StructuredIO.binread_to structured_io,
-      ...>                         "<br/>"
-      ""
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       fragment2
-      :ok
-      iex> StructuredIO.binwrite structured_io,
-      ...>                       "<br/>"
-      :ok
-      iex> StructuredIO.binread_to structured_io,
-      ...>                         "<br/>"
-      "😕"
-      iex> StructuredIO.binread_to structured_io,
-      ...>                         "<br/>"
-      ""
-  """
-  @spec binread_to(GenServer.server, binary) :: binary | error
-  @spec binread_to(GenServer.server, binary, timeout) :: binary | error
-  def binread_to(structured_io, to, timeout \\ 5000) do
-    request = {:binread_to, to}
-    structured_io
-    |> GenServer.call(request, timeout)
-    |> convert_if_error
-  end
-
-
-  @doc """
-  Asynchronously writes the specified `iodata` as a binary to the specified
-  `structured_io`.
-
-  See `#{inspect __MODULE__}.binread_across/3`,
-  `#{inspect __MODULE__}.binread_between/3`,
-  `#{inspect __MODULE__}.binread_through/2`, and
-  `#{inspect __MODULE__}.binread_to/2` for examples.
-  """
-  @spec binwrite(GenServer.server, iodata) :: :ok | error
-  def binwrite(structured_io, iodata) do
-    request = {:binwrite, iodata}
-    structured_io
-    |> GenServer.call(request)
-    |> convert_if_error
-  end
-
-
-  @doc """
-  Reads data from the specified `structured_io` beginning with the specified
-  `from` and ending with the specified `through`, inclusive, using the specified
-  `timeout` (defaults to 5,000 milliseconds).
-
-  If the data read does not begin with `from`, the result is an empty binary
-  (`""`). Likewise, if `through` is not encountered, the result is an empty
-  binary.
-
-  ## Examples
-
-      iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link
+      ...>  structured_io} = StructuredIO.start_link(:unicode)
       iex> StructuredIO.write structured_io,
       ...>                    "<elem>foo</elem"
       :ok
@@ -380,7 +158,35 @@ defmodule StructuredIO do
       ""
 
       iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link
+      ...>  structured_io} = StructuredIO.start_link(:binary)
+      iex> StructuredIO.write structured_io,
+      ...>                    "<elem>"
+      :ok
+      iex> <<fragment1::binary-size(3), fragment2::binary>> = "😕"
+      iex> StructuredIO.write structured_io,
+      ...>                    fragment1
+      :ok
+      iex> StructuredIO.read_across structured_io,
+      ...>                          "<elem>",
+      ...>                          "</elem>"
+      ""
+      iex> StructuredIO.write structured_io,
+      ...>                    fragment2
+      :ok
+      iex> StructuredIO.write structured_io,
+      ...>                    "</elem>"
+      :ok
+      iex> StructuredIO.read_across structured_io,
+      ...>                          "<elem>",
+      ...>                          "</elem>"
+      "<elem>😕</elem>"
+      iex> StructuredIO.read_across structured_io,
+      ...>                          "<elem>",
+      ...>                          "</elem>"
+      ""
+
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:unicode)
       iex> StructuredIO.write structured_io,
       ...>                    "<elem>"
       :ok
@@ -409,10 +215,7 @@ defmodule StructuredIO do
       ""
   """
   @spec read_across(GenServer.server, binary, binary) :: binary | error
-  @spec read_across(GenServer.server,
-                    binary,
-                    binary,
-                    timeout) :: binary | error
+  @spec read_across(GenServer.server, binary, binary, timeout) :: binary | error
   def read_across(structured_io, from, through, timeout \\ 5000) do
     request = {:read_across, from, through}
     structured_io
@@ -433,7 +236,32 @@ defmodule StructuredIO do
   ## Examples
 
       iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link
+      ...>  structured_io} = StructuredIO.start_link(:binary)
+      iex> StructuredIO.write structured_io,
+      ...>                    <<0, 0, 0, 1, 2, 3, 255, 255>>
+      :ok
+      iex> StructuredIO.read_between structured_io,
+      ...>                           <<0, 0, 0>>,
+      ...>                           <<255, 255, 255>>
+      ""
+      iex> StructuredIO.write structured_io,
+      ...>                    <<255, 0, 0, 0, 4, 5, 6, 255, 255, 255>>
+      :ok
+      iex> StructuredIO.read_between structured_io,
+      ...>                           <<0, 0, 0>>,
+      ...>                           <<255, 255, 255>>
+      <<1, 2, 3>>
+      iex> StructuredIO.read_between structured_io,
+      ...>                           <<0, 0, 0>>,
+      ...>                           <<255, 255, 255>>
+      <<4, 5, 6>>
+      iex> StructuredIO.read_between structured_io,
+      ...>                           <<0, 0, 0>>,
+      ...>                           <<255, 255, 255>>
+      ""
+
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:unicode)
       iex> StructuredIO.write structured_io,
       ...>                    "<elem>foo</elem"
       :ok
@@ -458,7 +286,35 @@ defmodule StructuredIO do
       ""
 
       iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link
+      ...>  structured_io} = StructuredIO.start_link(:binary)
+      iex> StructuredIO.write structured_io,
+      ...>                    "<elem>"
+      :ok
+      iex> <<fragment1::binary-size(3), fragment2::binary>> = "😕"
+      iex> StructuredIO.write structured_io,
+      ...>                    fragment1
+      :ok
+      iex> StructuredIO.read_between structured_io,
+      ...>                           "<elem>",
+      ...>                           "</elem>"
+      ""
+      iex> StructuredIO.write structured_io,
+      ...>                    fragment2
+      :ok
+      iex> StructuredIO.write structured_io,
+      ...>                    "</elem>"
+      :ok
+      iex> StructuredIO.read_between structured_io,
+      ...>                           "<elem>",
+      ...>                           "</elem>"
+      "😕"
+      iex> StructuredIO.read_between structured_io,
+      ...>                           "<elem>",
+      ...>                           "</elem>"
+      ""
+
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:unicode)
       iex> StructuredIO.write structured_io,
       ...>                    "<elem>"
       :ok
@@ -509,7 +365,28 @@ defmodule StructuredIO do
   ## Examples
 
       iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link
+      ...>  structured_io} = StructuredIO.start_link(:binary)
+      iex> StructuredIO.write structured_io,
+      ...>                    <<1, 2, 3, 255, 255>>
+      :ok
+      iex> StructuredIO.read_through structured_io,
+      ...>                           <<255, 255, 255>>
+      ""
+      iex> StructuredIO.write structured_io,
+      ...>                    <<255, 4, 5, 6, 255, 255, 255>>
+      :ok
+      iex> StructuredIO.read_through structured_io,
+      ...>                           <<255, 255, 255>>
+      <<1, 2, 3, 255, 255, 255>>
+      iex> StructuredIO.read_through structured_io,
+      ...>                           <<255, 255, 255>>
+      <<4, 5, 6, 255, 255, 255>>
+      iex> StructuredIO.read_through structured_io,
+      ...>                           <<255, 255, 255>>
+      ""
+
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:unicode)
       iex> StructuredIO.write structured_io,
       ...>                    "foo<br/"
       :ok
@@ -530,7 +407,29 @@ defmodule StructuredIO do
       ""
 
       iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link
+      ...>  structured_io} = StructuredIO.start_link(:binary)
+      iex> <<fragment1::binary-size(3), fragment2::binary>> = "😕"
+      iex> StructuredIO.write structured_io,
+      ...>                    fragment1
+      :ok
+      iex> StructuredIO.read_through structured_io,
+      ...>                           "<br/>"
+      ""
+      iex> StructuredIO.write structured_io,
+      ...>                    fragment2
+      :ok
+      iex> StructuredIO.write structured_io,
+      ...>                    "<br/>"
+      :ok
+      iex> StructuredIO.read_through structured_io,
+      ...>                           "<br/>"
+      "😕<br/>"
+      iex> StructuredIO.read_through structured_io,
+      ...>                           "<br/>"
+      ""
+
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:unicode)
       iex> <<fragment1::binary-size(3), fragment2::binary>> = "😕"
       iex> StructuredIO.write structured_io,
       ...>                    fragment1
@@ -572,7 +471,31 @@ defmodule StructuredIO do
   ## Examples
 
       iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link
+      ...>  structured_io} = StructuredIO.start_link(:binary)
+      iex> StructuredIO.write structured_io,
+      ...>                    <<1, 2, 3, 255, 255>>
+      :ok
+      iex> StructuredIO.read_to structured_io,
+      ...>                      <<255, 255, 255>>
+      ""
+      iex> StructuredIO.write structured_io,
+      ...>                    <<255, 4, 5, 6, 255, 255, 255>>
+      :ok
+      iex> StructuredIO.read_to structured_io,
+      ...>                      <<255, 255, 255>>
+      <<1, 2, 3>>
+      iex> StructuredIO.read_through structured_io,
+      ...>                           <<255, 255, 255>>
+      <<255, 255, 255>>
+      iex> StructuredIO.read_to structured_io,
+      ...>                      <<255, 255, 255>>
+      <<4, 5, 6>>
+      iex> StructuredIO.read_to structured_io,
+      ...>                      <<255, 255, 255>>
+      ""
+
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:unicode)
       iex> StructuredIO.write structured_io,
       ...>                    "foo<br/"
       :ok
@@ -596,7 +519,29 @@ defmodule StructuredIO do
       ""
 
       iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link
+      ...>  structured_io} = StructuredIO.start_link(:binary)
+      iex> <<fragment1::binary-size(3), fragment2::binary>> = "😕"
+      iex> StructuredIO.write structured_io,
+      ...>                    fragment1
+      :ok
+      iex> StructuredIO.read_to structured_io,
+      ...>                      "<br/>"
+      ""
+      iex> StructuredIO.write structured_io,
+      ...>                    fragment2
+      :ok
+      iex> StructuredIO.write structured_io,
+      ...>                    "<br/>"
+      :ok
+      iex> StructuredIO.read_to structured_io,
+      ...>                      "<br/>"
+      "😕"
+      iex> StructuredIO.read_to structured_io,
+      ...>                      "<br/>"
+      ""
+
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:unicode)
       iex> <<fragment1::binary-size(3), fragment2::binary>> = "😕"
       iex> StructuredIO.write structured_io,
       ...>                    fragment1
@@ -628,33 +573,56 @@ defmodule StructuredIO do
   end
 
 
+  @doc false
+  defdelegate start, to: Deprecated
+
+
   @doc """
   Starts a `#{inspect __MODULE__}` process without links (outside a
-  supervision tree) with the specified `options`.
+  supervision tree) with the specified `mode` and `options`.
+
+  ## Examples
+
+      iex> StructuredIO.start :super_pursuit_mode
+      {:error,
+       "invalid mode :super_pursuit_mode"}
 
   See `#{inspect __MODULE__}.start_link/2`.
   """
-  @spec start :: GenServer.on_start
-  @spec start(GenServer.options) :: GenServer.on_start
-  def start(options \\ []), do: GenServer.start(__MODULE__, %State{}, options)
+  @spec start(mode) :: GenServer.on_start
+  @spec start(mode, GenServer.options) :: GenServer.on_start
+  def start(mode, options \\ []) do
+    with {:ok, mode} <- compute_mode(mode, :start) do
+      GenServer.start __MODULE__, %State{mode: mode}, options
+    end
+  end
+
+
+  @doc false
+  defdelegate start_link, to: Deprecated
 
 
   @doc """
   Starts a `#{inspect __MODULE__}` process linked to the current process with
-  the specified `options`.
+  the specified `mode` and `options`.
 
-  See `#{inspect __MODULE__}.binread_across/3`,
-  `#{inspect __MODULE__}.binread_between/3`,
-  `#{inspect __MODULE__}.binread_through/2`,
-  `#{inspect __MODULE__}.binread_to/2`, `#{inspect __MODULE__}.read_across/3`,
+  ## Examples
+
+      iex> StructuredIO.start_link :super_pursuit_mode
+      {:error,
+       "invalid mode :super_pursuit_mode"}
+
+  See `#{inspect __MODULE__}.mode/1`, `#{inspect __MODULE__}.read_across/3`,
   `#{inspect __MODULE__}.read_between/3`,
   `#{inspect __MODULE__}.read_through/2`, and `#{inspect __MODULE__}.read_to/2`
-  for examples.
+  for more examples.
   """
-  @spec start_link :: GenServer.on_start
-  @spec start_link(GenServer.options) :: GenServer.on_start
-  def start_link(options \\ []) do
-    GenServer.start_link __MODULE__, %State{}, options
+  @spec start_link(mode) :: GenServer.on_start
+  @spec start_link(mode, GenServer.options) :: GenServer.on_start
+  def start_link(mode, options \\ []) do
+    with {:ok, mode} <- compute_mode(mode, :start_link) do
+      GenServer.start_link __MODULE__, %State{mode: mode}, options
+    end
   end
 
 
@@ -671,7 +639,7 @@ defmodule StructuredIO do
 
 
   @doc """
-  Asynchronously writes the specified `chardata` as a binary to the specified
+  Asynchronously writes the specified `data` as a binary to the specified
   `structured_io`.
 
   See `#{inspect __MODULE__}.read_across/3`,
@@ -679,232 +647,114 @@ defmodule StructuredIO do
   `#{inspect __MODULE__}.read_through/2`, and `#{inspect __MODULE__}.read_to/2`
   for examples.
   """
-  @spec write(GenServer.server, IO.chardata | String.Chars.t) :: :ok | error
-  def write(structured_io, chardata) do
-    request = {:write, chardata}
-    structured_io
-    |> GenServer.call(request)
-    |> convert_if_error
+  @spec write(GenServer.server,
+              iodata | IO.chardata | String.Chars.t) :: :ok | error
+  def write(structured_io, data) do
+    request = {:deprecated_write, data}
+    GenServer.cast structured_io, request
   end
 
 
   # Callbacks
 
 
-  def handle_call({:binread_across, _, _}, _from, %{mode: :unicode}=state) do
-    reply = mode_error("Unicode", "read_across/3")
-
-    {:reply, reply, state}
-  end
-
-  def handle_call({:binread_across, binread_from, binread_through},
-                  _from,
-                  %{data: iodata}=state) do
-    iodata
-    |> IO.iodata_to_binary
-    |> Scanner.scan_across(binread_from, binread_through)
-    |> read_reply(state)
-  end
+  def handle_call(:mode, _from, %{mode: mode}=state), do: {:reply, mode, state}
 
 
-  def handle_call({:binread_between, _, _}, _from, %{mode: :unicode}=state) do
-    reply = mode_error("Unicode", "read_between/3")
-
-    {:reply, reply, state}
-  end
-
-  def handle_call({:binread_between, after_data, before_data},
-                  _from,
-                  %{data: iodata}=state) do
-    iodata
-    |> IO.iodata_to_binary
-    |> Scanner.scan_between(after_data, before_data)
-    |> read_reply(state)
-  end
-
-
-  def handle_call({:binread_through, _}, _from, %{mode: :unicode}=state) do
-    reply = mode_error("Unicode", "read_through/2")
-
-    {:reply, reply, state}
-  end
-
-  def handle_call({:binread_through, binread_through},
-                  _from,
-                  %{data: iodata}=state) do
-    iodata
-    |> IO.iodata_to_binary
-    |> Scanner.scan_through(binread_through)
-    |> read_reply(state)
-  end
-
-
-  def handle_call({:binread_to, _}, _from, %{mode: :unicode}=state) do
-    reply = mode_error("Unicode", "read_to/2")
-
-    {:reply, reply, state}
-  end
-
-  def handle_call({:binread_to, binread_to}, _from, %{data: iodata}=state) do
-    iodata
-    |> IO.iodata_to_binary
-    |> Scanner.scan_to(binread_to)
-    |> read_reply(state)
-  end
-
-
-  def handle_call({:binwrite, _}, _from, %{mode: :unicode}=state) do
-    reply = mode_error("Unicode", "write/2")
-
-    {:reply, reply, state}
-  end
-
-  def handle_call({:binwrite, _}=request, _from, state) do
-    GenServer.cast self(), request
-
-    new_state = if is_nil(state.mode) do
-                  Logger.debug fn ->
-                    build_log_message "Using binary mode"
-                  end
-                  %{state | mode: :binary}
-                else
-                  state
-                end
-
-    {:reply, :ok, new_state}
-  end
-
-
-  def handle_call({:read_across, _, _}, _from, %{mode: :binary}=state) do
-    reply = mode_error("binary", "binread_across/3")
-
-    {:reply, reply, state}
-  end
-
-  def handle_call({:read_across, read_from, read_through},
-                  _from,
-                  %{data: chardata}=state) do
-    try do
-      IO.chardata_to_string chardata
-    rescue
-      e in UnicodeConversionError -> {:reply, {:error, e}, state}
-    else
-      string ->
-        string
-        |> Scanner.scan_across(read_from, read_through)
+  def handle_call({:read_across, after_data, before_data}, _from, state) do
+    case binary_data(state) do
+      {:error, _}=error ->
+        {:reply, error, state}
+      {:ok, binary} ->
+        binary
+        |> Scanner.scan_across(after_data, before_data)
         |> read_reply(state)
     end
   end
 
 
-  def handle_call({:read_between, _, _}, _from, %{mode: :binary}=state) do
-    reply = mode_error("binary", "binread_between/3")
-
-    {:reply, reply, state}
-  end
-
-  def handle_call({:read_between, after_data, before_data},
-                  _from,
-                  %{data: chardata}=state) do
-    try do
-      IO.chardata_to_string chardata
-    rescue
-      e in UnicodeConversionError -> {:reply, {:error, e}, state}
-    else
-      string ->
-        string
+  def handle_call({:read_between, after_data, before_data}, _from, state) do
+    case binary_data(state) do
+      {:error, _}=error ->
+        {:reply, error, state}
+      {:ok, binary} ->
+        binary
         |> Scanner.scan_between(after_data, before_data)
         |> read_reply(state)
     end
   end
 
 
-  def handle_call({:read_through, _}, _from, %{mode: :binary}=state) do
-    reply = mode_error("binary", "binread_through/2")
-
-    {:reply, reply, state}
-  end
-
-  def handle_call({:read_through, read_through},
-                  _from,
-                  %{data: chardata}=state) do
-    try do
-      IO.chardata_to_string chardata
-    rescue
-      e in UnicodeConversionError -> {:reply, {:error, e}, state}
-    else
-      string ->
-        string
+  def handle_call({:read_through, read_through}, _from, state) do
+    case binary_data(state) do
+      {:error, _}=error ->
+        {:reply, error, state}
+      {:ok, binary} ->
+        binary
         |> Scanner.scan_through(read_through)
         |> read_reply(state)
     end
   end
 
 
-  def handle_call({:read_to, _}, _from, %{mode: :binary}=state) do
-    reply = mode_error("binary", "binread_to/2")
-
-    {:reply, reply, state}
-  end
-
-  def handle_call({:read_to, read_to}, _from, %{data: chardata}=state) do
-    try do
-      IO.chardata_to_string chardata
-    rescue
-      e in UnicodeConversionError -> {:reply, {:error, e}, state}
-    else
-      string ->
-        string
+  def handle_call({:read_to, read_to}, _from, state) do
+    case binary_data(state) do
+      {:error, _}=error ->
+        {:reply, error, state}
+      {:ok, binary} ->
+        binary
         |> Scanner.scan_to(read_to)
         |> read_reply(state)
     end
   end
 
 
-  def handle_call({:write, _}, _from, %{mode: :binary}=state) do
-    reply = mode_error("binary", "binwrite/2")
-
-    {:reply, reply, state}
-  end
-
-  def handle_call({:write, _}=request, _from, state) do
-    GenServer.cast self(), request
-
-    new_state = if is_nil(state.mode) do
-                  Logger.debug fn ->
-                    build_log_message "Using Unicode mode"
-                  end
-                  %{state | mode: :unicode}
-                else
-                  state
-                end
-
-    {:reply, :ok, new_state}
-  end
+  @doc false
+  defdelegate handle_call(request, from, state), to: Deprecated
 
 
-  def handle_cast({:binwrite, iodata}, %{data: data, mode: :binary}=state) do
-    new_state = %{state | data: [data, iodata]}
+  # # TODO: Add a handler for the :write message when the :deprecated_write message is eliminated
+  # def handle_cast({:write, new_data}, %{data: data}=state) do
+  #   new_state = %{state | data: [data, new_data]}
 
-    {:noreply, new_state}
-  end
-
-
-  def handle_cast({:write, chardata}, %{data: data, mode: :unicode}=state) do
-    new_state = %{state | data: [data, chardata]}
-
-    {:noreply, new_state}
-  end
-
+  #   {:noreply, new_state}
+  # end
 
   @doc false
+  defdelegate handle_cast(request, state), to: Deprecated
+
+
   def init(args), do: {:ok, args}
 
 
-  @spec build_log_message(binary) :: binary
-  defp build_log_message(message) do
-    "#{message} in #{inspect __MODULE__} #{inspect self()}"
+  @spec binary_data(State.t) :: {:ok, binary} | error
+
+  # # TODO: Don’t handle `nil` :mode when deprecated `.start*` usage is eliminated
+  defp binary_data(%{data: iodata, mode: nil}) do
+    {:ok, IO.iodata_to_binary(iodata)}
   end
+
+  defp binary_data(%{data: iodata, mode: :binary}) do
+    {:ok, IO.iodata_to_binary(iodata)}
+  end
+
+  defp binary_data(%{data: chardata, mode: :unicode}) do
+    try do
+      IO.chardata_to_string chardata
+    rescue
+      e in UnicodeConversionError -> {:error, e}
+    else
+      string ->
+        {:ok, string}
+    end
+  end
+
+
+  @spec compute_mode(mode, atom) :: {:ok, mode} | error
+
+  defp compute_mode(mode, _) when mode in @valid_modes, do: {:ok, mode}
+
+  defp compute_mode(mode, _), do: {:error, "invalid mode #{inspect mode}"}
 
 
   @spec convert_if_error(any) :: error | any
@@ -925,13 +775,6 @@ defmodule StructuredIO do
   end
 
   defp convert_if_error(other), do: other
-
-
-  @spec mode_error(binary, binary) :: error
-  defp mode_error(mode_name, correct_fun_name) do
-    {:error,
-     "In #{mode_name} mode -- call #{inspect __MODULE__}.#{correct_fun_name} instead"}
-  end
 
 
   @spec read_reply(nil | {Scanner.match, Scanner.remainder},
