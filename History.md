@@ -1,5 +1,19 @@
 # Version history for the _StructuredIO_ project
 
+## v0.5.0
+
+**Tue 1/02/2018**
+
+* Introduce new *StructuredIO* function *.mode* and deprecate letting its value
+  be implied by <small>I</small>/<small>O</small> function calls
+* Deprecate *StructuredIO* functions:
+  - *.binread_across*
+  - *.binread_between*
+  - *.binread_through*
+  - *.binread_to*
+  - *.binwrite*
+* Eliminate a warning issued under Elixir v1.6.0
+
 ## v0.4.0
 
 **Tue 12/26/2017**
