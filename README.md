@@ -180,7 +180,7 @@ To release a new version:
 
 Released under the [MIT License][GitHub-project-MIT-License].
 
-[Travis-CI-build-status]:          http://travis-ci.org/njonsson/structured_io                                  "Travis CI build status for ‘StructuredIO’"
+[Travis-CI-build-status]:          https://www.travis-ci.org/njonsson/structured_io                             "Travis CI build status for ‘StructuredIO’"
 [HexFaktor-deps-status]:           https://beta.hexfaktor.org/github/njonsson/structured_io                     "HexFaktor dependencies status for ‘StructuredIO’"
 [Coveralls-test-coverage-status]:  https://coveralls.io/r/njonsson/structured_io?branch=master                  "Coveralls test coverage status"
 [Hex-release]:                     https://hex.pm/packages/structured_io                                        "Hex release of ‘StructuredIO’"
@@ -192,6 +192,6 @@ Released under the [MIT License][GitHub-project-MIT-License].
 [GitHub-fork-project]:             https://github.com/njonsson/structured_io/fork                               "Fork the official repository of ‘StructuredIO’"
 [GitHub-compare-project-branches]: https://github.com/njonsson/structured_io/compare                            "Compare branches of ‘StructuredIO’ repositories"
 [GitHub-mix-dot-exs-file]:         https://github.com/njonsson/structured_io/blob/master/mix.exs                "‘StructuredIO’ project ‘mix.exs’ file"
-[Semantic-Versioning]:             http://semver.org/
+[Semantic-Versioning]:             https://semver.org/
 [GitHub-readme-dot-md-file]:       https://github.com/njonsson/structured_io/blob/master/README.md#installation "‘StructuredIO’ project ‘README.md’ file"
-[GitHub-project-MIT-License]:      http://github.com/njonsson/structured_io/blob/master/License.md              "MIT License claim for ‘StructuredIO’"
+[GitHub-project-MIT-License]:      https://github.com/njonsson/structured_io/blob/master/License.md             "MIT License claim for ‘StructuredIO’"
