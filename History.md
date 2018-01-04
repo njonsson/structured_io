@@ -1,4 +1,4 @@
-# Version history for the _StructuredIO_ project
+# Version history for the *StructuredIO* project
 
 ## v0.5.0
 
@@ -27,7 +27,7 @@
 
 **Tue 12/26/2017**
 
-* Prevent [_UnicodeConversionError_][Elixir-UnicodeConversionError] in
+* Prevent [*UnicodeConversionError*][HexDocs-Elixir-UnicodeConversionError] in
   *StructuredIO* read-oriented functions, returning an error tuple instead
 
 ## v0.2.0
@@ -50,4 +50,4 @@
 
 (First release)
 
-[Elixir-UnicodeConversionError]: https://hexdocs.pm/elixir/UnicodeConversionError.html "Elixir’s ‘UnicodeConversionError’ exception at HexDocs"
+[HexDocs-Elixir-UnicodeConversionError]: https://hexdocs.pm/elixir/UnicodeConversionError.html "Elixir’s ‘UnicodeConversionError’ exception at HexDocs"

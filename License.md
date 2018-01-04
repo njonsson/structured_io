@@ -1,6 +1,6 @@
 # The MIT License
 
-Source code for _StructuredIO_ is Copyright © 2017 [Nils Jonsson][mail] and
+Source code for *StructuredIO* is Copyright © 2017 [Nils Jonsson][mail] and
 contributors.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of

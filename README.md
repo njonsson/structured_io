@@ -5,14 +5,14 @@
 [<img alt="Coveralls test coverage status" src="https://coveralls.io/repos/njonsson/structured_io/badge.svg?branch=master" />][Coveralls-test-coverage-status]
 [<img alt="Hex release" src="https://img.shields.io/hexpm/v/structured_io.svg" />][Hex-release]
 
-_StructuredIO_ resembles Elixir’s [_IO_][Elixir-IO] module. The difference is
-that whereas _IO_ gives you sequential access to a freeform stream of bytes or
-lines of data, _StructuredIO_ guarantees that when you read data it conforms to
-a structure that you specify. That is to say, only complete data elements are
-read, so that your application can more easily handle truncated or streaming
-application data.
+*StructuredIO* resembles Elixir’s [*IO*][HexDocs-Elixir-IO] module. The
+difference is that whereas *IO* gives you sequential access to a freeform stream
+of bytes or lines of data, *StructuredIO* guarantees that when you read data it
+conforms to a structure that you specify. That is to say, only complete data
+elements are read, so that your application can more easily handle truncated or
+streaming application data.
 
-Among other applications, you may find _StructuredIO_ useful for reassembling
+Among other applications, you may find *StructuredIO* useful for reassembling
 data that arrives in streaming fashion over TCP.
 
 **See what’s changed lately by reading
@@ -26,10 +26,11 @@ Unicode data, but binary data of any kind can be written and read, too. See
 [the API reference][HexDocs-project-API-reference] for detailed examples.
 
 ```elixir
-iex> {:ok, structured_io} = StructuredIO.start_link(:unicode)
+iex> {:ok,
+...>  structured_io} = StructuredIO.start_link(:unicode)
 ```
 
-Now we have a running _StructuredIO_ process that expects properly encoded
+Now we have a running *StructuredIO* process that expects properly encoded
 Unicode data.
 
 ```elixir
@@ -127,13 +128,13 @@ iex> StructuredIO.stop structured_io
 
 Don’t forget to stop the process when you’re finished using the stream.
 
-You’ll find more detailed examples in the documentation for the _StructuredIO_
+You’ll find more detailed examples in the documentation for the *StructuredIO*
 module.
 
 ## Installation
 
 Install [the Hex package][Hex-release] by adding `:structured_io` to the list of
-dependencies in your project’s _mix.exs_ file:
+dependencies in your project’s *mix.exs* file:
 
 ```elixir
 # mix.exs
@@ -163,9 +164,9 @@ that will allow you to experiment. To build this package, `mix hex.build`.
 
 To release a new version:
 
-1. Update [the project history in _History.md_][GitHub-project-history], and
+1. Update [the project history in *History.md*][GitHub-project-history], and
    then commit.
-2. Update the version number in [_mix.exs_][GitHub-mix-dot-exs-file] respecting
+2. Update the version number in [*mix.exs*][GitHub-mix-dot-exs-file] respecting
    [Semantic Versioning][Semantic-Versioning], update
    [the “Installation” section](#installation) of
    [this readme][GitHub-readme-dot-md-file] to reference the new version, and
@@ -182,7 +183,7 @@ Released under the [MIT License][GitHub-project-MIT-License].
 [HexFaktor-deps-status]:           https://beta.hexfaktor.org/github/njonsson/structured_io                     "HexFaktor dependencies status for ‘StructuredIO’"
 [Coveralls-test-coverage-status]:  https://coveralls.io/r/njonsson/structured_io?branch=master                  "Coveralls test coverage status"
 [Hex-release]:                     https://hex.pm/packages/structured_io                                        "Hex release of ‘StructuredIO’"
-[Elixir-IO]:                       https://hexdocs.pm/elixir/IO.html                                            "Elixir’s ‘IO’ module at HexDocs"
+[HexDocs-Elixir-IO]:               https://hexdocs.pm/elixir/IO.html                                            "Elixir’s ‘IO’ module at HexDocs"
 [HexDocs-Elixir-Collectable]:      https://hexdocs.pm/elixir/Collectable.html                                   "Elixir’s ‘Collectable’ protocol at HexDocs"
 [HexDocs-Elixir-Enumerable]:       https://hexdocs.pm/elixir/Enumerable.html                                    "Elixir’s ‘Enumerable’ protocol at HexDocs"
 [HexDocs-project-API-reference]:   https://hexdocs.pm/structured_io/api-reference.html                          "‘StructuredIO’ API reference at HexDocs"
