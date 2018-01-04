@@ -128,7 +128,8 @@ iex> StructuredIO.stop structured_io
 
 Don’t forget to stop the process when you’re finished using the stream.
 
-You’ll find more detailed examples in the documentation for the *StructuredIO*
+You’ll find more detailed examples in
+[the documentation][HexDocs-project-API-reference] for the *StructuredIO*
 module.
 
 ## Installation
