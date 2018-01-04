@@ -1,7 +1,6 @@
 # StructuredIO
 
 [<img alt="Travis CI build status" src="https://secure.travis-ci.org/njonsson/structured_io.svg?branch=master" />][Travis-CI-build-status]
-[<img alt="HexFaktor dependencies status" src="https://beta.hexfaktor.org/badge/all/github/njonsson/structured_io.svg" />][HexFaktor-deps-status]
 [<img alt="Coveralls test coverage status" src="https://coveralls.io/repos/njonsson/structured_io/badge.svg?branch=master" />][Coveralls-test-coverage-status]
 [<img alt="Hex release" src="https://img.shields.io/hexpm/v/structured_io.svg" />][Hex-release]
 
@@ -181,7 +180,6 @@ To release a new version:
 Released under the [MIT License][GitHub-project-MIT-License].
 
 [Travis-CI-build-status]:          https://www.travis-ci.org/njonsson/structured_io                             "Travis CI build status for ‘StructuredIO’"
-[HexFaktor-deps-status]:           https://beta.hexfaktor.org/github/njonsson/structured_io                     "HexFaktor dependencies status for ‘StructuredIO’"
 [Coveralls-test-coverage-status]:  https://coveralls.io/r/njonsson/structured_io?branch=master                  "Coveralls test coverage status"
 [Hex-release]:                     https://hex.pm/packages/structured_io                                        "Hex release of ‘StructuredIO’"
 [HexDocs-Elixir-IO]:               https://hexdocs.pm/elixir/IO.html                                            "Elixir’s ‘IO’ module at HexDocs"
