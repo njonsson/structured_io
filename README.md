@@ -38,8 +38,8 @@ iex> StructuredIO.write structured_io,
 :ok
 ```
 
-We’ve written some markup to the stream. Note that the `<p>` element is preceded
-by whitespace and is not properly closed.
+We’ve written some markup to the process. Note that the `<p>` element is
+preceded by whitespace and is not properly closed.
 
 ```elixir
 iex> StructuredIO.read_across structured_io,
@@ -48,7 +48,8 @@ iex> StructuredIO.read_across structured_io,
 ""
 ```
 
-No `<p>` element is read because the stream doesn’t begin with a `<p>`.
+No `<p>` element is read because the available data in the process doesn’t begin
+with a `<p>`.
 
 ```elixir
 iex> StructuredIO.read_to structured_io,
@@ -61,7 +62,7 @@ iex> StructuredIO.read_across structured_io,
 ```
 
 We managed to get past the whitespace, but no `<p>` element is read because the
-stream doesn’t contain a complete element.
+available data in the process doesn’t contain a complete element.
 
 ```elixir
 iex> StructuredIO.write structured_io,
@@ -70,7 +71,7 @@ iex> StructuredIO.write structured_io,
 ```
 
 Now the first element is properly closed, and a second complete element has been
-written to the stream.
+written to the process.
 
 ```elixir
 iex> StructuredIO.read_across structured_io,
@@ -86,8 +87,8 @@ iex> StructuredIO.read_between structured_io,
 "bar"
 ```
 
-We’ve read one element at a time from the available data in the stream. The read
-operations demonstrate both seeking and skipping.
+We’ve read one element at a time from the available data in the process. The
+read operations demonstrate both seeking and skipping.
 
 ```elixir
 iex> StructuredIO.read_across structured_io,
@@ -96,7 +97,7 @@ iex> StructuredIO.read_across structured_io,
 ""
 ```
 
-No more elements can be read unless more data is written to the stream.
+No more elements can be read unless more data is written to the process.
 
 ```elixir
 iex> collector = StructuredIO.collect(structured_io)
@@ -125,7 +126,7 @@ iex> StructuredIO.stop structured_io
 :ok
 ```
 
-Don’t forget to stop the process when you’re finished using the stream.
+Don’t forget to stop the process when you’re finished using the process.
 
 You’ll find more detailed examples in
 [the documentation][HexDocs-project-API-reference] for the *StructuredIO*
