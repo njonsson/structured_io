@@ -115,11 +115,13 @@ iex> structured_io
  "QUUX"]
 ```
 
-You can use Elixir’s [*Collectable*][HexDocs-Elixir-Collectable] protocol to
-**pipe data into the process** instead of performing individual write
-operations. Likewise, you can also use Elixir’s
-[*Enumerable*][HexDocs-Elixir-Enumerable] protocol to **pipe data elements out
-of the process** instead of performing individual read operations.
+The `StructuredIO.collect` function returns a struct that implements Elixir’s
+[*Collectable*][HexDocs-Elixir-Collectable] protocol, which lets you **pipe data
+into the process** instead of performing individual write operations. Likewise,
+the `StructuredIO.enumerate_with` function returns a struct that implements
+Elixir’s [*Enumerable*][HexDocs-Elixir-Enumerable] protocol, which lets you
+**pipe data elements out of the process** instead of performing individual read
+operations.
 
 ```elixir
 iex> StructuredIO.stop structured_io
