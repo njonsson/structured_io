@@ -27,7 +27,7 @@ defmodule StructuredIO do
 
   use GenServer
 
-  alias StructuredIO.{Deprecated,Scanner}
+  alias StructuredIO.{Collector,Deprecated,Enumerator,Scanner}
 
 
   @typedoc """
@@ -101,6 +101,129 @@ defmodule StructuredIO do
 
   @doc false
   defdelegate binwrite(structured_io, iodata), to: Deprecated
+
+
+  @doc """
+  Returns a value that can be passed to `Enum.into/2` or `Enum.into/3` for
+  writing data to the specified `structured_io`.
+
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:unicode)
+      iex> StructuredIO.read_between structured_io,
+      ...>                           "<elem>",
+      ...>                           "</elem>"
+      ""
+      iex> collector = StructuredIO.collect(structured_io)
+      iex> ["<elem>foo</elem>",
+      ...>  "<elem>bar</elem>",
+      ...>  "<elem>baz</elem>"]
+      iex> |> Enum.into(collector)
+      iex> StructuredIO.read_between structured_io,
+      ...>                           "<elem>",
+      ...>                           "</elem>"
+      "foo"
+      iex> StructuredIO.read_between structured_io,
+      ...>                           "<elem>",
+      ...>                           "</elem>"
+      "bar"
+      iex> StructuredIO.read_between structured_io,
+      ...>                           "<elem>",
+      ...>                           "</elem>"
+      "baz"
+      iex> StructuredIO.read_between structured_io,
+      ...>                           "<elem>",
+      ...>                           "</elem>"
+      ""
+  """
+  @spec collect(GenServer.server) :: Collector.t
+  def collect(structured_io) do
+    {:ok, collector} = Collector.new(%{process: structured_io,
+                                       function: :write})
+    collector
+  end
+
+
+  @doc """
+  Returns a value that can be passed to functions such as `Enum.map/2` for
+  reading data elements from the specified `structured_io`, using the specified
+  `#{inspect __MODULE__}` `function`, and the specified `left` and/or `right`.
+
+  Note that enumeration is not a purely functional operation; it consumes data
+  elements from the underlying `#{inspect __MODULE__}` process.
+
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:unicode)
+      iex> StructuredIO.write structured_io,
+      ...>                    "<elem>foo</elem>"
+      :ok
+      iex> StructuredIO.write structured_io,
+      ...>                    "<elem>bar</elem>"
+      :ok
+      iex> StructuredIO.write structured_io,
+      ...>                    "<elem>baz</elem>"
+      :ok
+      iex> structured_io
+      ...> |> StructuredIO.enumerate_with(:read_between,
+      ...>                                "<elem>",
+      ...>                                "</elem>")
+      ...> |> Enum.map(&String.upcase/1)
+      ["FOO",
+       "BAR",
+       "BAZ"]
+      iex> StructuredIO.read_between structured_io,
+      ...>                           "<elem>",
+      ...>                           "</elem>"
+      ""
+
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:unicode)
+      iex> StructuredIO.write structured_io,
+      ...>                    "foo<br/>"
+      :ok
+      iex> StructuredIO.write structured_io,
+      ...>                    "bar<br/>"
+      :ok
+      iex> StructuredIO.write structured_io,
+      ...>                    "baz<br/>"
+      :ok
+      iex> structured_io
+      ...> |> StructuredIO.enumerate_with(:read_through,
+      ...>                                "<br/>")
+      ...> |> Enum.map(&String.upcase/1)
+      ["FOO<BR/>",
+       "BAR<BR/>",
+       "BAZ<BR/>"]
+      iex> StructuredIO.read_between structured_io,
+      ...>                           "<elem>",
+      ...>                           "</elem>"
+      ""
+  """
+
+  @spec enumerate_with(GenServer.server,
+                       :read_across | :read_between,
+                       left,
+                       right) :: Enumerator.t
+  def enumerate_with(structured_io,
+                     function,
+                     left,
+                     right) when function in [:read_across, :read_between] do
+    {:ok, enumerator} = Enumerator.new(%{process: structured_io,
+                                         function: function,
+                                         additional_arguments: [left, right]})
+    enumerator
+  end
+
+  @spec enumerate_with(GenServer.server,
+                       :read_through | :read_to,
+                       right) :: Enumerator.t
+  def enumerate_with(structured_io,
+                     function,
+                     right) when function in [:read_through, :read_to] do
+    {:ok, enumerator} = Enumerator.new(%{process: structured_io,
+                                         function: function,
+                                         additional_arguments: [right]})
+    enumerator
+  end
 
 
   @doc """

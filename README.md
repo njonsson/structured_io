@@ -99,11 +99,33 @@ iex> StructuredIO.read_across structured_io,
 No more elements can be read unless more data is written to the stream.
 
 ```elixir
+iex> collector = StructuredIO.collect(structured_io)
+iex> ["<p>baz</p>",
+...>  "<p>qux</p>",
+...>  "<p>quux</p>"]
+...> |> Enum.into(collector)
+iex> structured_io
+...> |> StructuredIO.enumerate_with(:read_between,
+...>                                "<p>",
+...>                                "</p>")
+...> |> Enum.map(&String.upcase/1)
+["BAZ",
+ "QUX",
+ "QUUX"]
+```
+
+You can use Elixir’s [*Collectable*][HexDocs-Elixir-Collectable] protocol to
+**pipe data into the process** instead of performing individual write
+operations. Likewise, you can also use Elixir’s
+[*Enumerable*][HexDocs-Elixir-Enumerable] protocol to **pipe data elements out
+of the process** instead of performing individual read operations.
+
+```elixir
 iex> StructuredIO.stop structured_io
 :ok
 ```
 
-Don’t forget to stop the process when you’re finished reading from the stream.
+Don’t forget to stop the process when you’re finished using the stream.
 
 You’ll find more detailed examples in the documentation for the _StructuredIO_
 module.
@@ -161,6 +183,8 @@ Released under the [MIT License][GitHub-project-MIT-License].
 [Coveralls-test-coverage-status]:  https://coveralls.io/r/njonsson/structured_io?branch=master                  "Coveralls test coverage status"
 [Hex-release]:                     https://hex.pm/packages/structured_io                                        "Hex release of ‘StructuredIO’"
 [Elixir-IO]:                       https://hexdocs.pm/elixir/IO.html                                            "Elixir’s ‘IO’ module at HexDocs"
+[HexDocs-Elixir-Collectable]:      https://hexdocs.pm/elixir/Collectable.html                                   "Elixir’s ‘Collectable’ protocol at HexDocs"
+[HexDocs-Elixir-Enumerable]:       https://hexdocs.pm/elixir/Enumerable.html                                    "Elixir’s ‘Enumerable’ protocol at HexDocs"
 [HexDocs-project-API-reference]:   https://hexdocs.pm/structured_io/api-reference.html                          "‘StructuredIO’ API reference at HexDocs"
 [GitHub-project-history]:          https://github.com/njonsson/structured_io/blob/master/History.md             "‘StructuredIO’ project history"
 [GitHub-fork-project]:             https://github.com/njonsson/structured_io/fork                               "Fork the official repository of ‘StructuredIO’"
