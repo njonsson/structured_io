@@ -71,8 +71,7 @@ defmodule StructuredIO.Scanner do
   def scan_across(data, left, right) do
     left_size = byte_size(left)
     if left_size <= byte_size(data) do
-      <<data_beginning::binary-size(left_size),
-        data_after_left::binary>> = data
+      <<data_beginning::binary-size(left_size), data_after_left::binary>> = data
       if data_beginning == left do
         with {scanned_through,
               remainder} <- scan_through(data_after_left, right) do
@@ -125,12 +124,9 @@ defmodule StructuredIO.Scanner do
   def scan_between(data, left, right) do
     left_size = byte_size(left)
     if left_size <= byte_size(data) do
-      <<data_beginning::binary-size(left_size),
-        data_after_left::binary>> = data
+      <<data_beginning::binary-size(left_size), data_after_left::binary>> = data
       if data_beginning == left do
-        with {match,
-              right_plus_remainder} <- scan_to(data_after_left,
-                                                right) do
+        with {match, right_plus_remainder} <- scan_to(data_after_left, right) do
           right_size = byte_size(right)
           <<_::binary-size(right_size),
             remainder::binary>> = right_plus_remainder
