@@ -170,7 +170,7 @@ defmodule StructuredIO.Scanner do
   def scan_through(_data, ""=_right), do: nil
 
   def scan_through(data, right) do
-    with {match, remainder} <- scan("", data, right) do
+    with {match, remainder} <- scan(data, right) do
       {match <> right, remainder}
     end
   end
@@ -209,11 +209,15 @@ defmodule StructuredIO.Scanner do
   def scan_to(_data, ""=_right), do: nil
 
   def scan_to(data, right) do
-    with {match, remainder} <- scan("", data, right) do
+    with {match, remainder} <- scan(data, right) do
       {match, right <> remainder}
     end
   end
 
+
+  @spec scan(binary, binary) :: {binary, binary} | nil
+
+  defp scan(scanning, scanning_for), do: scan("", scanning, scanning_for)
 
   @spec scan(binary, binary, binary) :: {binary, binary} | nil
 
