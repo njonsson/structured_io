@@ -1,6 +1,8 @@
 defmodule StructuredIO.Enumerator do
   @moduledoc """
-  Provides an `Enumerable` implementation for `StructuredIO`.
+  Provides an `Enumerable` implementation for `StructuredIO`. Call
+  `StructuredIO.enumerate_with/3`or `StructuredIO.enumerate_with/4` instead of
+  invoking this module directly.
 
   Note that enumeration is not a purely functional operation; it consumes data
   elements from the underlying `StructuredIO` process.

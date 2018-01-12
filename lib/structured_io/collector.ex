@@ -1,6 +1,7 @@
 defmodule StructuredIO.Collector do
   @moduledoc """
-  Provides a `Collectable` implementation for `StructuredIO`.
+  Provides a `Collectable` implementation for `StructuredIO`. Call
+  `StructuredIO.collect/1` instead of invoking this module directly.
 
   ## Examples
 
