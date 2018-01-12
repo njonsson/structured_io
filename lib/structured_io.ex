@@ -193,9 +193,8 @@ defmodule StructuredIO do
       ["FOO<BR/>",
        "BAR<BR/>",
        "BAZ<BR/>"]
-      iex> StructuredIO.read_between structured_io,
-      ...>                           "<elem>",
-      ...>                           "</elem>"
+      iex> StructuredIO.read_through structured_io,
+      ...>                           "<br />"
       ""
   """
 
