@@ -6,13 +6,13 @@
 
 *StructuredIO* resembles Elixir’s [*IO*][HexDocs-Elixir-IO] module. The
 difference is that whereas *IO* gives you sequential access to a freeform stream
-of bytes or lines of data, *StructuredIO* guarantees that when you read data it
-conforms to a structure that you specify. That is to say, only complete data
-elements are read, so that your application can more easily handle truncated or
-streaming application data.
+of bytes or lines of data, *StructuredIO* guarantees that only complete data
+elements are read from a stream. This makes it easier for your application to
+handle incomplete application data by waiting for more to arrive or by skipping
+over mangled data elements.
 
-Among other applications, you may find *StructuredIO* useful for reassembling
-data that arrives in streaming fashion over TCP.
+Among other things, you may find *StructuredIO* useful for processing data that
+arrives in streaming fashion from another system.
 
 **See what’s changed lately by reading
 [the project history][GitHub-project-history].**
