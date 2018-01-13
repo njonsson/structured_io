@@ -69,15 +69,10 @@ defmodule StructuredIO.Scanner do
   def scan_across(_data, _left, ""=_right), do: nil
 
   def scan_across(data, left, right) do
-    left_size = byte_size(left)
-    if left_size <= byte_size(data) do
-      <<data_beginning::binary-size(left_size), data_after_left::binary>> = data
-      if data_beginning == left do
-        with {scanned_through,
-              remainder} <- scan_through(data_after_left, right) do
-          {left <> scanned_through, remainder}
-        end
-      end
+    with data_after_left when is_binary(data_after_left) <-
+           after_beginning(data, left),
+         {match, remainder} <- scan_through(data_after_left, right) do
+      {left <> match, remainder}
     end
   end
 
@@ -122,17 +117,9 @@ defmodule StructuredIO.Scanner do
   def scan_between(_data, _left, ""=_right), do: nil
 
   def scan_between(data, left, right) do
-    left_size = byte_size(left)
-    if left_size <= byte_size(data) do
-      <<data_beginning::binary-size(left_size), data_after_left::binary>> = data
-      if data_beginning == left do
-        with {match, right_plus_remainder} <- scan_to(data_after_left, right) do
-          right_size = byte_size(right)
-          <<_::binary-size(right_size),
-            remainder::binary>> = right_plus_remainder
-          {match, remainder}
-        end
-      end
+    with data_after_left
+           when is_binary(data_after_left) <- after_beginning(data, left) do
+      scan data_after_left, right
     end
   end
 
@@ -214,6 +201,18 @@ defmodule StructuredIO.Scanner do
     end
   end
 
+
+  @spec after_beginning(binary, binary) :: binary | nil
+  defp after_beginning(data, beginning) do
+    beginning_size = byte_size(beginning)
+    if beginning_size <= byte_size(data) do
+      <<data_beginning::binary-size(beginning_size),
+        data_after_beginning::binary>> = data
+      if data_beginning == beginning do
+        data_after_beginning
+      end
+    end
+  end
 
   @spec scan(binary, binary) :: {binary, binary} | nil
 
