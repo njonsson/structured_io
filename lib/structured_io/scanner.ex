@@ -225,7 +225,7 @@ defmodule StructuredIO.Scanner do
   defp scan(before, scanning, scanning_for) do
     scanning_size = byte_size(scanning)
     scanning_for_size = byte_size(scanning_for)
-    unless scanning_size < scanning_for_size do
+    if scanning_for_size <= scanning_size do
       <<scanned::binary-size(scanning_for_size),
         after_scanning_for::binary>> = scanning
       if scanned == scanning_for do
