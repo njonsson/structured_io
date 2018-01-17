@@ -113,6 +113,9 @@ defmodule StructuredIO.Enumerator do
         element           -> reduce(enumerator, fun.(element, acc), fun)
       end
     end
+
+    # Use the default implementation of Enumerable.slice/1.
+    def slice(_enumerator), do: {:error, __MODULE__}
   end
 
 
