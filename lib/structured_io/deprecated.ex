@@ -9,12 +9,7 @@ defmodule StructuredIO.Deprecated do
   """
 
 
-  require Logger
-
   alias StructuredIO.{Scanner,State}
-
-
-  @valid_modes [:binary, :unicode]
 
 
   @doc """
@@ -81,6 +76,7 @@ defmodule StructuredIO.Deprecated do
       ...>                             "</elem>"
       ""
   """
+  @deprecated "Call #{inspect StructuredIO}.read_across in binary mode instead"
   @spec binread_across(GenServer.server,
                        StructuredIO.left,
                        StructuredIO.right) :: StructuredIO.match |
@@ -90,7 +86,6 @@ defmodule StructuredIO.Deprecated do
                        StructuredIO.right,
                        timeout) :: StructuredIO.match | StructuredIO.error
   def binread_across(structured_io, left, right, timeout \\ 5000) do
-    log_warning_about_bin_function :binread_across, :read_across
     request = {:deprecated_binread_across, left, right}
     structured_io
     |> GenServer.call(request, timeout)
@@ -162,6 +157,7 @@ defmodule StructuredIO.Deprecated do
       ...>                              "</elem>"
       ""
   """
+  @deprecated "Call #{inspect StructuredIO}.read_between in binary mode instead"
   @spec binread_between(GenServer.server,
                         StructuredIO.left,
                         StructuredIO.right) :: StructuredIO.match |
@@ -171,7 +167,6 @@ defmodule StructuredIO.Deprecated do
                         StructuredIO.right,
                         timeout) :: StructuredIO.match | StructuredIO.error
   def binread_between(structured_io, left, right, timeout \\ 5000) do
-    log_warning_about_bin_function :binread_between, :read_between
     request = {:deprecated_binread_between, left, right}
     structured_io
     |> GenServer.call(request, timeout)
@@ -231,6 +226,7 @@ defmodule StructuredIO.Deprecated do
       ...>                              "<br/>"
       ""
   """
+  @deprecated "Call #{inspect StructuredIO}.read_through in binary mode instead"
   @spec binread_through(GenServer.server,
                         StructuredIO.right) :: StructuredIO.match |
                                                StructuredIO.error
@@ -238,7 +234,6 @@ defmodule StructuredIO.Deprecated do
                         StructuredIO.right,
                         timeout) :: StructuredIO.match | StructuredIO.error
   def binread_through(structured_io, right, timeout \\ 5000) do
-    log_warning_about_bin_function :binread_through, :read_through
     request = {:deprecated_binread_through, right}
     structured_io
     |> GenServer.call(request, timeout)
@@ -301,6 +296,7 @@ defmodule StructuredIO.Deprecated do
       ...>                         "<br/>"
       ""
   """
+  @deprecated "Call #{inspect StructuredIO}.read_to in binary mode instead"
   @spec binread_to(GenServer.server,
                    StructuredIO.right) :: StructuredIO.match |
                                           StructuredIO.error
@@ -308,7 +304,6 @@ defmodule StructuredIO.Deprecated do
                    StructuredIO.right,
                    timeout) :: StructuredIO.match | StructuredIO.error
   def binread_to(structured_io, right, timeout \\ 5000) do
-    log_warning_about_bin_function :binread_to, :read_to
     request = {:deprecated_binread_to, right}
     structured_io
     |> GenServer.call(request, timeout)
@@ -325,9 +320,9 @@ defmodule StructuredIO.Deprecated do
   `#{inspect __MODULE__}.binread_through/2`, and
   `#{inspect __MODULE__}.binread_to/2` for examples.
   """
+  @deprecated "Call #{inspect StructuredIO}.write in binary mode instead"
   @spec binwrite(GenServer.server, iodata) :: :ok | StructuredIO.error
   def binwrite(structured_io, iodata) do
-    log_warning_about_bin_function :binwrite, :write
     request = {:deprecated_binwrite, iodata}
     structured_io
     |> GenServer.call(request)
@@ -400,6 +395,7 @@ defmodule StructuredIO.Deprecated do
       ...>                          "</elem>"
       ""
   """
+  @deprecated "Call #{inspect StructuredIO}.read_across in Unicode mode instead"
   @spec read_across(GenServer.server,
                     StructuredIO.left,
                     StructuredIO.right) :: StructuredIO.match |
@@ -481,6 +477,7 @@ defmodule StructuredIO.Deprecated do
       ...>                           "</elem>"
       ""
   """
+  @deprecated "Call #{inspect StructuredIO}.read_between in Unicode mode instead"
   @spec read_between(GenServer.server,
                      StructuredIO.left,
                      StructuredIO.right) :: StructuredIO.match |
@@ -550,6 +547,7 @@ defmodule StructuredIO.Deprecated do
       ...>                           "<br/>"
       ""
   """
+  @deprecated "Call #{inspect StructuredIO}.read_through in Unicode mode instead"
   @spec read_through(GenServer.server,
                      StructuredIO.right) :: StructuredIO.match |
                                             StructuredIO.error
@@ -620,6 +618,7 @@ defmodule StructuredIO.Deprecated do
       ...>                      "<br/>"
       ""
   """
+  @deprecated "Call #{inspect StructuredIO}.read_to in Unicode mode instead"
   @spec read_to(GenServer.server,
                 StructuredIO.right) :: StructuredIO.match | StructuredIO.error
   @spec read_to(GenServer.server,
@@ -639,12 +638,9 @@ defmodule StructuredIO.Deprecated do
 
   See `#{inspect __MODULE__}.start_link/0`.
   """
+  @deprecated "Call #{inspect StructuredIO}.start/1 instead"
   @spec start :: GenServer.on_start
-  def start do
-    with {:ok, mode} <- compute_mode(:start) do
-      GenServer.start StructuredIO, %State{mode: mode}, []
-    end
-  end
+  def start, do: GenServer.start(StructuredIO, %State{}, [])
 
 
   @doc """
@@ -658,12 +654,9 @@ defmodule StructuredIO.Deprecated do
   `#{inspect __MODULE__}.read_through/2`, and `#{inspect __MODULE__}.read_to/2`
   for examples.
   """
+  @deprecated "Call #{inspect StructuredIO}.start_link/1 instead"
   @spec start_link :: GenServer.on_start
-  def start_link do
-    with {:ok, mode} <- compute_mode(:start_link) do
-      GenServer.start StructuredIO, %State{mode: mode}, []
-    end
-  end
+  def start_link, do: GenServer.start(StructuredIO, %State{}, [])
 
 
   # Callbacks
@@ -906,14 +899,6 @@ defmodule StructuredIO.Deprecated do
   def init(args), do: {:ok, args}
 
 
-  @spec compute_mode(atom) :: {:ok, nil}
-
-  defp compute_mode(start_fun) do
-    Logger.warn "*** DEPRECATED: #{inspect StructuredIO}.#{start_fun} without mode -- specify one of #{inspect @valid_modes}"
-    {:ok, nil}
-  end
-
-
   @spec convert_if_error(any) :: StructuredIO.error | any
 
   defp convert_if_error({:error, error}) do
@@ -932,12 +917,6 @@ defmodule StructuredIO.Deprecated do
   end
 
   defp convert_if_error(other), do: other
-
-
-  @spec log_warning_about_bin_function(any, any) :: :ok
-  defp log_warning_about_bin_function(deprecated, sanctioned) do
-    Logger.warn "*** DEPRECATED: #{inspect StructuredIO}.#{deprecated} -- call .#{sanctioned} in binary mode instead"
-  end
 
 
   @spec mode_error(binary, binary) :: StructuredIO.error

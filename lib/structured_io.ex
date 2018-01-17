@@ -76,6 +76,7 @@ defmodule StructuredIO do
 
 
   @doc false
+  @deprecated "Call #{inspect __MODULE__}.read_across in binary mode instead"
   defdelegate binread_across(structured_io,
                              left,
                              right,
@@ -83,6 +84,7 @@ defmodule StructuredIO do
 
 
   @doc false
+  @deprecated "Call #{inspect __MODULE__}.read_between in binary mode instead"
   defdelegate binread_between(structured_io,
                               left,
                               right,
@@ -90,16 +92,19 @@ defmodule StructuredIO do
 
 
   @doc false
+  @deprecated "Call #{inspect __MODULE__}.read_through in binary mode instead"
   defdelegate binread_through(structured_io,
                               right,
                               timeout \\ 5000), to: Deprecated
 
 
   @doc false
+  @deprecated "Call #{inspect __MODULE__}.read_to in binary mode instead"
   defdelegate binread_to(structured_io, to, timeout \\ 5000), to: Deprecated
 
 
   @doc false
+  @deprecated "Call #{inspect __MODULE__}.write in binary mode instead"
   defdelegate binwrite(structured_io, iodata), to: Deprecated
 
 
@@ -722,6 +727,7 @@ defmodule StructuredIO do
 
 
   @doc false
+  @deprecated "Call #{inspect __MODULE__}.start/1 instead"
   defdelegate start, to: Deprecated
 
 
@@ -747,6 +753,7 @@ defmodule StructuredIO do
 
 
   @doc false
+  @deprecated "Call #{inspect __MODULE__}.start_link/1 instead"
   defdelegate start_link, to: Deprecated
 
 

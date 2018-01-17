@@ -3,7 +3,6 @@ defmodule StructuredIO.DeprecatedTest do
   doctest StructuredIO.Deprecated
 
   setup do
-    Logger.disable self()
     {:ok, structured_io} = StructuredIO.start_link
     {:ok, structured_io: structured_io}
   end
