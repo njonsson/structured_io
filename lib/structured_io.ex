@@ -140,6 +140,7 @@ defmodule StructuredIO do
       ...>                           "</elem>"
       ""
   """
+  @since "0.6.0"
   @spec collect(GenServer.server) :: Collector.t
   def collect(structured_io) do
     {:ok, collector} = Collector.new(%{process: structured_io,
@@ -203,6 +204,7 @@ defmodule StructuredIO do
       ""
   """
 
+  @since "0.6.0"
   @spec enumerate_with(GenServer.server,
                        :read_across | :read_between,
                        left,
@@ -217,6 +219,7 @@ defmodule StructuredIO do
     enumerator
   end
 
+  @since "0.6.0"
   @spec enumerate_with(GenServer.server,
                        :read_through | :read_to,
                        right) :: Enumerator.t
@@ -245,6 +248,7 @@ defmodule StructuredIO do
       iex> StructuredIO.mode structured_io
       :unicode
   """
+  @since "0.5.0"
   @spec mode(GenServer.server) :: mode
   def mode(structured_io) do
     request = :mode
@@ -370,8 +374,13 @@ defmodule StructuredIO do
       ...>                          "</elem>"
       ""
   """
+
+  @since "0.1.0"
   @spec read_across(GenServer.server, left, right) :: match | error
+
+  @since "0.2.0"
   @spec read_across(GenServer.server, left, right, timeout) :: match | error
+
   def read_across(structured_io, left, right, timeout \\ 5000) do
     request = {:read_across, left, right}
     structured_io
@@ -498,8 +507,13 @@ defmodule StructuredIO do
       ...>                           "</elem>"
       ""
   """
+
+  @since "0.4.0"
   @spec read_between(GenServer.server, left, right) :: match | error
+
+  @since "0.2.0"
   @spec read_between(GenServer.server, left, right, timeout) :: match | error
+
   def read_between(structured_io, left, right, timeout \\ 5000) do
     request = {:read_between, left, right}
     structured_io
@@ -604,8 +618,13 @@ defmodule StructuredIO do
       ...>                           "<br/>"
       ""
   """
+
+  @since "0.2.0"
   @spec read_through(GenServer.server, right) :: match | error
+
+  @since "0.2.0"
   @spec read_through(GenServer.server, right, timeout) :: match | error
+
   def read_through(structured_io, right, timeout \\ 5000) do
     request = {:read_through, right}
     structured_io
@@ -716,8 +735,13 @@ defmodule StructuredIO do
       ...>                      "<br/>"
       ""
   """
+
+  @since "0.2.0"
   @spec read_to(GenServer.server, right) :: match | error
+
+  @since "0.2.0"
   @spec read_to(GenServer.server, right, timeout) :: match | error
+
   def read_to(structured_io, right, timeout \\ 5000) do
     request = {:read_to, right}
     structured_io
@@ -743,8 +767,13 @@ defmodule StructuredIO do
 
   See `#{inspect __MODULE__}.start_link/2`.
   """
+
+  @since "0.5.0"
   @spec start(mode) :: GenServer.on_start
+
+  @since "0.5.0"
   @spec start(mode, GenServer.options) :: GenServer.on_start
+
   def start(mode, options \\ []) do
     with {:ok, mode} <- compute_mode(mode, :start) do
       GenServer.start __MODULE__, %State{mode: mode}, options
@@ -772,8 +801,13 @@ defmodule StructuredIO do
   `#{inspect __MODULE__}.read_through/2`, and `#{inspect __MODULE__}.read_to/2`
   for more examples.
   """
+
+  @since "0.5.0"
   @spec start_link(mode) :: GenServer.on_start
+
+  @since "0.5.0"
   @spec start_link(mode, GenServer.options) :: GenServer.on_start
+
   def start_link(mode, options \\ []) do
     with {:ok, mode} <- compute_mode(mode, :start_link) do
       GenServer.start_link __MODULE__, %State{mode: mode}, options
@@ -785,9 +819,16 @@ defmodule StructuredIO do
   Synchronously stops the specified `structured_io` process with the specified
   `reason` (defaults to `:normal`) and `timeout` (defaults to infinity).
   """
+
+  @since "0.1.0"
   @spec stop(GenServer.server) :: :ok
+
+  @since "0.1.0"
   @spec stop(GenServer.server, term) :: :ok
+
+  @since "0.1.0"
   @spec stop(GenServer.server, term, timeout) :: :ok
+
   def stop(structured_io, reason \\ :normal, timeout \\ :infinity) do
     GenServer.stop structured_io, reason, timeout
   end
@@ -802,6 +843,7 @@ defmodule StructuredIO do
   `#{inspect __MODULE__}.read_through/2`, and `#{inspect __MODULE__}.read_to/2`
   for examples.
   """
+  @since "0.1.0"
   @spec write(GenServer.server,
               iodata | IO.chardata | String.Chars.t) :: :ok | error
   def write(structured_io, data) do

@@ -60,6 +60,7 @@ defmodule StructuredIO.Scanner do
       {<<0, 0, 0, 1, 2, 3, 255, 255, 255>>,
        <<0, 0, 0, 4, 5, 6, 255, 255, 255>>}
   """
+  @since "0.1.0"
   @spec scan_across(binary, left, right) :: {match, remainder} | nil
 
   def scan_across(""=_data, _left, _right), do: nil
@@ -108,6 +109,7 @@ defmodule StructuredIO.Scanner do
       {<<1, 2, 3>>,
        <<0, 0, 0, 4, 5, 6, 255, 255, 255>>}
   """
+  @since "0.4.0"
   @spec scan_between(binary, left, right) :: {match, remainder} | nil
 
   def scan_between(""=_data, _left, _right), do: nil
@@ -150,6 +152,7 @@ defmodule StructuredIO.Scanner do
       {<<1, 2, 3, 255, 255, 255>>,
        <<4, 5, 6, 255, 255, 255>>}
   """
+  @since "0.2.0"
   @spec scan_through(binary, right) :: {match, remainder} | nil
 
   def scan_through(""=_data, _right), do: nil
@@ -189,6 +192,7 @@ defmodule StructuredIO.Scanner do
       {<<1, 2, 3>>,
        <<255, 255, 255, 4, 5, 6, 255, 255, 255>>}
   """
+  @since "0.2.0"
   @spec scan_to(binary, right) :: {match, remainder} | nil
 
   def scan_to(""=_data, _right), do: nil

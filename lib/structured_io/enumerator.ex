@@ -180,6 +180,7 @@ defmodule StructuredIO.Enumerator do
       {:error,
        "function StructuredIO.read_across/2 is undefined or private"}
   """
+  @since "0.6.0"
   @spec new(%{process: GenServer.server,
               function: atom,
               additional_arguments: any}) :: {:ok, t} | StructuredIO.error
