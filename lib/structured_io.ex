@@ -206,13 +206,19 @@ defmodule StructuredIO do
 
   @since "0.6.0"
   @spec enumerate_with(GenServer.server,
-                       :read_across | :read_between,
+                       :read_across                  |
+                       :read_across_ignoring_overlap |
+                       :read_between                 |
+                       :read_between_ignoring_overlap,
                        left,
                        right) :: Enumerator.t
   def enumerate_with(structured_io,
                      function,
                      left,
-                     right) when function in [:read_across, :read_between] do
+                     right) when function in ~w{read_across
+                                                read_across_ignoring_overlap
+                                                read_between
+                                                read_between_ignoring_overlap}a do
     {:ok, enumerator} = Enumerator.new(%{process: structured_io,
                                          function: function,
                                          additional_arguments: [left, right]})
@@ -258,34 +264,36 @@ defmodule StructuredIO do
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
-  `left` and ending with the specified `right`, inclusive.
+  `left` and ending with the occurrence of the specified `right` that
+  corresponds to it, inclusive.
 
-  If the data read does not begin with `left`, the result is an empty binary
-  (`""`). Likewise, if `right` is not encountered, the result is an empty
-  binary.
+  When the region bounded by the first occurrences of `left` and `right`
+  overlaps other such regions, the result is the union of them. If `data` does
+  not both begin with `left` and contain a corresponding `right`, the result is
+  an empty binary (`""`).
 
   ## Examples
 
       iex> {:ok,
       ...>  structured_io} = StructuredIO.start_link(:binary)
       iex> StructuredIO.write structured_io,
-      ...>                    <<0, 0, 0, 1, 2, 3, 255, 255>>
+      ...>                    <<0, 0, 0, 1, 2, 3, 0, 0, 0, 4, 5, 6, 255, 255, 255, 255, 255>>
       :ok
       iex> StructuredIO.read_across structured_io,
       ...>                          <<0, 0, 0>>,
       ...>                          <<255, 255, 255>>
       ""
       iex> StructuredIO.write structured_io,
-      ...>                    <<255, 0, 0, 0, 4, 5, 6, 255, 255, 255>>
+      ...>                    <<255, 0, 0, 0, 7, 8, 9, 255, 255, 255>>
       :ok
       iex> StructuredIO.read_across structured_io,
       ...>                          <<0, 0, 0>>,
       ...>                          <<255, 255, 255>>
-      <<0, 0, 0, 1, 2, 3, 255, 255, 255>>
+      <<0, 0, 0, 1, 2, 3, 0, 0, 0, 4, 5, 6, 255, 255, 255, 255, 255, 255>>
       iex> StructuredIO.read_across structured_io,
       ...>                          <<0, 0, 0>>,
       ...>                          <<255, 255, 255>>
-      <<0, 0, 0, 4, 5, 6, 255, 255, 255>>
+      <<0, 0, 0, 7, 8, 9, 255, 255, 255>>
       iex> StructuredIO.read_across structured_io,
       ...>                          <<0, 0, 0>>,
       ...>                          <<255, 255, 255>>
@@ -294,23 +302,23 @@ defmodule StructuredIO do
       iex> {:ok,
       ...>  structured_io} = StructuredIO.start_link(:unicode)
       iex> StructuredIO.write structured_io,
-      ...>                    "<elem>foo</elem"
+      ...>                    "<elem>foo<elem>bar</elem></elem"
       :ok
       iex> StructuredIO.read_across structured_io,
       ...>                          "<elem>",
       ...>                          "</elem>"
       ""
       iex> StructuredIO.write structured_io,
-      ...>                    "><elem>bar</elem>"
+      ...>                    "><elem>baz</elem>"
       :ok
       iex> StructuredIO.read_across structured_io,
       ...>                          "<elem>",
       ...>                          "</elem>"
-      "<elem>foo</elem>"
+      "<elem>foo<elem>bar</elem></elem>"
       iex> StructuredIO.read_across structured_io,
       ...>                          "<elem>",
       ...>                          "</elem>"
-      "<elem>bar</elem>"
+      "<elem>baz</elem>"
       iex> StructuredIO.read_across structured_io,
       ...>                          "<elem>",
       ...>                          "</elem>"
@@ -390,63 +398,109 @@ defmodule StructuredIO do
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
-  `left` and ending with the specified `right`, exclusive.
+  `left` and ending with the first occurrence of the specified `right`,
+  inclusive.
 
-  If the data read does not begin with `left`, the result is an empty binary
-  (`""`). Likewise, if `right` is not encountered, the result is an empty
-  binary.
+  If `data` does not both begin with `left` and contain `right`, the result is
+  an empty binary (`""`).
 
   ## Examples
 
       iex> {:ok,
       ...>  structured_io} = StructuredIO.start_link(:binary)
       iex> StructuredIO.write structured_io,
-      ...>                    <<0, 0, 0, 1, 2, 3, 255, 255>>
+      ...>                    <<0, 0, 0, 1, 2, 3, 0, 0, 0, 4, 5, 6, 255, 255>>
       :ok
-      iex> StructuredIO.read_between structured_io,
-      ...>                           <<0, 0, 0>>,
-      ...>                           <<255, 255, 255>>
+      iex> StructuredIO.read_across_ignoring_overlap structured_io,
+      ...>                                           <<0, 0, 0>>,
+      ...>                                           <<255, 255, 255>>
       ""
       iex> StructuredIO.write structured_io,
-      ...>                    <<255, 0, 0, 0, 4, 5, 6, 255, 255, 255>>
+      ...>                    <<255>>
       :ok
-      iex> StructuredIO.read_between structured_io,
-      ...>                           <<0, 0, 0>>,
-      ...>                           <<255, 255, 255>>
-      <<1, 2, 3>>
-      iex> StructuredIO.read_between structured_io,
-      ...>                           <<0, 0, 0>>,
-      ...>                           <<255, 255, 255>>
-      <<4, 5, 6>>
-      iex> StructuredIO.read_between structured_io,
-      ...>                           <<0, 0, 0>>,
-      ...>                           <<255, 255, 255>>
-      ""
+      iex> StructuredIO.read_across_ignoring_overlap structured_io,
+      ...>                                           <<0, 0, 0>>,
+      ...>                                           <<255, 255, 255>>
+      <<0, 0, 0, 1, 2, 3, 0, 0, 0, 4, 5, 6, 255, 255, 255>>
 
       iex> {:ok,
       ...>  structured_io} = StructuredIO.start_link(:unicode)
       iex> StructuredIO.write structured_io,
-      ...>                    "<elem>foo</elem"
+      ...>                    "<elem>foo<elem>bar</elem"
+      :ok
+      iex> StructuredIO.read_across_ignoring_overlap structured_io,
+      ...>                                           "<elem>",
+      ...>                                           "</elem>"
+      ""
+      iex> StructuredIO.write structured_io,
+      ...>                    ">"
+      :ok
+      iex> StructuredIO.read_across_ignoring_overlap structured_io,
+      ...>                                           "<elem>",
+      ...>                                           "</elem>"
+      "<elem>foo<elem>bar</elem>"
+  """
+  @spec read_across_ignoring_overlap(GenServer.server,
+                                     left,
+                                     right) :: match | error
+  @spec read_across_ignoring_overlap(GenServer.server,
+                                     left,
+                                     right,
+                                     timeout) :: match | error
+  def read_across_ignoring_overlap(structured_io,
+                                   left,
+                                   right,
+                                   timeout \\ 5000) do
+    request = {:read_across_ignoring_overlap, left, right}
+    structured_io
+    |> GenServer.call(request, timeout)
+    |> convert_if_error
+  end
+
+
+  @doc """
+  Reads data from the specified `structured_io` beginning with the specified
+  `left` and ending with the occurrence of the specified `right` that
+  corresponds to it, exclusive.
+
+  If `data` does not both begin with `left` and contain a corresponding `right`,
+  the result is an empty binary (`""`).
+
+  ## Examples
+
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:binary)
+      iex> StructuredIO.write structured_io,
+      ...>                    <<0, 0, 0, 1, 2, 3, 0, 0, 0, 4, 5, 6, 255, 255, 255, 255, 255>>
+      :ok
+      iex> StructuredIO.read_between structured_io,
+      ...>                           <<0, 0, 0>>,
+      ...>                           <<255, 255, 255>>
+      ""
+      iex> StructuredIO.write structured_io,
+      ...>                    <<255>>
+      :ok
+      iex> StructuredIO.read_between structured_io,
+      ...>                           <<0, 0, 0>>,
+      ...>                           <<255, 255, 255>>
+      <<1, 2, 3, 0, 0, 0, 4, 5, 6, 255, 255, 255>>
+
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:unicode)
+      iex> StructuredIO.write structured_io,
+      ...>                    "<elem>foo<elem>bar</elem></elem"
       :ok
       iex> StructuredIO.read_between structured_io,
       ...>                           "<elem>",
       ...>                           "</elem>"
       ""
       iex> StructuredIO.write structured_io,
-      ...>                    "><elem>bar</elem>"
+      ...>                    ">"
       :ok
       iex> StructuredIO.read_between structured_io,
       ...>                           "<elem>",
       ...>                           "</elem>"
-      "foo"
-      iex> StructuredIO.read_between structured_io,
-      ...>                           "<elem>",
-      ...>                           "</elem>"
-      "bar"
-      iex> StructuredIO.read_between structured_io,
-      ...>                           "<elem>",
-      ...>                           "</elem>"
-      ""
+      "foo<elem>bar</elem>"
 
       iex> {:ok,
       ...>  structured_io} = StructuredIO.start_link(:binary)
@@ -514,6 +568,68 @@ defmodule StructuredIO do
 
   def read_between(structured_io, left, right, timeout \\ 5000) do
     request = {:read_between, left, right}
+    structured_io
+    |> GenServer.call(request, timeout)
+    |> convert_if_error
+  end
+
+
+  @doc """
+  Reads data from the specified `structured_io` beginning with the specified
+  `left` and ending with the first occurrence of the specified `right`,
+  exclusive.
+
+  If `data` does not both begin with `left` and contain `right`, the result is
+  an empty binary (`""`).
+
+  ## Examples
+
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:binary)
+      iex> StructuredIO.write structured_io,
+      ...>                    <<0, 0, 0, 1, 2, 3, 0, 0, 0, 4, 5, 6, 255, 255>>
+      :ok
+      iex> StructuredIO.read_between_ignoring_overlap structured_io,
+      ...>                                            <<0, 0, 0>>,
+      ...>                                            <<255, 255, 255>>
+      ""
+      iex> StructuredIO.write structured_io,
+      ...>                    <<255>>
+      :ok
+      iex> StructuredIO.read_between_ignoring_overlap structured_io,
+      ...>                                            <<0, 0, 0>>,
+      ...>                                            <<255, 255, 255>>
+      <<1, 2, 3, 0, 0, 0, 4, 5, 6>>
+
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:unicode)
+      iex> StructuredIO.write structured_io,
+      ...>                    "<elem>foo<elem>bar</elem"
+      :ok
+      iex> StructuredIO.read_between_ignoring_overlap structured_io,
+      ...>                                            "<elem>",
+      ...>                                            "</elem>"
+      ""
+      iex> StructuredIO.write structured_io,
+      ...>                    ">"
+      :ok
+      iex> StructuredIO.read_between_ignoring_overlap structured_io,
+      ...>                                            "<elem>",
+      ...>                                            "</elem>"
+      "foo<elem>bar"
+  """
+  @spec read_between_ignoring_overlap(GenServer.server,
+                                      left,
+                                      right) :: match | error
+  @spec read_between_ignoring_overlap(GenServer.server,
+                                      left,
+                                      right,
+                                      timeout) :: match | error
+  def read_between_ignoring_overlap(structured_io,
+                                    left,
+                                    right,
+                                    timeout \\ 5000) do
+    request = {:read_between_ignoring_overlap, left, right}
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
@@ -865,6 +981,18 @@ defmodule StructuredIO do
   end
 
 
+  def handle_call({:read_across_ignoring_overlap, left, right}, _from, state) do
+    case binary_data(state) do
+      {:error, _}=error ->
+        {:reply, error, state}
+      {:ok, binary} ->
+        binary
+        |> Scanner.scan_across_ignoring_overlap(left, right)
+        |> read_reply(state)
+    end
+  end
+
+
   def handle_call({:read_between, left, right}, _from, state) do
     case binary_data(state) do
       {:error, _}=error ->
@@ -872,6 +1000,20 @@ defmodule StructuredIO do
       {:ok, binary} ->
         binary
         |> Scanner.scan_between(left, right)
+        |> read_reply(state)
+    end
+  end
+
+
+  def handle_call({:read_between_ignoring_overlap, left, right},
+                  _from,
+                  state) do
+    case binary_data(state) do
+      {:error, _}=error ->
+        {:reply, error, state}
+      {:ok, binary} ->
+        binary
+        |> Scanner.scan_between_ignoring_overlap(left, right)
         |> read_reply(state)
     end
   end

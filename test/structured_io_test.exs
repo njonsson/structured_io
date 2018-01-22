@@ -33,10 +33,34 @@ defmodule StructuredIOTest do
         :ok = StructuredIO.write(structured_io, io_list)
       end
       :ok = StructuredIO.write(structured_io, closer)
-      result = StructuredIO.read_across(structured_io,
-                                           opener,
-                                           closer,
-                                           12_000)
+      result = StructuredIO.read_across(structured_io, opener, closer, 15_000)
+      result_byte_size = byte_size(result)
+      assert result_byte_size == byte_size(opener) +
+                                 20_000_000        +
+                                 byte_size(closer)
+      beginning_of_result = binary_part(result, 0, byte_size(opener))
+      assert beginning_of_result == opener
+      end_of_result = binary_part(result,
+                                  result_byte_size - byte_size(closer),
+                                  byte_size(closer))
+      assert end_of_result == closer
+    end
+  end
+
+  describe ".read_across_ignoring_overlap/3" do
+    @tag :slow
+    test "with a large dataset", %{structured_io_binary_mode: structured_io} do
+      opener = <<0, 0, 0>>
+      closer = <<255, 255, 255>>
+      :ok = StructuredIO.write(structured_io, opener)
+      with_random_io_lists %{size: 100, count: 200_000}, fn io_list ->
+        :ok = StructuredIO.write(structured_io, io_list)
+      end
+      :ok = StructuredIO.write(structured_io, closer)
+      result = StructuredIO.read_across_ignoring_overlap(structured_io,
+                                                         opener,
+                                                         closer,
+                                                         12_000)
       result_byte_size = byte_size(result)
       assert result_byte_size == byte_size(opener) +
                                  20_000_000        +
@@ -66,10 +90,32 @@ defmodule StructuredIOTest do
         :ok = StructuredIO.write(structured_io, io_list)
       end
       :ok = StructuredIO.write(structured_io, closer)
-      result = StructuredIO.read_between(structured_io,
-                                            opener,
-                                            closer,
-                                            12_000)
+      result = StructuredIO.read_between(structured_io, opener, closer, 15_000)
+      result_byte_size = byte_size(result)
+      assert result_byte_size == 20_000_000
+      beginning_of_result = binary_part(result, 0, byte_size(opener))
+      refute beginning_of_result == opener
+      end_of_result = binary_part(result,
+                                  result_byte_size - byte_size(closer),
+                                  byte_size(closer))
+      refute end_of_result == closer
+    end
+  end
+
+  describe ".read_between_ignoring_overlap/3" do
+    @tag :slow
+    test "with a large dataset", %{structured_io_binary_mode: structured_io} do
+      opener = <<0, 0, 0>>
+      closer = <<255, 255, 255>>
+      :ok = StructuredIO.write(structured_io, opener)
+      with_random_io_lists %{size: 100, count: 200_000}, fn io_list ->
+        :ok = StructuredIO.write(structured_io, io_list)
+      end
+      :ok = StructuredIO.write(structured_io, closer)
+      result = StructuredIO.read_between_ignoring_overlap(structured_io,
+                                                          opener,
+                                                          closer,
+                                                          12_000)
       result_byte_size = byte_size(result)
       assert result_byte_size == 20_000_000
       beginning_of_result = binary_part(result, 0, byte_size(opener))

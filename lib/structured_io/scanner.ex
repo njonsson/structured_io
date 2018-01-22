@@ -5,6 +5,41 @@ defmodule StructuredIO.Scanner do
   """
 
 
+  defmodule Enclosed do
+    @moduledoc false
+
+
+    @enforce_keys [:data, :left, :right, :count]
+    defstruct before: "",
+              data: nil,
+              left: nil,
+              right: nil,
+              count: nil
+
+    @typedoc false
+    @type t :: %__MODULE__{before: binary,
+                           data: binary,
+                           left: binary,
+                           right: binary,
+                           count: non_neg_integer}
+  end
+
+
+  defmodule Terminated do
+    @moduledoc false
+
+
+    @enforce_keys [:data, :right]
+    defstruct before: "", data: nil, right: nil
+
+    @typedoc false
+    @type t :: %__MODULE__{before: binary, data: binary, right: binary}
+  end
+
+
+  alias __MODULE__.{Enclosed,Terminated}
+
+
   @typedoc """
   A binary value which marks the beginning of an enclosed data element.
   """
@@ -30,11 +65,14 @@ defmodule StructuredIO.Scanner do
 
 
   @doc """
-  Reads from the specified `data` beginning with the specified `left` and ending
-  with the specified `right`, inclusive.
+  Reads from the specified `data`, beginning with the specified `left` and
+  ending with the occurrence of the specified `right` that corresponds to it,
+  inclusive.
 
-  If `data` does not both begin with `left` and contain `right`, the result is
-  `nil`.
+  When the region — bounded by the first occurrence of `left` and the occurrence
+  `right` that corresponds to it — overlaps other such regions, the result is
+  the union of the regions. If `data` does not both begin with `left` and
+  contain a corresponding `right`, the result is `nil`.
 
   ## Examples
 
@@ -43,22 +81,22 @@ defmodule StructuredIO.Scanner do
       ...>                                  "</elem>"
       nil
 
-      iex> StructuredIO.Scanner.scan_across "<elem>foo</elem><elem>bar</elem>",
+      iex> StructuredIO.Scanner.scan_across "<elem>foo<elem>bar</elem></elem>baz",
       ...>                                  "<elem>",
       ...>                                  "</elem>"
-      {"<elem>foo</elem>",
-       "<elem>bar</elem>"}
+      {"<elem>foo<elem>bar</elem></elem>",
+       "baz"}
 
       iex> StructuredIO.Scanner.scan_across <<0, 0, 0, 1, 2, 3, 255, 255>>,
       ...>                                  <<0, 0, 0>>,
       ...>                                  <<255, 255, 255>>
       nil
 
-      iex> StructuredIO.Scanner.scan_across <<0, 0, 0, 1, 2, 3, 255, 255, 255, 0, 0, 0, 4, 5, 6, 255, 255, 255>>,
+      iex> StructuredIO.Scanner.scan_across <<0, 0, 0, 1, 2, 3, 0, 0, 0, 4, 5, 6, 255, 255, 255, 255, 255, 255, 7, 8, 9>>,
       ...>                                  <<0, 0, 0>>,
       ...>                                  <<255, 255, 255>>
-      {<<0, 0, 0, 1, 2, 3, 255, 255, 255>>,
-       <<0, 0, 0, 4, 5, 6, 255, 255, 255>>}
+      {<<0, 0, 0, 1, 2, 3, 0, 0, 0, 4, 5, 6, 255, 255, 255, 255, 255, 255>>,
+       <<7, 8, 9>>}
   """
   @since "0.1.0"
   @spec scan_across(binary, left, right) :: {match, remainder} | nil
@@ -72,6 +110,60 @@ defmodule StructuredIO.Scanner do
   def scan_across(data, left, right) do
     with data_after_left when is_binary(data_after_left) <-
            after_beginning(data, left),
+         {match, remainder} <-
+           scan(%Enclosed{data: data_after_left,
+                          left: left,
+                          right: right,
+                          count: 1}) do
+      {left <> match, remainder}
+    end
+  end
+
+
+  @doc """
+  Reads from the specified `data`, beginning with the specified `left` and
+  ending with the first occurrence of the specified `right`, inclusive.
+
+  If `data` does not both begin with `left` and contain `right`, the result is
+  `nil`.
+
+  ## Examples
+
+      iex> StructuredIO.Scanner.scan_across_ignoring_overlap "<elem>foo<elem>bar</elem",
+      ...>                                                   "<elem>",
+      ...>                                                   "</elem>"
+      nil
+
+      iex> StructuredIO.Scanner.scan_across_ignoring_overlap "<elem>foo<elem>bar</elem></elem>baz",
+      ...>                                                   "<elem>",
+      ...>                                                   "</elem>"
+      {"<elem>foo<elem>bar</elem>",
+       "</elem>baz"}
+
+      iex> StructuredIO.Scanner.scan_across_ignoring_overlap <<0, 0, 0, 1, 2, 3, 0, 0, 0, 4, 5, 6, 255, 255>>,
+      ...>                                                   <<0, 0, 0>>,
+      ...>                                                   <<255, 255, 255>>
+      nil
+
+      iex> StructuredIO.Scanner.scan_across_ignoring_overlap <<0, 0, 0, 1, 2, 3, 0, 0, 0, 4, 5, 6, 255, 255, 255, 255, 255, 255, 7, 8, 9>>,
+      ...>                                                   <<0, 0, 0>>,
+      ...>                                                   <<255, 255, 255>>
+      {<<0, 0, 0, 1, 2, 3, 0, 0, 0, 4, 5, 6, 255, 255, 255>>,
+       <<255, 255, 255, 7, 8, 9>>}
+  """
+  @spec scan_across_ignoring_overlap(binary,
+                                     left,
+                                     right) :: {match, remainder} | nil
+
+  def scan_across_ignoring_overlap(""=_data, _left, _right), do: nil
+
+  def scan_across_ignoring_overlap(_data, ""=_left, _right), do: nil
+
+  def scan_across_ignoring_overlap(_data, _left, ""=_right), do: nil
+
+  def scan_across_ignoring_overlap(data, left, right) do
+    with data_after_left when is_binary(data_after_left) <-
+           after_beginning(data, left),
          {match, remainder} <- scan_through(data_after_left, right) do
       {left <> match, remainder}
     end
@@ -79,11 +171,12 @@ defmodule StructuredIO.Scanner do
 
 
   @doc """
-  Reads from the specified `data` beginning with the specified `left` and ending
-  with the specified `right`, exclusive.
+  Reads from the specified `data`, beginning with the specified `left` and
+  ending with the occurrence of the specified `right` that corresponds to it,
+  exclusive.
 
-  If `data` does not both begin with `left` and contain `right`, the result is
-  `nil`.
+  If `data` does not both begin with `left` and contain a corresponding `right`,
+  the result is `nil`.
 
   ## Examples
 
@@ -98,6 +191,12 @@ defmodule StructuredIO.Scanner do
       {"foo",
        "<elem>bar</elem>"}
 
+      iex> StructuredIO.Scanner.scan_between "<elem>foo<elem>bar</elem></elem>baz",
+      ...>                                   "<elem>",
+      ...>                                   "</elem>"
+      {"foo<elem>bar</elem>",
+       "baz"}
+
       iex> StructuredIO.Scanner.scan_between <<0, 0, 0, 1, 2, 3, 255, 255>>,
       ...>                                   <<0, 0, 0>>,
       ...>                                   <<255, 255, 255>>
@@ -108,6 +207,12 @@ defmodule StructuredIO.Scanner do
       ...>                                   <<255, 255, 255>>
       {<<1, 2, 3>>,
        <<0, 0, 0, 4, 5, 6, 255, 255, 255>>}
+
+      iex> StructuredIO.Scanner.scan_between <<0, 0, 0, 1, 2, 3, 0, 0, 0, 4, 5, 6, 255, 255, 255, 255, 255, 255, 7, 8, 9>>,
+      ...>                                   <<0, 0, 0>>,
+      ...>                                   <<255, 255, 255>>
+      {<<1, 2, 3, 0, 0, 0, 4, 5, 6, 255, 255, 255>>,
+       <<7, 8, 9>>}
   """
   @since "0.4.0"
   @spec scan_between(binary, left, right) :: {match, remainder} | nil
@@ -119,9 +224,66 @@ defmodule StructuredIO.Scanner do
   def scan_between(_data, _left, ""=_right), do: nil
 
   def scan_between(data, left, right) do
-    with data_after_left
-           when is_binary(data_after_left) <- after_beginning(data, left) do
-      scan data_after_left, right
+    with data_after_left when is_binary(data_after_left) <-
+           after_beginning(data, left),
+         {match, remainder} <-
+           scan(%Enclosed{data: data_after_left,
+                          left: left,
+                          right: right,
+                          count: 1}) do
+      match_without_right = binary_part(match,
+                                        0,
+                                        byte_size(match) - byte_size(right))
+      {match_without_right, remainder}
+    end
+  end
+
+
+  @doc """
+  Reads from the specified `data`, beginning with the specified `left` and
+  ending with the first occurrence of the specified `right`, exclusive.
+
+  If `data` does not both begin with `left` and contain `right`, the result is
+  `nil`.
+
+  ## Examples
+
+      iex> StructuredIO.Scanner.scan_between_ignoring_overlap "<elem>foo<elem>bar</elem",
+      ...>                                                    "<elem>",
+      ...>                                                    "</elem>"
+      nil
+
+      iex> StructuredIO.Scanner.scan_between_ignoring_overlap "<elem>foo<elem>bar</elem></elem>baz",
+      ...>                                                    "<elem>",
+      ...>                                                    "</elem>"
+      {"foo<elem>bar",
+       "</elem>baz"}
+
+      iex> StructuredIO.Scanner.scan_between_ignoring_overlap <<0, 0, 0, 1, 2, 3, 0, 0, 0, 4, 5, 6, 255, 255>>,
+      ...>                                                    <<0, 0, 0>>,
+      ...>                                                    <<255, 255, 255>>
+      nil
+
+      iex> StructuredIO.Scanner.scan_between_ignoring_overlap <<0, 0, 0, 1, 2, 3, 0, 0, 0, 4, 5, 6, 255, 255, 255, 255, 255, 255, 7, 8, 9>>,
+      ...>                                                    <<0, 0, 0>>,
+      ...>                                                    <<255, 255, 255>>
+      {<<1, 2, 3, 0, 0, 0, 4, 5, 6>>,
+       <<255, 255, 255, 7, 8, 9>>}
+  """
+  @spec scan_between_ignoring_overlap(binary,
+                                      left,
+                                      right) :: {match, remainder} | nil
+
+  def scan_between_ignoring_overlap(""=_data, _left, _right), do: nil
+
+  def scan_between_ignoring_overlap(_data, ""=_left, _right), do: nil
+
+  def scan_between_ignoring_overlap(_data, _left, ""=_right), do: nil
+
+  def scan_between_ignoring_overlap(data, left, right) do
+    with data_after_left when is_binary(data_after_left) <-
+           after_beginning(data, left) do
+      scan %Terminated{data: data_after_left, right: right}
     end
   end
 
@@ -160,7 +322,7 @@ defmodule StructuredIO.Scanner do
   def scan_through(_data, ""=_right), do: nil
 
   def scan_through(data, right) do
-    with {match, remainder} <- scan(data, right) do
+    with {match, remainder} <- scan(%Terminated{data: data, right: right}) do
       {match <> right, remainder}
     end
   end
@@ -200,7 +362,7 @@ defmodule StructuredIO.Scanner do
   def scan_to(_data, ""=_right), do: nil
 
   def scan_to(data, right) do
-    with {match, remainder} <- scan(data, right) do
+    with {match, remainder} <- scan(%Terminated{data: data, right: right}) do
       {match, right <> remainder}
     end
   end
@@ -218,25 +380,51 @@ defmodule StructuredIO.Scanner do
     end
   end
 
-  @spec scan(binary, binary) :: {binary, binary} | nil
+  @spec scan(Enclosed.t) :: {binary, binary} | nil
 
-  defp scan(scanning, scanning_for), do: scan("", scanning, scanning_for)
+  defp scan(%Enclosed{before: before, data: data, count: 0}), do: {before, data}
 
-  @spec scan(binary, binary, binary) :: {binary, binary} | nil
+  defp scan(%Enclosed{data: ""}), do: nil
 
-  defp scan(_, "", _), do: nil
+  defp scan(%Enclosed{before: before,
+                      data: data,
+                      left: left,
+                      right: right,
+                      count: count}=arguments) do
+    case after_beginning(data, left) do
+      nil ->
+        case after_beginning(data, right) do
+          nil ->
+            <<data_first::binary-size(1), data_rest::binary>> = data
+            scan %{arguments | before: before <> data_first, data: data_rest}
+          after_right ->
+            scan %{arguments | before: before <> right,
+                               data: after_right,
+                               count: count - 1}
+        end
+      after_left ->
+        scan %{arguments | before: before <> left,
+                           data: after_left,
+                           count: count + 1}
+    end
+  end
 
-  defp scan(before, scanning, scanning_for) do
-    scanning_size = byte_size(scanning)
-    scanning_for_size = byte_size(scanning_for)
-    if scanning_for_size <= scanning_size do
-      <<scanned::binary-size(scanning_for_size),
-        after_scanning_for::binary>> = scanning
-      if scanned == scanning_for do
-        {before, after_scanning_for}
+  defp scan(%Enclosed{}=arguments), do: scan(%{arguments | before: ""})
+
+  @spec scan(Terminated.t) :: {binary, binary} | nil
+
+  defp scan(%Terminated{data: ""}), do: nil
+
+  defp scan(%Terminated{before: before, data: data, right: right}=arguments) do
+    data_size = byte_size(data)
+    right_size = byte_size(right)
+    if right_size <= data_size do
+      <<data_beginning::binary-size(right_size), after_right::binary>> = data
+      if data_beginning == right do
+        {before, after_right}
       else
-        <<scanning_first::binary-size(1), scanning_rest::binary>> = scanning
-        scan((before <> scanning_first), scanning_rest, scanning_for)
+        <<data_first::binary-size(1), data_rest::binary>> = data
+        scan %{arguments | before: before <> data_first, data: data_rest}
       end
     end
   end
