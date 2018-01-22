@@ -44,9 +44,7 @@ defmodule StructuredIO.Mixfile do
      main: "about"]
   end
 
-  defp description do
-    "Resembles Elixir’s ‘IO’ module, but guarantees the reading of structured data"
-  end
+  defp description, do: "An Elixir API for consuming structured input streams"
 
   defp package do
     [files:       ~w{History.md
