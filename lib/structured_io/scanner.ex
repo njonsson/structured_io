@@ -151,6 +151,7 @@ defmodule StructuredIO.Scanner do
       {<<0, 0, 0, 1, 2, 3, 0, 0, 0, 4, 5, 6, 255, 255, 255>>,
        <<255, 255, 255, 7, 8, 9>>}
   """
+  @since "0.7.0"
   @spec scan_across_ignoring_overlap(binary,
                                      left,
                                      right) :: {match, remainder} | nil
@@ -270,6 +271,7 @@ defmodule StructuredIO.Scanner do
       {<<1, 2, 3, 0, 0, 0, 4, 5, 6>>,
        <<255, 255, 255, 7, 8, 9>>}
   """
+  @since "0.7.0"
   @spec scan_between_ignoring_overlap(binary,
                                       left,
                                       right) :: {match, remainder} | nil

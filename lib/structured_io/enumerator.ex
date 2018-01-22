@@ -238,6 +238,7 @@ defmodule StructuredIO.Enumerator do
       ...>                                 nil
       enumerator
   """
+  @since "0.7.0"
   @spec timeout(t, timeout | nil) :: t
   def timeout(%__MODULE__{}=enumerator, timeout) do
     %{enumerator | timeout: timeout}

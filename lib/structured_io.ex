@@ -440,13 +440,17 @@ defmodule StructuredIO do
       ...>                                           "</elem>"
       "<elem>foo<elem>bar</elem>"
   """
+  @since "0.7.0"
   @spec read_across_ignoring_overlap(GenServer.server,
                                      left,
                                      right) :: match | error
+
+  @since "0.7.0"
   @spec read_across_ignoring_overlap(GenServer.server,
                                      left,
                                      right,
                                      timeout) :: match | error
+
   def read_across_ignoring_overlap(structured_io,
                                    left,
                                    right,
@@ -618,13 +622,17 @@ defmodule StructuredIO do
       ...>                                            "</elem>"
       "foo<elem>bar"
   """
+  @since "0.7.0"
   @spec read_between_ignoring_overlap(GenServer.server,
                                       left,
                                       right) :: match | error
+
+  @since "0.7.0"
   @spec read_between_ignoring_overlap(GenServer.server,
                                       left,
                                       right,
                                       timeout) :: match | error
+
   def read_between_ignoring_overlap(structured_io,
                                     left,
                                     right,
