@@ -258,8 +258,7 @@ defmodule StructuredIO do
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
-  `left` and ending with the specified `right`, inclusive, using the specified
-  `timeout` (defaults to 5,000 milliseconds).
+  `left` and ending with the specified `right`, inclusive.
 
   If the data read does not begin with `left`, the result is an empty binary
   (`""`). Likewise, if `right` is not encountered, the result is an empty
@@ -391,8 +390,7 @@ defmodule StructuredIO do
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
-  `left` and ending with the specified `right`, exclusive, using the specified
-  `timeout` (defaults to 5,000 milliseconds).
+  `left` and ending with the specified `right`, exclusive.
 
   If the data read does not begin with `left`, the result is an empty binary
   (`""`). Likewise, if `right` is not encountered, the result is an empty
@@ -524,8 +522,7 @@ defmodule StructuredIO do
 
   @doc """
   Reads data from the specified `structured_io` if and until the specified
-  `right` is encountered, including `right`, using the specified `timeout`
-  (defaults to 5,000 milliseconds).
+  `right` is encountered, including `right`.
 
   If `right` is not encountered, the result is an empty binary (`""`).
 
@@ -635,8 +632,7 @@ defmodule StructuredIO do
 
   @doc """
   Reads data from the specified `structured_io` if and until the specified
-  `right` is encountered, excluding `right`, using the specified `timeout`
-  (defaults to 5,000 milliseconds).
+  `right` is encountered, excluding `right`.
 
   If `right` is not encountered, the result is an empty binary (`""`).
 
@@ -816,8 +812,7 @@ defmodule StructuredIO do
 
 
   @doc """
-  Synchronously stops the specified `structured_io` process with the specified
-  `reason` (defaults to `:normal`) and `timeout` (defaults to infinity).
+  Synchronously stops the specified `structured_io` process.
   """
 
   @since "0.1.0"
