@@ -1,5 +1,24 @@
 # Version history for the *StructuredIO* project
 
+## v0.7.0
+
+**Mon 1/22/2018**
+
+* Introduce functions that ignore nesting of enclosed data elements:
+  - *StructuredIO.read_across_ignoring_overlaps*
+  - *StructuredIO.read_between_ignoring_overlaps*
+  - *StructuredIO.Scanner.scan_across_ignoring_overlaps*
+  - *StructuredIO.Scanner.scan_between_ignoring_overlaps*
+* Alter existing functions to respect nesting of enclosed data elements:
+  - *StructuredIO.read_across*
+  - *StructuredIO.read_between*
+  - *StructuredIO.Scanner.scan_across*
+  - *StructuredIO.Scanner.scan_between*
+* Add support for a message timeout to the
+  [*Enumerable*][HexDocs-Elixir-Enumerable] protocol implementation
+* Use the deprecation annotations standard in Elixir v1.6 instead of
+  [*Logger*][HexDocs-Elixir-Logger] runtime warnings
+
 ## v0.6.0
 
 **Thu 1/04/2018**
@@ -61,6 +80,7 @@
 
 (First release)
 
-[HexDocs-Elixir-Collectable]:            https://hexdocs.pm/elixir/Collectable.html            "Elixir’s ‘Collectable’ protocol at HexDocs"
 [HexDocs-Elixir-Enumerable]:             https://hexdocs.pm/elixir/Enumerable.html             "Elixir’s ‘Enumerable’ protocol at HexDocs"
+[HexDocs-Elixir-Logger]:                 https://hexdocs.pm/logger/Logger.html                 "Elixir’s ‘Logger’ module at HexDocs"
+[HexDocs-Elixir-Collectable]:            https://hexdocs.pm/elixir/Collectable.html            "Elixir’s ‘Collectable’ protocol at HexDocs"
 [HexDocs-Elixir-UnicodeConversionError]: https://hexdocs.pm/elixir/UnicodeConversionError.html "Elixir’s ‘UnicodeConversionError’ exception at HexDocs"
