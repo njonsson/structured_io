@@ -80,13 +80,14 @@ defmodule StructuredIO.Enumerator do
   """
 
 
-  defstruct process: nil, function: nil, additional_arguments: []
+  defstruct process: nil, function: nil, timeout: nil, additional_arguments: []
 
   @typedoc """
   A `#{inspect __MODULE__}` struct.
   """
   @type t :: %__MODULE__{process: GenServer.server,
                          function: atom,
+                         timeout: nil | timeout,
                          additional_arguments: [any]}
 
 
@@ -106,7 +107,9 @@ defmodule StructuredIO.Enumerator do
     end
 
     def reduce(enumerator, {:cont, acc}, fun) do
-      arguments = [enumerator.process | enumerator.additional_arguments]
+      # TODO: Avoid constructing this on each invocation of `reduce/3`
+      arguments = [enumerator.process | enumerator.additional_arguments] ++
+                  List.wrap(enumerator.timeout)
       case apply(StructuredIO, enumerator.function, arguments) do
         {:error, _}=error -> {:done, error}
         ""                -> {:done, acc}
@@ -211,4 +214,32 @@ defmodule StructuredIO.Enumerator do
   def new(%{function: _}=_enumerator), do: {:error, @error_process}
 
   def new(%{process: _}=_enumerator), do: {:error, @error_function}
+
+  @doc """
+  Sets a timeout for the specified `#{inspect __MODULE__}`.
+
+  ## Examples
+
+      iex> {:ok,
+      ...>  enumerator} = StructuredIO.Enumerator.new(%{process: :a_process,
+      ...>                                              function: :read_across,
+      ...>                                              additional_arguments: ["<elem>",
+      ...>                                                                     "</elem>"]})
+      iex> enumerator.timeout
+      nil
+      iex> enumerator_with_timeout = StructuredIO.Enumerator.timeout(enumerator,
+      ...>                                                           1000)
+      %StructuredIO.Enumerator{process: :a_process,
+                               function: :read_across,
+                               additional_arguments: ["<elem>",
+                                                      "</elem>"],
+                               timeout: 1000}
+      iex> StructuredIO.Enumerator.timeout enumerator_with_timeout,
+      ...>                                 nil
+      enumerator
+  """
+  @spec timeout(t, timeout | nil) :: t
+  def timeout(%__MODULE__{}=enumerator, timeout) do
+    %{enumerator | timeout: timeout}
+  end
 end
