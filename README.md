@@ -15,7 +15,7 @@ to fragmentary input.
 
 ## Usage
 
-Here’s a contrived example that shows how to write to and read structured data
+Here’s a contrived example that shows how to write and read structured data
 using the `StructuredIO.write` and `.read_*` functions. This example depicts
 Unicode data, but binary data of any kind can be written and read, too. See
 [the API reference][HexDocs-project-API-reference] for detailed examples.
@@ -124,7 +124,7 @@ iex> StructuredIO.stop structured_io
 :ok
 ```
 
-Don’t forget to stop the process when you’re finished using the process.
+Don’t forget to stop the process when you’re finished with it.
 
 You’ll find more detailed examples in
 [the documentation][HexDocs-project-API-reference] for the *StructuredIO*
@@ -158,8 +158,9 @@ To submit a patch to the project:
 5. [Create][GitHub-compare-project-branches] a new pull request.
 
 After cloning the repository, `mix deps.get` to install dependencies. Then
-`mix test` to run the tests. You can also `iex` to get an interactive prompt
-that will allow you to experiment. To build this package, `mix hex.build`.
+`mix test` to run the tests. You can also `iex -S mix` to get an interactive
+prompt that will allow you to experiment. To build this package,
+`mix hex.build`.
 
 To release a new version:
 
