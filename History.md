@@ -1,5 +1,11 @@
 # Version history for the *StructuredIO* project
 
+## v1.0.0
+
+**Thu 1/25/2018**
+
+* Eliminate deprecated <small>API</small>s
+
 ## v0.7.0
 
 **Mon 1/22/2018**
