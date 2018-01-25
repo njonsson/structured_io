@@ -267,10 +267,8 @@ defmodule StructuredIO do
   `left` and ending with the occurrence of the specified `right` that
   corresponds to it, inclusive.
 
-  When the region bounded by the first occurrences of `left` and `right`
-  overlaps other such regions, the result is the union of them. If `data` does
-  not both begin with `left` and contain a corresponding `right`, the result is
-  an empty binary (`""`).
+  If `data` does not both begin with `left` and contain a corresponding `right`,
+  the result is an empty binary (`""`).
 
   ## Examples
 

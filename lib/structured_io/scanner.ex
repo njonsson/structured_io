@@ -69,10 +69,8 @@ defmodule StructuredIO.Scanner do
   ending with the occurrence of the specified `right` that corresponds to it,
   inclusive.
 
-  When the region — bounded by the first occurrence of `left` and the occurrence
-  `right` that corresponds to it — overlaps other such regions, the result is
-  the union of the regions. If `data` does not both begin with `left` and
-  contain a corresponding `right`, the result is `nil`.
+  If `data` does not both begin with `left` and contain a corresponding `right`,
+  the result is `nil`.
 
   ## Examples
 
