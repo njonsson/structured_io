@@ -27,7 +27,7 @@ defmodule StructuredIO do
 
   use GenServer
 
-  alias StructuredIO.{Collector,Deprecated,Enumerator,Scanner}
+  alias StructuredIO.{Collector,Enumerator,Scanner}
 
 
   @typedoc """
@@ -73,39 +73,6 @@ defmodule StructuredIO do
   `#{inspect __MODULE__}.read_through/2`, and `#{inspect __MODULE__}.read_to/2`.
   """
   @type right :: Scanner.right
-
-
-  @doc false
-  @deprecated "Call #{inspect __MODULE__}.read_across in binary mode instead"
-  defdelegate binread_across(structured_io,
-                             left,
-                             right,
-                             timeout \\ 5000), to: Deprecated
-
-
-  @doc false
-  @deprecated "Call #{inspect __MODULE__}.read_between in binary mode instead"
-  defdelegate binread_between(structured_io,
-                              left,
-                              right,
-                              timeout \\ 5000), to: Deprecated
-
-
-  @doc false
-  @deprecated "Call #{inspect __MODULE__}.read_through in binary mode instead"
-  defdelegate binread_through(structured_io,
-                              right,
-                              timeout \\ 5000), to: Deprecated
-
-
-  @doc false
-  @deprecated "Call #{inspect __MODULE__}.read_to in binary mode instead"
-  defdelegate binread_to(structured_io, to, timeout \\ 5000), to: Deprecated
-
-
-  @doc false
-  @deprecated "Call #{inspect __MODULE__}.write in binary mode instead"
-  defdelegate binwrite(structured_io, iodata), to: Deprecated
 
 
   @doc """
@@ -870,11 +837,6 @@ defmodule StructuredIO do
   end
 
 
-  @doc false
-  @deprecated "Call #{inspect __MODULE__}.start/1 instead"
-  defdelegate start, to: Deprecated
-
-
   @doc """
   Starts a `#{inspect __MODULE__}` process without links (outside a supervision
   tree) with the specified `mode` and `options`.
@@ -899,11 +861,6 @@ defmodule StructuredIO do
       GenServer.start __MODULE__, %State{mode: mode}, options
     end
   end
-
-
-  @doc false
-  @deprecated "Call #{inspect __MODULE__}.start_link/1 instead"
-  defdelegate start_link, to: Deprecated
 
 
   @doc """
@@ -966,7 +923,7 @@ defmodule StructuredIO do
   @spec write(GenServer.server,
               iodata | IO.chardata | String.Chars.t) :: :ok | error
   def write(structured_io, data) do
-    request = {:deprecated_write, data}
+    request = {:write, data}
     GenServer.cast structured_io, request
   end
 
@@ -1051,30 +1008,17 @@ defmodule StructuredIO do
   end
 
 
-  @doc false
-  defdelegate handle_call(request, from, state), to: Deprecated
+  def handle_cast({:write, new_data}, %{data: data}=state) do
+    new_state = %{state | data: [data, new_data]}
 
-
-  # # TODO: Add a handler for the :write message when the :deprecated_write message is eliminated
-  # def handle_cast({:write, new_data}, %{data: data}=state) do
-  #   new_state = %{state | data: [data, new_data]}
-
-  #   {:noreply, new_state}
-  # end
-
-  @doc false
-  defdelegate handle_cast(request, state), to: Deprecated
+    {:noreply, new_state}
+  end
 
 
   def init(args), do: {:ok, args}
 
 
   @spec binary_data(State.t) :: {:ok, binary} | error
-
-  # # TODO: Don’t handle `nil` :mode when deprecated `.start*` usage is eliminated
-  defp binary_data(%{data: iodata, mode: nil}) do
-    {:ok, IO.iodata_to_binary(iodata)}
-  end
 
   defp binary_data(%{data: iodata, mode: :binary}) do
     {:ok, IO.iodata_to_binary(iodata)}
