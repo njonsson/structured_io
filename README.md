@@ -180,16 +180,16 @@ To release a new version:
 Released under the [MIT License][GitHub-project-MIT-License].
 
 [Travis-CI-build-status]:          https://www.travis-ci.org/njonsson/structured_io                             "Travis CI build status for ‘StructuredIO’"
-[Coveralls-test-coverage-status]:  https://coveralls.io/r/njonsson/structured_io?branch=master                  "Coveralls test coverage status"
+[Coveralls-test-coverage-status]:  https://coveralls.io/r/njonsson/structured_io?branch=master                  "Coveralls test coverage status for ‘StructuredIO’"
 [Hex-release]:                     https://hex.pm/packages/structured_io                                        "Hex release of ‘StructuredIO’"
 [HexDocs-Elixir-IO]:               https://hexdocs.pm/elixir/IO.html                                            "Elixir’s ‘IO’ module at HexDocs"
 [HexDocs-Elixir-Collectable]:      https://hexdocs.pm/elixir/Collectable.html                                   "Elixir’s ‘Collectable’ protocol at HexDocs"
 [HexDocs-Elixir-Enumerable]:       https://hexdocs.pm/elixir/Enumerable.html                                    "Elixir’s ‘Enumerable’ protocol at HexDocs"
 [HexDocs-project-API-reference]:   https://hexdocs.pm/structured_io/api-reference.html                          "‘StructuredIO’ API reference at HexDocs"
-[GitHub-project-history]:          https://github.com/njonsson/structured_io/blob/master/History.md             "‘StructuredIO’ project history"
+[GitHub-project-history]:          https://github.com/njonsson/structured_io/blob/master/History.md             "‘StructuredIO’ project history at GitHub"
 [GitHub-fork-project]:             https://github.com/njonsson/structured_io/fork                               "Fork the official repository of ‘StructuredIO’"
 [GitHub-compare-project-branches]: https://github.com/njonsson/structured_io/compare                            "Compare branches of ‘StructuredIO’ repositories"
-[GitHub-mix-dot-exs-file]:         https://github.com/njonsson/structured_io/blob/master/mix.exs                "‘StructuredIO’ project ‘mix.exs’ file"
+[GitHub-mix-dot-exs-file]:         https://github.com/njonsson/structured_io/blob/master/mix.exs                "‘StructuredIO’ project ‘mix.exs’ file at GitHub"
 [Semantic-Versioning]:             https://semver.org/
-[GitHub-readme-dot-md-file]:       https://github.com/njonsson/structured_io/blob/master/README.md#installation "‘StructuredIO’ project ‘README.md’ file"
-[GitHub-project-MIT-License]:      https://github.com/njonsson/structured_io/blob/master/License.md             "MIT License claim for ‘StructuredIO’"
+[GitHub-readme-dot-md-file]:       https://github.com/njonsson/structured_io/blob/master/README.md#installation "‘StructuredIO’ project ‘README.md’ file at GitHub"
+[GitHub-project-MIT-License]:      https://github.com/njonsson/structured_io/blob/master/License.md             "MIT License claim for ‘StructuredIO’ at GitHub"
