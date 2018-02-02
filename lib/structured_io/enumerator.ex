@@ -164,6 +164,15 @@ defmodule StructuredIO.Enumerator do
       iex> {:ok,
       ...>  structured_io} = StructuredIO.start_link(:unicode)
       iex> StructuredIO.Enumerator.new %{process: structured_io,
+      ...>                               function: "read_across",
+      ...>                               additional_arguments: ["<elem>",
+      ...>                                                      "</elem>"]}
+      {:error,
+       #{inspect @error_function}}
+
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:unicode)
+      iex> StructuredIO.Enumerator.new %{process: structured_io,
       ...>                               function: :not_a_function}
       {:error,
        "function StructuredIO.not_a_function/1 is undefined or private"}
@@ -190,9 +199,7 @@ defmodule StructuredIO.Enumerator do
 
   def new(%{process: nil}=_enumerator), do: {:error, @error_process}
 
-  def new(%{process: _, function: nil}=_enumerator) do
-    {:error, @error_function}
-  end
+  def new(%{function: nil}=_enumerator), do: {:error, @error_function}
 
   def new(%{process: process,
             function: function}=enumerator) when is_atom(function) do
@@ -210,6 +217,8 @@ defmodule StructuredIO.Enumerator do
        "function #{inspect StructuredIO}.#{function}/#{function_arity} is undefined or private"}
     end
   end
+
+  def new(%{process: _, function: _}=_enumerator), do: {:error, @error_function}
 
   def new(%{function: _}=_enumerator), do: {:error, @error_process}
 
