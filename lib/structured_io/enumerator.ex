@@ -133,19 +133,15 @@ defmodule StructuredIO.Enumerator do
   ## Examples
 
       iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link(:unicode)
-      iex> {:ok,
-      ...>  enumerator} = StructuredIO.Enumerator.new(%{process: structured_io,
+      ...>  enumerator} = StructuredIO.Enumerator.new(%{process: :a_process,
       ...>                                              function: :read_across,
       ...>                                              additional_arguments: ["<elem>",
       ...>                                                                     "</elem>"]})
-      iex> enumerator.process == structured_io
-      true
-      iex> enumerator.function
-      :read_across
-      iex> enumerator.additional_arguments
-      ["<elem>",
-       "</elem>"]
+      iex> enumerator
+      %StructuredIO.Enumerator{process: :a_process,
+                               function: :read_across,
+                               additional_arguments: ["<elem>",
+                                                      "</elem>"]}
 
       iex> StructuredIO.Enumerator.new %{function: :read_across,
       ...>                               additional_arguments: ["<elem>",
@@ -153,40 +149,30 @@ defmodule StructuredIO.Enumerator do
       {:error,
        #{inspect @error_process}}
 
-      iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link(:unicode)
-      iex> StructuredIO.Enumerator.new %{process: structured_io,
+      iex> StructuredIO.Enumerator.new %{process: :a_process,
       ...>                               additional_arguments: ["<elem>",
       ...>                                                      "</elem>"]}
       {:error,
        #{inspect @error_function}}
 
-      iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link(:unicode)
-      iex> StructuredIO.Enumerator.new %{process: structured_io,
+      iex> StructuredIO.Enumerator.new %{process: :a_process,
       ...>                               function: "read_across",
       ...>                               additional_arguments: ["<elem>",
       ...>                                                      "</elem>"]}
       {:error,
        #{inspect @error_function}}
 
-      iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link(:unicode)
-      iex> StructuredIO.Enumerator.new %{process: structured_io,
+      iex> StructuredIO.Enumerator.new %{process: :a_process,
       ...>                               function: :not_a_function}
       {:error,
        "function StructuredIO.not_a_function/1 is undefined or private"}
 
-      iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link(:unicode)
-      iex> StructuredIO.Enumerator.new %{process: structured_io,
+      iex> StructuredIO.Enumerator.new %{process: :a_process,
       ...>                               function: :read_across}
       {:error,
        "function StructuredIO.read_across/1 is undefined or private"}
 
-      iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link(:unicode)
-      iex> StructuredIO.Enumerator.new %{process: structured_io,
+      iex> StructuredIO.Enumerator.new %{process: :a_process,
       ...>                               function: :read_across,
       ...>                               additional_arguments: "too-few-args"}
       {:error,
