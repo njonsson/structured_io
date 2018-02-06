@@ -69,28 +69,21 @@ defmodule StructuredIO.Collector do
   ## Examples
 
       iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link(:unicode)
-      iex> {:ok,
-      ...>  collector} = StructuredIO.Collector.new(%{process: structured_io,
+      ...>  collector} = StructuredIO.Collector.new(%{process: :a_process,
       ...>                                            function: :write})
-      iex> collector.process == structured_io
-      true
-      iex> collector.function
-      :write
+      iex> collector
+      %StructuredIO.Collector{process: :a_process,
+                              function: :write}
 
       iex> StructuredIO.Collector.new %{function: :write}
       {:error,
        #{inspect @error_process}}
 
-      iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link(:unicode)
-      iex> StructuredIO.Collector.new %{process: structured_io}
+      iex> StructuredIO.Collector.new %{process: :a_process}
       {:error,
        #{inspect @error_function}}
 
-      iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link(:unicode)
-      iex> StructuredIO.Collector.new %{process: structured_io,
+      iex> StructuredIO.Collector.new %{process: :a_process,
       ...>                              function: :not_a_function}
       {:error,
        "function StructuredIO.not_a_function/2 is undefined or private"}
