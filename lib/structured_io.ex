@@ -235,8 +235,8 @@ defmodule StructuredIO do
   `left` and ending with the occurrence of the specified `right` that
   corresponds to it, inclusive.
 
-  If `data` does not both begin with `left` and contain a corresponding `right`,
-  the result is an empty binary (`""`).
+  If the data in the process does not both begin with `left` and contain a
+  corresponding `right`, the result is an empty binary (`""`).
 
   ## Examples
 
@@ -367,8 +367,8 @@ defmodule StructuredIO do
   `left` and ending with the first occurrence of the specified `right`,
   inclusive.
 
-  If `data` does not both begin with `left` and contain `right`, the result is
-  an empty binary (`""`).
+  If the data in the process does not both begin with `left` and contain `right`,
+  the result is an empty binary (`""`).
 
   ## Examples
 
@@ -433,8 +433,8 @@ defmodule StructuredIO do
   `left` and ending with the occurrence of the specified `right` that
   corresponds to it, exclusive.
 
-  If `data` does not both begin with `left` and contain a corresponding `right`,
-  the result is an empty binary (`""`).
+  If the data in the process does not both begin with `left` and contain a
+  corresponding `right`, the result is an empty binary (`""`).
 
   ## Examples
 
@@ -549,8 +549,8 @@ defmodule StructuredIO do
   `left` and ending with the first occurrence of the specified `right`,
   exclusive.
 
-  If `data` does not both begin with `left` and contain `right`, the result is
-  an empty binary (`""`).
+  If the data in the process does not both begin with `left` and contain `right`,
+  the result is an empty binary (`""`).
 
   ## Examples
 
