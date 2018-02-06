@@ -21,7 +21,7 @@ defmodule StructuredIO do
 
     @typedoc false
     @type t :: %__MODULE__{data: iodata | IO.chardata | String.Chars.t,
-                           mode: StructuredIO.mode}
+                           mode: nil | StructuredIO.mode}
   end
 
 

@@ -33,6 +33,7 @@ defmodule StructuredIO.Collector do
   """
 
 
+  @enforce_keys [:process, :function]
   defstruct process: nil, function: nil
 
   @typedoc """
