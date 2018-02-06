@@ -80,6 +80,7 @@ defmodule StructuredIO.Enumerator do
   """
 
 
+  # TODO: Consider eliminating needless fields in v2: `:process` and `:additional_arguments`
   defstruct process: nil,
             function: nil,
             timeout: nil,
