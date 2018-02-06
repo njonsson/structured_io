@@ -81,6 +81,7 @@ defmodule StructuredIO.Enumerator do
 
 
   # TODO: Consider eliminating needless fields in v2: `:process` and `:additional_arguments`
+  @enforce_keys ~w{process function additional_arguments arguments}a
   defstruct process: nil,
             function: nil,
             timeout: nil,

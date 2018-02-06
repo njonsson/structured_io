@@ -9,7 +9,7 @@ defmodule StructuredIO.Scanner do
     @moduledoc false
 
 
-    @enforce_keys [:data, :left, :right, :count]
+    @enforce_keys ~w{data left right count}a
     defstruct before: "",
               data: nil,
               left: nil,

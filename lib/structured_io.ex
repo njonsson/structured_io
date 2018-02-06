@@ -17,6 +17,7 @@ defmodule StructuredIO do
   defmodule State do
     @moduledoc false
 
+    @enforce_keys [:mode]
     defstruct data: [], mode: nil
 
     @typedoc false
