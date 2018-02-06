@@ -80,7 +80,11 @@ defmodule StructuredIO.Enumerator do
   """
 
 
-  defstruct process: nil, function: nil, timeout: nil, additional_arguments: []
+  defstruct process: nil,
+            function: nil,
+            timeout: nil,
+            additional_arguments: [],
+            arguments: nil
 
   @typedoc """
   A `#{inspect __MODULE__}` struct.
@@ -88,7 +92,8 @@ defmodule StructuredIO.Enumerator do
   @type t :: %__MODULE__{process: GenServer.server,
                          function: atom,
                          timeout: nil | timeout,
-                         additional_arguments: [any]}
+                         additional_arguments: [any],
+                         arguments: [any]}
 
 
   defimpl Enumerable do
@@ -107,10 +112,7 @@ defmodule StructuredIO.Enumerator do
     end
 
     def reduce(enumerator, {:cont, acc}, fun) do
-      # TODO: Avoid constructing this on each invocation of `reduce/3`
-      arguments = [enumerator.process | enumerator.additional_arguments] ++
-                  List.wrap(enumerator.timeout)
-      case apply(StructuredIO, enumerator.function, arguments) do
+      case apply(StructuredIO, enumerator.function, enumerator.arguments) do
         {:error, _}=error -> {:done, error}
         ""                -> {:done, acc}
         element           -> reduce(enumerator, fun.(element, acc), fun)
@@ -141,7 +143,10 @@ defmodule StructuredIO.Enumerator do
       %StructuredIO.Enumerator{process: :a_process,
                                function: :read_across,
                                additional_arguments: ["<elem>",
-                                                      "</elem>"]}
+                                                      "</elem>"],
+                               arguments: [:a_process,
+                                           "<elem>",
+                                           "</elem>"]}
 
       iex> StructuredIO.Enumerator.new %{function: :read_across,
       ...>                               additional_arguments: ["<elem>",
@@ -197,7 +202,8 @@ defmodule StructuredIO.Enumerator do
       {:ok,
        struct(__MODULE__, process: process,
                           function: function,
-                          additional_arguments: addl_args)}
+                          additional_arguments: addl_args,
+                          arguments: [process | addl_args])}
     else
       {:error,
        "function #{inspect StructuredIO}.#{function}/#{function_arity} is undefined or private"}
@@ -220,14 +226,24 @@ defmodule StructuredIO.Enumerator do
       ...>                                              function: :read_across,
       ...>                                              additional_arguments: ["<elem>",
       ...>                                                                     "</elem>"]})
-      iex> enumerator.timeout
-      nil
+      iex> enumerator
+      %StructuredIO.Enumerator{process: :a_process,
+                               function: :read_across,
+                               additional_arguments: ["<elem>",
+                                                      "</elem>"],
+                               arguments: [:a_process,
+                                           "<elem>",
+                                           "</elem>"]}
       iex> enumerator_with_timeout = StructuredIO.Enumerator.timeout(enumerator,
       ...>                                                           1000)
       %StructuredIO.Enumerator{process: :a_process,
                                function: :read_across,
                                additional_arguments: ["<elem>",
                                                       "</elem>"],
+                               arguments: [:a_process,
+                                           "<elem>",
+                                           "</elem>",
+                                           1000],
                                timeout: 1000}
       iex> StructuredIO.Enumerator.timeout enumerator_with_timeout,
       ...>                                 nil
@@ -236,6 +252,16 @@ defmodule StructuredIO.Enumerator do
   @since "0.7.0"
   @spec timeout(t, timeout | nil) :: t
   def timeout(%__MODULE__{}=enumerator, timeout) do
-    %{enumerator | timeout: timeout}
+    new_arguments = cond do
+                      enumerator.timeout && timeout ->
+                        List.replace_at enumerator.arguments, -1, timeout
+                      timeout ->
+                        List.insert_at enumerator.arguments, -1, timeout
+                      enumerator.timeout ->
+                        List.delete_at enumerator.arguments, -1
+                      :else ->
+                        enumerator.arguments
+                    end
+    %{enumerator | arguments: new_arguments, timeout: timeout}
   end
 end
