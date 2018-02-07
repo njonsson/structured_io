@@ -952,7 +952,7 @@ defmodule StructuredIO do
 
 
   @doc """
-  Writes the specified `data` as a binary to the specified `structured_io`.
+  Writes the specified `data` to the specified `structured_io`.
 
   No timeout is available because the operation is performed asynchronously.
 
