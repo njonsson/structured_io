@@ -38,27 +38,18 @@ defmodule StructuredIO do
 
   @typedoc """
   A binary value which marks the beginning of an enclosed data element.
-
-  See `#{inspect __MODULE__}.read_across/3` and
-  `#{inspect __MODULE__}.read_between/3`.
   """
   @type left :: Scanner.left
 
 
   @typedoc """
   The portion of a binary value matched in a read operation.
-
-  See `#{inspect __MODULE__}.read_across/3`,
-  `#{inspect __MODULE__}.read_between/3`,
-  `#{inspect __MODULE__}.read_through/2`, and `#{inspect __MODULE__}.read_to/2`.
   """
   @type match :: Scanner.match
 
 
   @typedoc """
   A mode of operation for the process: either binary or Unicode.
-
-  See `#{inspect __MODULE__}.start/2` and `#{inspect __MODULE__}.start_link/2`.
   """
   @type mode :: :binary | :unicode
 
@@ -67,10 +58,6 @@ defmodule StructuredIO do
 
   @typedoc """
   A binary value which marks the end of an enclosed or terminated data element.
-
-  See `#{inspect __MODULE__}.read_across/3`,
-  `#{inspect __MODULE__}.read_between/3`,
-  `#{inspect __MODULE__}.read_through/2`, and `#{inspect __MODULE__}.read_to/2`.
   """
   @type right :: Scanner.right
 
