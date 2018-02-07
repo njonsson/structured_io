@@ -324,8 +324,7 @@ defmodule StructuredIO.Deprecated do
 
 
   @doc """
-  Asynchronously writes the specified `iodata` as a binary to the specified
-  `structured_io`.
+  Writes the specified `iodata` as a binary to the specified `structured_io`.
 
   See `#{inspect __MODULE__}.binread_across/3`,
   `#{inspect __MODULE__}.binread_between/3`,
