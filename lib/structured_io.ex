@@ -1015,6 +1015,7 @@ defmodule StructuredIO do
   end
 
 
+  @doc false
   def init(args), do: {:ok, args}
 
 
