@@ -1065,6 +1065,7 @@ defmodule StructuredIO do
   defdelegate handle_cast(request, state), to: Deprecated
 
 
+  @doc false
   def init(args), do: {:ok, args}
 
 
