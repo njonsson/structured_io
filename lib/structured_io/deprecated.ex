@@ -922,10 +922,6 @@ defmodule StructuredIO.Deprecated do
   end
 
 
-  @doc false
-  def init(args), do: {:ok, args}
-
-
   @spec convert_if_error(any) :: StructuredIO.error | any
 
   defp convert_if_error({:error, error}) do
