@@ -9,18 +9,17 @@ defmodule StructuredIO.Scanner do
     @moduledoc false
 
 
+    alias StructuredIO.Scanner
+
+
     @enforce_keys ~w{data left right count}a
-    defstruct before: "",
-              data: nil,
-              left: nil,
-              right: nil,
-              count: nil
+    defstruct before: "", data: nil, left: nil, right: nil, count: nil
 
     @typedoc false
     @type t :: %__MODULE__{before: binary,
                            data: binary,
-                           left: binary,
-                           right: binary,
+                           left: Scanner.left,
+                           right: Scanner.right,
                            count: non_neg_integer}
   end
 
@@ -29,11 +28,14 @@ defmodule StructuredIO.Scanner do
     @moduledoc false
 
 
+    alias StructuredIO.Scanner
+
+
     @enforce_keys [:data, :right]
     defstruct before: "", data: nil, right: nil
 
     @typedoc false
-    @type t :: %__MODULE__{before: binary, data: binary, right: binary}
+    @type t :: %__MODULE__{before: binary, data: binary, right: Scanner.right}
   end
 
 
