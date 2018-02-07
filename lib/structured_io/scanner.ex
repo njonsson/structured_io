@@ -39,9 +39,6 @@ defmodule StructuredIO.Scanner do
   end
 
 
-  alias __MODULE__.{Enclosed,Terminated}
-
-
   @typedoc """
   A binary value which marks the beginning of an enclosed data element.
   """
