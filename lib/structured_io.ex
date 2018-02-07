@@ -892,7 +892,7 @@ defmodule StructuredIO do
 
 
   @doc """
-  Synchronously stops the specified `structured_io` process.
+  Stops the specified `structured_io` process.
   """
 
   @since "0.1.0"
@@ -910,8 +910,9 @@ defmodule StructuredIO do
 
 
   @doc """
-  Asynchronously writes the specified `data` as a binary to the specified
-  `structured_io`.
+  Writes the specified `data` as a binary to the specified `structured_io`.
+
+  No timeout is available because the operation is performed asynchronously.
 
   See `#{inspect __MODULE__}.read_across/3`,
   `#{inspect __MODULE__}.read_between/3`,
