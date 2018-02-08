@@ -33,7 +33,7 @@ defmodule StructuredIOTest do
         :ok = StructuredIO.write(structured_io, io_list)
       end
       :ok = StructuredIO.write(structured_io, closer)
-      result = StructuredIO.read_across(structured_io, opener, closer, 15_000)
+      result = StructuredIO.read_across(structured_io, opener, closer, 18_000)
       result_byte_size = byte_size(result)
       assert result_byte_size == byte_size(opener) +
                                  20_000_000        +
@@ -60,7 +60,7 @@ defmodule StructuredIOTest do
       result = StructuredIO.read_across_ignoring_overlap(structured_io,
                                                          opener,
                                                          closer,
-                                                         12_000)
+                                                         15_000)
       result_byte_size = byte_size(result)
       assert result_byte_size == byte_size(opener) +
                                  20_000_000        +
@@ -90,7 +90,7 @@ defmodule StructuredIOTest do
         :ok = StructuredIO.write(structured_io, io_list)
       end
       :ok = StructuredIO.write(structured_io, closer)
-      result = StructuredIO.read_between(structured_io, opener, closer, 15_000)
+      result = StructuredIO.read_between(structured_io, opener, closer, 18_000)
       result_byte_size = byte_size(result)
       assert result_byte_size == 20_000_000
       beginning_of_result = binary_part(result, 0, byte_size(opener))
@@ -115,7 +115,7 @@ defmodule StructuredIOTest do
       result = StructuredIO.read_between_ignoring_overlap(structured_io,
                                                           opener,
                                                           closer,
-                                                          12_000)
+                                                          15_000)
       result_byte_size = byte_size(result)
       assert result_byte_size == 20_000_000
       beginning_of_result = binary_part(result, 0, byte_size(opener))
@@ -140,7 +140,7 @@ defmodule StructuredIOTest do
         :ok = StructuredIO.write(structured_io, io_list)
       end
       :ok = StructuredIO.write(structured_io, delimiter)
-      result = StructuredIO.read_through(structured_io, delimiter, 12_000)
+      result = StructuredIO.read_through(structured_io, delimiter, 15_000)
       result_byte_size = byte_size(result)
       assert result_byte_size == 20_000_000 + byte_size(delimiter)
       end_of_result = binary_part(result,
@@ -163,7 +163,7 @@ defmodule StructuredIOTest do
         :ok = StructuredIO.write(structured_io, io_list)
       end
       :ok = StructuredIO.write(structured_io, opener)
-      result = StructuredIO.read_to(structured_io, opener, 12_000)
+      result = StructuredIO.read_to(structured_io, opener, 15_000)
       result_byte_size = byte_size(result)
       assert result_byte_size == 20_000_000
       end_of_result = binary_part(result,
