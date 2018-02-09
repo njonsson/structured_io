@@ -59,5 +59,5 @@ defmodule StructuredIO.Mixfile do
                     "Issues" => "https://github.com/njonsson/structured_io/issues"}]
   end
 
-  defp version, do: "0.7.0"
+  defp version, do: "0.8.0"
 end
