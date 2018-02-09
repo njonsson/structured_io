@@ -127,6 +127,7 @@ defmodule StructuredIO.Scanner do
       {<<23, 45, 67>>,
        <<89>>}
   """
+  @since "0.8.0"
   @spec scan(binary, unit, count) :: {match, remainder} | nil
 
   def scan(_data, unit, 0=_count) when unit in @valid_units, do: nil
