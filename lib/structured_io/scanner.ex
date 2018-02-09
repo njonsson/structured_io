@@ -24,6 +24,24 @@ defmodule StructuredIO.Scanner do
   end
 
 
+  defmodule Measured do
+    @moduledoc false
+
+
+    alias StructuredIO.Scanner
+
+
+    @enforce_keys ~w{data unit count}a
+    defstruct before: "", data: nil, unit: nil, count: nil
+
+    @typedoc false
+    @type t :: %__MODULE__{before: binary,
+                           data: binary,
+                           unit: Scanner.unit,
+                           count: Scanner.count}
+  end
+
+
   defmodule Terminated do
     @moduledoc false
 
@@ -37,6 +55,12 @@ defmodule StructuredIO.Scanner do
     @typedoc false
     @type t :: %__MODULE__{before: binary, data: binary, right: Scanner.right}
   end
+
+
+  @typedoc """
+  A measure of size for a measured data element. See `t:unit/0`.
+  """
+  @type count :: non_neg_integer
 
 
   @typedoc """
@@ -61,6 +85,67 @@ defmodule StructuredIO.Scanner do
   A binary value which marks the end of an enclosed or terminated data element.
   """
   @type right :: binary
+
+
+  @typedoc """
+  The unit of size for a measured data element: either bytes or graphemes. See
+  `t:count/0`.
+  """
+  @type unit :: :bytes | :graphemes
+
+  @valid_units [:bytes, :graphemes]
+
+
+  @doc """
+  Reads from the specified `data` in the specified quantity. The quantity is
+  measured as a `count` of a particular `unit`.
+
+  If the process does not contain at least the expected quantity of data, the
+  result is `nil`.
+
+  ## Examples
+
+      iex> StructuredIO.Scanner.scan "\\r\\nfoo",
+      ...>                           :graphemes,
+      ...>                           5
+      nil
+
+      iex> StructuredIO.Scanner.scan "\\r\\nfoo\\tbar",
+      ...>                           :graphemes,
+      ...>                           5
+      {"\\r\\nfoo\\t",
+       "bar"}
+
+      iex> StructuredIO.Scanner.scan <<23, 45>>,
+      ...>                           :bytes,
+      ...>                           3
+      nil
+
+      iex> StructuredIO.Scanner.scan <<23, 45, 67, 89>>,
+      ...>                           :bytes,
+      ...>                           3
+      {<<23, 45, 67>>,
+       <<89>>}
+  """
+  @spec scan(binary, unit, count) :: {match, remainder} | nil
+
+  def scan(_data, unit, 0=_count) when unit in @valid_units, do: nil
+
+  def scan(""=_data,
+           unit,
+           count) when (unit in @valid_units) and
+                       is_integer(count)      and
+                       (0 <= count) do
+    nil
+  end
+
+  def scan(data,
+           unit,
+           count) when (unit in @valid_units) and
+                       is_integer(count)      and
+                       (0 <= count) do
+    scan %Measured{data: data, unit: unit, count: count}
+  end
 
 
   @doc """
@@ -379,7 +464,7 @@ defmodule StructuredIO.Scanner do
     end
   end
 
-  @spec scan(Enclosed.t) :: {binary, binary} | nil
+  @spec scan(Enclosed.t | Measured.t | Terminated.t) :: {binary, binary} | nil
 
   defp scan(%Enclosed{before: before, data: data, count: 0}), do: {before, data}
 
@@ -410,7 +495,30 @@ defmodule StructuredIO.Scanner do
 
   defp scan(%Enclosed{}=arguments), do: scan(%{arguments | before: ""})
 
-  @spec scan(Terminated.t) :: {binary, binary} | nil
+  defp scan(%Measured{before: before, data: data, count: 0}), do: {before, data}
+
+  defp scan(%Measured{data: ""}), do: nil
+
+  defp scan(%Measured{data: data, unit: :bytes, count: count}) do
+    if count <= byte_size(data) do
+      <<match::binary-size(count), remainder::binary>> = data
+      {match, remainder}
+    end
+  end
+
+  defp scan(%Measured{before: before,
+                      data: data,
+                      unit: :graphemes,
+                      count: count}=arguments) do
+    case String.next_grapheme(data) do
+      {match, remaining} ->
+        scan %{arguments | before: before <> match,
+                           data: remaining,
+                           count: count - 1}
+      nil ->
+        {before, data}
+    end
+  end
 
   defp scan(%Terminated{data: ""}), do: nil
 
