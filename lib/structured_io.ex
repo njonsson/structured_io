@@ -1028,89 +1028,40 @@ defmodule StructuredIO do
 
 
   def handle_call({:read, count}, _from, state) do
-    case binary_data(state) do
-      {:error, _}=error ->
-        {:reply, error, state}
-      {:ok, binary} ->
-        unit = Map.fetch!(%{binary: :bytes, unicode: :graphemes}, state.mode)
-        binary
-        |> Scanner.scan(unit, count)
-        |> read_reply(state)
-    end
+    unit = scan_unit(state)
+    scan(state, :scan, [unit, count])
   end
 
 
   def handle_call({:read_across, left, right}, _from, state) do
-    case binary_data(state) do
-      {:error, _}=error ->
-        {:reply, error, state}
-      {:ok, binary} ->
-        binary
-        |> Scanner.scan_across(left, right)
-        |> read_reply(state)
-    end
+    scan(state, :scan_across, [left, right])
   end
 
 
   def handle_call({:read_across_ignoring_overlap, left, right}, _from, state) do
-    case binary_data(state) do
-      {:error, _}=error ->
-        {:reply, error, state}
-      {:ok, binary} ->
-        binary
-        |> Scanner.scan_across_ignoring_overlap(left, right)
-        |> read_reply(state)
-    end
+    scan(state, :scan_across_ignoring_overlap, [left, right])
   end
 
 
   def handle_call({:read_between, left, right}, _from, state) do
-    case binary_data(state) do
-      {:error, _}=error ->
-        {:reply, error, state}
-      {:ok, binary} ->
-        binary
-        |> Scanner.scan_between(left, right)
-        |> read_reply(state)
-    end
+    scan(state, :scan_between, [left, right])
   end
 
 
   def handle_call({:read_between_ignoring_overlap, left, right},
                   _from,
                   state) do
-    case binary_data(state) do
-      {:error, _}=error ->
-        {:reply, error, state}
-      {:ok, binary} ->
-        binary
-        |> Scanner.scan_between_ignoring_overlap(left, right)
-        |> read_reply(state)
-    end
+    scan(state, :scan_between_ignoring_overlap, [left, right])
   end
 
 
   def handle_call({:read_through, right}, _from, state) do
-    case binary_data(state) do
-      {:error, _}=error ->
-        {:reply, error, state}
-      {:ok, binary} ->
-        binary
-        |> Scanner.scan_through(right)
-        |> read_reply(state)
-    end
+    scan(state, :scan_through, [right])
   end
 
 
-  def handle_call({:read_to, read_to}, _from, state) do
-    case binary_data(state) do
-      {:error, _}=error ->
-        {:reply, error, state}
-      {:ok, binary} ->
-        binary
-        |> Scanner.scan_to(read_to)
-        |> read_reply(state)
-    end
+  def handle_call({:read_to, right}, _from, state) do
+    scan(state, :scan_to, [right])
   end
 
 
@@ -1180,4 +1131,24 @@ defmodule StructuredIO do
 
     {:reply, match, new_state}
   end
+
+
+  @spec scan(State.t, atom, [any]) :: {:reply, Scanner.match | error, State.t}
+  defp scan(state, function, arguments) do
+    case binary_data(state) do
+      {:error, _}=error ->
+        {:reply, error, state}
+      {:ok, binary} ->
+        Scanner
+        |> apply(function, [binary | arguments])
+        |> read_reply(state)
+    end
+  end
+
+
+  @spec scan_unit(State.t) :: Scanner.unit
+
+  defp scan_unit(%{mode: :binary}=_state), do: :bytes
+
+  defp scan_unit(%{mode: :unicode}=_state), do: :graphemes
 end
