@@ -1,5 +1,17 @@
 # Version history for the *StructuredIO* project
 
+## v1.1.0 and v0.8.0
+
+**Thu 2/08/2018**
+
+* Introduce new functions for reading measured data elements:
+  - *StructuredIO.read/2*
+  - *StructuredIO.Scanner.scan/3*
+* Introduce new supporting types:
+  - *StructuredIO.count*
+  - *StructuredIO.Scanner.count*
+  - *StructuredIO.Scanner.unit*
+
 ## v1.0.0
 
 **Thu 1/25/2018**

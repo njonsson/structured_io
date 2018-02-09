@@ -311,8 +311,10 @@ defmodule StructuredIO do
   See `#{inspect __MODULE__}.mode/1`.
   """
 
+  @since "1.1.0"
   @spec read(GenServer.server, count) :: match | error
 
+  @since "1.1.0"
   @spec read(GenServer.server, count, timeout) :: match | error
 
   def read(structured_io, count, timeout \\ 5000) do
