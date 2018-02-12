@@ -326,10 +326,7 @@ defmodule StructuredIO.Deprecated do
   @doc """
   Writes the specified `iodata` to the specified `structured_io`.
 
-  See `#{inspect __MODULE__}.binread_across/3`,
-  `#{inspect __MODULE__}.binread_between/3`,
-  `#{inspect __MODULE__}.binread_through/2`, and
-  `#{inspect __MODULE__}.binread_to/2` for examples.
+  See the `binread_*` functions for examples.
   """
   @deprecated "Call #{inspect StructuredIO}.write in binary mode instead"
   @since "0.1.0"
@@ -661,7 +658,7 @@ defmodule StructuredIO.Deprecated do
   Starts a `#{inspect StructuredIO}` process without links (outside a
   supervision tree).
 
-  See `#{inspect __MODULE__}.start_link/0`.
+  See `start_link/0`.
   """
   @deprecated "Call #{inspect StructuredIO}.start/1 instead"
   @since "0.1.0"
@@ -672,13 +669,7 @@ defmodule StructuredIO.Deprecated do
   @doc """
   Starts a `#{inspect StructuredIO}` process linked to the current process.
 
-  See `#{inspect __MODULE__}.binread_across/3`,
-  `#{inspect __MODULE__}.binread_between/3`,
-  `#{inspect __MODULE__}.binread_through/2`,
-  `#{inspect __MODULE__}.binread_to/2`, `#{inspect __MODULE__}.read_across/3`,
-  `#{inspect __MODULE__}.read_between/3`,
-  `#{inspect __MODULE__}.read_through/2`, and `#{inspect __MODULE__}.read_to/2`
-  for examples.
+  See the `binread_*` and `read_*` functions for examples.
   """
   @deprecated "Call #{inspect StructuredIO}.start_link/1 instead"
   @since "0.1.0"
