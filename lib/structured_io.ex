@@ -6,11 +6,10 @@ defmodule StructuredIO do
   ## Encoding
 
   The process operates in either **binary mode** or **Unicode mode** (see
-  `#{inspect __MODULE__}.start/2` and `#{inspect __MODULE__}.start_link/2`).
-  When in binary mode, the result of a read operation is a binary, regardless of
-  whether the data read is `String.valid?/1`. In Unicode mode, the result of a
-  read operation is an `t:error/0` if the data read is not properly encoded
-  Unicode data.
+  `start/2` and `start_link/2`). When in binary mode, the result of a read
+  operation is a binary, regardless of whether the data read is
+  `String.valid?/1`. In Unicode mode, the result of a read operation is an
+  `t:error/0` if the data read is not properly encoded Unicode data.
   """
 
 
@@ -308,7 +307,7 @@ defmodule StructuredIO do
       ...>                   1
       ""
 
-  See `#{inspect __MODULE__}.mode/1`.
+  See `mode/1`.
   """
 
   @since "1.1.0"
@@ -941,7 +940,7 @@ defmodule StructuredIO do
       {:error,
        "invalid mode :super_pursuit_mode"}
 
-  See `#{inspect __MODULE__}.start_link/2`.
+  See `start_link/2`.
   """
 
   @since "0.5.0"
@@ -967,10 +966,7 @@ defmodule StructuredIO do
       {:error,
        "invalid mode :super_pursuit_mode"}
 
-  See `#{inspect __MODULE__}.mode/1`, `#{inspect __MODULE__}.read_across/3`,
-  `#{inspect __MODULE__}.read_between/3`,
-  `#{inspect __MODULE__}.read_through/2`, and `#{inspect __MODULE__}.read_to/2`
-  for more examples.
+  See `mode/1` and the `read*` functions for more examples.
   """
 
   @since "0.5.0"
@@ -1009,10 +1005,7 @@ defmodule StructuredIO do
 
   No timeout is available because the operation is performed asynchronously.
 
-  See `#{inspect __MODULE__}.read_across/3`,
-  `#{inspect __MODULE__}.read_between/3`,
-  `#{inspect __MODULE__}.read_through/2`, and `#{inspect __MODULE__}.read_to/2`
-  for examples.
+  See the `read*` functions for examples.
   """
   @since "0.1.0"
   @spec write(GenServer.server,
