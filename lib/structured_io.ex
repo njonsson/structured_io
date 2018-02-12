@@ -341,13 +341,8 @@ defmodule StructuredIO do
 
   See `mode/1`.
   """
-
-  @since "0.8.0"
-  @spec read(GenServer.server, count) :: match | error
-
   @since "0.8.0"
   @spec read(GenServer.server, count, timeout) :: match | error
-
   def read(structured_io, count, timeout \\ 5000) do
     request = {:read, count}
     structured_io
@@ -473,13 +468,8 @@ defmodule StructuredIO do
       ...>                          "</elem>"
       ""
   """
-
   @since "0.1.0"
-  @spec read_across(GenServer.server, left, right) :: match | error
-
-  @since "0.2.0"
   @spec read_across(GenServer.server, left, right, timeout) :: match | error
-
   def read_across(structured_io, left, right, timeout \\ 5000) do
     request = {:read_across, left, right}
     structured_io
@@ -535,14 +525,8 @@ defmodule StructuredIO do
   @since "0.7.0"
   @spec read_across_ignoring_overlap(GenServer.server,
                                      left,
-                                     right) :: match | error
-
-  @since "0.7.0"
-  @spec read_across_ignoring_overlap(GenServer.server,
-                                     left,
                                      right,
                                      timeout) :: match | error
-
   def read_across_ignoring_overlap(structured_io,
                                    left,
                                    right,
@@ -655,13 +639,8 @@ defmodule StructuredIO do
       ...>                           "</elem>"
       ""
   """
-
-  @since "0.4.0"
-  @spec read_between(GenServer.server, left, right) :: match | error
-
   @since "0.2.0"
   @spec read_between(GenServer.server, left, right, timeout) :: match | error
-
   def read_between(structured_io, left, right, timeout \\ 5000) do
     request = {:read_between, left, right}
     structured_io
@@ -717,14 +696,8 @@ defmodule StructuredIO do
   @since "0.7.0"
   @spec read_between_ignoring_overlap(GenServer.server,
                                       left,
-                                      right) :: match | error
-
-  @since "0.7.0"
-  @spec read_between_ignoring_overlap(GenServer.server,
-                                      left,
                                       right,
                                       timeout) :: match | error
-
   def read_between_ignoring_overlap(structured_io,
                                     left,
                                     right,
@@ -831,13 +804,8 @@ defmodule StructuredIO do
       ...>                           "<br/>"
       ""
   """
-
-  @since "0.2.0"
-  @spec read_through(GenServer.server, right) :: match | error
-
   @since "0.2.0"
   @spec read_through(GenServer.server, right, timeout) :: match | error
-
   def read_through(structured_io, right, timeout \\ 5000) do
     request = {:read_through, right}
     structured_io
@@ -947,13 +915,8 @@ defmodule StructuredIO do
       ...>                      "<br/>"
       ""
   """
-
-  @since "0.2.0"
-  @spec read_to(GenServer.server, right) :: match | error
-
   @since "0.2.0"
   @spec read_to(GenServer.server, right, timeout) :: match | error
-
   def read_to(structured_io, right, timeout \\ 5000) do
     request = {:read_to, right}
     structured_io
@@ -979,13 +942,8 @@ defmodule StructuredIO do
 
   See `start_link/2`.
   """
-
-  @since "0.5.0"
-  @spec start(mode) :: GenServer.on_start
-
   @since "0.5.0"
   @spec start(mode, GenServer.options) :: GenServer.on_start
-
   def start(mode, options \\ []) do
     with {:ok, mode} <- compute_mode(mode, :start) do
       GenServer.start __MODULE__, %State{mode: mode}, options
@@ -1010,13 +968,8 @@ defmodule StructuredIO do
 
   See `mode/1` and the `read*` functions for more examples.
   """
-
-  @since "0.5.0"
-  @spec start_link(mode) :: GenServer.on_start
-
   @since "0.5.0"
   @spec start_link(mode, GenServer.options) :: GenServer.on_start
-
   def start_link(mode, options \\ []) do
     with {:ok, mode} <- compute_mode(mode, :start_link) do
       GenServer.start_link __MODULE__, %State{mode: mode}, options
@@ -1027,16 +980,8 @@ defmodule StructuredIO do
   @doc """
   Stops the specified `structured_io` process.
   """
-
-  @since "0.1.0"
-  @spec stop(GenServer.server) :: :ok
-
-  @since "0.1.0"
-  @spec stop(GenServer.server, term) :: :ok
-
   @since "0.1.0"
   @spec stop(GenServer.server, term, timeout) :: :ok
-
   def stop(structured_io, reason \\ :normal, timeout \\ :infinity) do
     GenServer.stop structured_io, reason, timeout
   end

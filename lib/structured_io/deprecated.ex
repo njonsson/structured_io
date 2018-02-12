@@ -76,18 +76,11 @@ defmodule StructuredIO.Deprecated do
       ""
   """
   @deprecated "Call #{inspect StructuredIO}.read_across in binary mode instead"
-
   @since "0.1.0"
-  @spec binread_across(GenServer.server,
-                       StructuredIO.left,
-                       StructuredIO.right) :: StructuredIO.match |
-                                              StructuredIO.error
-  @since "0.2.0"
   @spec binread_across(GenServer.server,
                        StructuredIO.left,
                        StructuredIO.right,
                        timeout) :: StructuredIO.match | StructuredIO.error
-
   def binread_across(structured_io, left, right, timeout \\ 5000) do
     request = {:deprecated_binread_across, left, right}
     structured_io
@@ -160,18 +153,11 @@ defmodule StructuredIO.Deprecated do
       ""
   """
   @deprecated "Call #{inspect StructuredIO}.read_between in binary mode instead"
-
   @since "0.1.0"
-  @spec binread_between(GenServer.server,
-                        StructuredIO.left,
-                        StructuredIO.right) :: StructuredIO.match |
-                                               StructuredIO.error
-  @since "0.2.0"
   @spec binread_between(GenServer.server,
                         StructuredIO.left,
                         StructuredIO.right,
                         timeout) :: StructuredIO.match | StructuredIO.error
-
   def binread_between(structured_io, left, right, timeout \\ 5000) do
     request = {:deprecated_binread_between, left, right}
     structured_io
@@ -232,16 +218,10 @@ defmodule StructuredIO.Deprecated do
       ""
   """
   @deprecated "Call #{inspect StructuredIO}.read_through in binary mode instead"
-
   @since "0.1.0"
-  @spec binread_through(GenServer.server,
-                        StructuredIO.right) :: StructuredIO.match |
-                                               StructuredIO.error
-  @since "0.2.0"
   @spec binread_through(GenServer.server,
                         StructuredIO.right,
                         timeout) :: StructuredIO.match | StructuredIO.error
-
   def binread_through(structured_io, right, timeout \\ 5000) do
     request = {:deprecated_binread_through, right}
     structured_io
@@ -305,16 +285,10 @@ defmodule StructuredIO.Deprecated do
       ""
   """
   @deprecated "Call #{inspect StructuredIO}.read_to in binary mode instead"
-
   @since "0.1.0"
-  @spec binread_to(GenServer.server,
-                   StructuredIO.right) :: StructuredIO.match |
-                                          StructuredIO.error
-  @since "0.2.0"
   @spec binread_to(GenServer.server,
                    StructuredIO.right,
                    timeout) :: StructuredIO.match | StructuredIO.error
-
   def binread_to(structured_io, right, timeout \\ 5000) do
     request = {:deprecated_binread_to, right}
     structured_io
@@ -404,18 +378,11 @@ defmodule StructuredIO.Deprecated do
       ""
   """
   @deprecated "Call #{inspect StructuredIO}.read_across in Unicode mode instead"
-
   @since "0.1.0"
-  @spec read_across(GenServer.server,
-                    StructuredIO.left,
-                    StructuredIO.right) :: StructuredIO.match |
-                                           StructuredIO.error
-  @since "0.2.0"
   @spec read_across(GenServer.server,
                     StructuredIO.left,
                     StructuredIO.right,
                     timeout) :: StructuredIO.match | StructuredIO.error
-
   def read_across(structured_io, left, right, timeout \\ 5000) do
     request = {:deprecated_read_across, left, right}
     structured_io
@@ -489,18 +456,11 @@ defmodule StructuredIO.Deprecated do
       ""
   """
   @deprecated "Call #{inspect StructuredIO}.read_between in Unicode mode instead"
-
   @since "0.1.0"
-  @spec read_between(GenServer.server,
-                     StructuredIO.left,
-                     StructuredIO.right) :: StructuredIO.match |
-                                            StructuredIO.error
-  @since "0.2.0"
   @spec read_between(GenServer.server,
                      StructuredIO.left,
                      StructuredIO.right,
                      timeout) :: StructuredIO.match | StructuredIO.error
-
   def read_between(structured_io, left, right, timeout \\ 5000) do
     request = {:deprecated_read_between, left, right}
     structured_io
@@ -562,16 +522,10 @@ defmodule StructuredIO.Deprecated do
       ""
   """
   @deprecated "Call #{inspect StructuredIO}.read_through in Unicode mode instead"
-
   @since "0.1.0"
-  @spec read_through(GenServer.server,
-                     StructuredIO.right) :: StructuredIO.match |
-                                            StructuredIO.error
-  @since "0.2.0"
   @spec read_through(GenServer.server,
                      StructuredIO.right,
                      timeout) :: StructuredIO.match | StructuredIO.error
-
   def read_through(structured_io, right, timeout \\ 5000) do
     request = {:deprecated_read_through, right}
     structured_io
@@ -636,16 +590,10 @@ defmodule StructuredIO.Deprecated do
       ""
   """
   @deprecated "Call #{inspect StructuredIO}.read_to in Unicode mode instead"
-
   @since "0.1.0"
-  @spec read_to(GenServer.server,
-                StructuredIO.right) :: StructuredIO.match | StructuredIO.error
-
-  @since "0.2.0"
   @spec read_to(GenServer.server,
                 StructuredIO.right,
                 timeout) :: StructuredIO.match | StructuredIO.error
-
   def read_to(structured_io, right, timeout \\ 5000) do
     request = {:deprecated_read_to, right}
     structured_io
