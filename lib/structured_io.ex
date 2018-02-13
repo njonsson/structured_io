@@ -29,6 +29,7 @@ defmodule StructuredIO do
   use StructuredIO.GenServerTransaction, function_name: "read_complex",
                                          server_name: "structured_io",
                                          commit_instruction: :ok,
+                                         since: "1.2.0",
                                          append_to_doc: """
 
   ## Examples
