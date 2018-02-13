@@ -169,6 +169,7 @@ defmodule StructuredIO.GenServerTransaction do
   Send messages instead to the `t:GenServer.server/0` which is an argument to the
   `operation`.
   """
+  @since "0.9.0"
   @spec transaction(GenServer.server,
                     commit_instruction,
                     operation,
