@@ -219,7 +219,8 @@ defmodule StructuredIO.Enumerator do
   def new(%{process: _}=_enumerator), do: {:error, @error_function}
 
   @doc """
-  Sets a timeout for the specified `#{inspect __MODULE__}`.
+  Sets a timeout for the specified `#{inspect __MODULE__}`. This value is passed
+  in each call to the `StructuredIO.read*` function.
 
   ## Examples
 

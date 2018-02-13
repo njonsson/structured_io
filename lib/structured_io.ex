@@ -208,6 +208,7 @@ defmodule StructuredIO do
       ...> |> StructuredIO.enumerate_with(:read_between,
       ...>                                "<elem>",
       ...>                                "</elem>")
+      ...> |> StructuredIO.Enumerator.timeout(60_000)
       ...> |> Enum.map(&String.upcase/1)
       ["FOO",
        "BAR",
@@ -231,6 +232,7 @@ defmodule StructuredIO do
       iex> structured_io
       ...> |> StructuredIO.enumerate_with(:read_through,
       ...>                                "<br/>")
+      ...> |> StructuredIO.Enumerator.timeout(:infinity)
       ...> |> Enum.map(&String.upcase/1)
       ["FOO<BR/>",
        "BAR<BR/>",
@@ -238,6 +240,9 @@ defmodule StructuredIO do
       iex> StructuredIO.read_through structured_io,
       ...>                           "<br />"
       ""
+
+  To override the default per-element timeout of a `read*` function, call
+  `StructuredIO.Enumerator.timeout/2` as shown above.
   """
 
   @since "0.6.0"
