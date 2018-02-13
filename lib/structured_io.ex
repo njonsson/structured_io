@@ -176,6 +176,8 @@ defmodule StructuredIO do
   Returns a value that can be passed to `Enum.into/2` or `Enum.into/3` for
   writing data to the specified `structured_io`.
 
+  ## Examples
+
       iex> {:ok,
       ...>  structured_io} = StructuredIO.start_link(:unicode)
       iex> StructuredIO.read_between structured_io,
@@ -220,6 +222,8 @@ defmodule StructuredIO do
 
   Note that enumeration is not a purely functional operation; it consumes data
   elements from the underlying `#{inspect __MODULE__}` process.
+
+  ## Examples
 
       iex> {:ok,
       ...>  structured_io} = StructuredIO.start_link(:unicode)
