@@ -48,7 +48,7 @@ defmodule StructuredIO do
       ...>  structured_io} = StructuredIO.start_link(:binary)
       iex> read_tag_length_value = fn s ->
       ...>   with tag
-      ...>          when (tag not in ["", <<0>>])
+      ...>          when not (tag in ["", <<0>>])
       ...>          <- StructuredIO.read(s, 1),
       ...>        <<length::size(8)>>
       ...>          <- StructuredIO.read(s, 1),
