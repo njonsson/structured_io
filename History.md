@@ -1,5 +1,11 @@
 # Version history for the *StructuredIO* project
 
+## v1.2.0 and v0.9.0
+
+**Mon 2/12/2018**
+
+* Introduce *StructuredIO.read_complex/3*
+
 ## v1.1.0 and v0.8.0
 
 **Thu 2/08/2018**
