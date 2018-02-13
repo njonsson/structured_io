@@ -25,6 +25,77 @@ defmodule StructuredIO do
 
 
   use GenServer
+  use StructuredIO.GenServerTransaction, function_name: "read_complex",
+                                         server_name: "structured_io",
+                                         commit_instruction: :ok,
+                                         append_to_doc: """
+
+  ## Examples
+
+  In the following example, a Tag-Length-Value data element is composed of:
+
+  * A fixed-length Tag expression between `<<1>>` and `<<255>>` (one byte)
+  * A fixed-length Length expression between 0 and 255 (one byte)
+  * A variable-length Value expression whose length is the Length
+
+  Following the convention of built-in functions such as `read_across/4`, if the
+  whole element is not present then the result of the operation is an empty
+  binary (`""`).
+
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:binary)
+      iex> read_tag_length_value = fn s ->
+      ...>   with tag
+      ...>          when (tag not in ["", <<0>>])
+      ...>          <- StructuredIO.read(s, 1),
+      ...>        <<length::size(8)>>
+      ...>          <- StructuredIO.read(s, 1),
+      ...>        value
+      ...>          when (length == 0) or
+      ...>               (value != "")
+      ...>          <- StructuredIO.read(s, length) do
+      ...>     {:ok,
+      ...>      %{tag: tag,
+      ...>        length: length,
+      ...>        value: value}}
+      ...>   else
+      ...>     _ -> ""
+      ...>   end
+      ...> end
+      iex> StructuredIO.read_complex structured_io,
+      ...>                           read_tag_length_value
+      ""
+      iex> StructuredIO.write structured_io,
+      ...>                    <<111>>
+      iex> StructuredIO.read_complex structured_io,
+      ...>                           read_tag_length_value
+      ""
+      iex> StructuredIO.write structured_io,
+      ...>                    0
+      iex> StructuredIO.read_complex structured_io,
+      ...>                           read_tag_length_value
+      %{tag: <<111>>,
+        length: 0,
+        value: ""}
+      iex> StructuredIO.read_complex structured_io,
+      ...>                           read_tag_length_value
+      ""
+      iex> StructuredIO.write structured_io,
+      ...>                    <<222>>
+      iex> StructuredIO.write structured_io,
+      ...>                    byte_size("foo")
+      iex> StructuredIO.write structured_io,
+      ...>                    "foo"
+      iex> StructuredIO.read_complex structured_io,
+      ...>                           read_tag_length_value
+      %{tag: <<222>>,
+        length: 3,
+        value: "foo"}
+      iex> StructuredIO.read_complex structured_io,
+      ...>                           read_tag_length_value
+      ""
+  """
+
 
   alias StructuredIO.{Collector,Deprecated,Enumerator,Scanner}
 
