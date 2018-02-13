@@ -1,6 +1,6 @@
 # Version history for the *StructuredIO* project
 
-## v1.2.0 and v0.9.0
+## v1.2.1 and v0.9.1
 
 **Mon 2/12/2018**
 
