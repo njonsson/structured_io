@@ -10,6 +10,16 @@ data, *StructuredIO* guarantees that only complete data elements are returned
 from its reader functions. This simplifies your application logic with respect
 to fragmentary input.
 
+There are two main features of this library:
+
+1. **It provides a stateful process with a writer function for writing binary
+   data.** (No big deal since *IO* gives you that.)
+2. **It provides a variety of reader functions for conditional reading according
+   to a specified data structure.** Virtually any wire format can be specified,
+   including binary encodings, nested and flat markup, and delimited data. If a
+   complete data element has not (yet) been written to the process, nothing is
+   read.
+
 **See what’s changed lately by reading
 [the project history][GitHub-project-history].**
 
