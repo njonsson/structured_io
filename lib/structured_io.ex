@@ -60,8 +60,6 @@ defmodule StructuredIO do
       ...>      %{tag: tag,
       ...>        length: length,
       ...>        value: value}}
-      ...>   else
-      ...>     _ -> ""
       ...>   end
       ...> end
       iex> StructuredIO.read_complex structured_io,
