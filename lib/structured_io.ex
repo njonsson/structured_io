@@ -314,6 +314,7 @@ defmodule StructuredIO do
     enumerator
   end
 
+  @since "1.3.0"
   @spec enumerate_with(GenServer.server,
                        :read_complex,
                        operation) :: Enumerator.t
