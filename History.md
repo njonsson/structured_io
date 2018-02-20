@@ -1,5 +1,11 @@
 # Version history for the *StructuredIO* project
 
+## v1.3.0 and v0.10.0
+
+**Mon 2/19/2018**
+
+* Add support for *StructuredIO.read_complex/3* to *StructuredIO.Enumerator*
+
 ## v1.2.1 and v0.9.1
 
 **Mon 2/12/2018**
