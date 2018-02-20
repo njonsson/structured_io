@@ -239,6 +239,41 @@ defmodule StructuredIO do
       ...>                           "<br />"
       ""
 
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:binary)
+      iex> read_tag_length_value = fn s ->
+      ...>   with tag
+      ...>          when not (tag in ["", <<0>>])
+      ...>          <- StructuredIO.read(s, 1),
+      ...>        <<length::size(8)>>
+      ...>          <- StructuredIO.read(s, 1),
+      ...>        value
+      ...>          when (length == 0) or
+      ...>               (value != "")
+      ...>          <- StructuredIO.read(s, length) do
+      ...>     {:ok,
+      ...>      %{tag: tag,
+      ...>        length: length,
+      ...>        value: value}}
+      ...>   end
+      ...> end
+      iex> StructuredIO.write structured_io,
+      ...>                    <<111, 0, 222, 3, "foo">>
+      :ok
+      iex> structured_io
+      ...> |> StructuredIO.enumerate_with(:read_complex,
+      ...>                                read_tag_length_value)
+      ...> |> Enum.into([])
+      [%{tag: <<111>>,
+         length: 0,
+         value: ""},
+       %{tag: <<222>>,
+         length: 3,
+         value: "foo"}]
+      iex> StructuredIO.read_complex structured_io,
+      ...>                           read_tag_length_value
+      ""
+
   To override the default per-element timeout of a `read*` function, call
   `StructuredIO.Enumerator.timeout/2` as shown above.
   """
@@ -270,10 +305,24 @@ defmodule StructuredIO do
                        right) :: Enumerator.t
   def enumerate_with(structured_io,
                      function,
-                     right) when function in [:read_through, :read_to] do
+                     right_or_operation) when function in [:read_through,
+                                                           :read_to] and
+                                              is_binary(right_or_operation) do
     {:ok, enumerator} = Enumerator.new(%{process: structured_io,
                                          function: function,
-                                         additional_arguments: [right]})
+                                         additional_arguments: right_or_operation})
+    enumerator
+  end
+
+  @spec enumerate_with(GenServer.server,
+                       :read_complex,
+                       operation) :: Enumerator.t
+  def enumerate_with(structured_io,
+                     :read_complex=function,
+                     right_or_operation) when is_function(right_or_operation) do
+    {:ok, enumerator} = Enumerator.new(%{process: structured_io,
+                                         function: function,
+                                         additional_arguments: right_or_operation})
     enumerator
   end
 
