@@ -95,9 +95,7 @@ defmodule StructuredIO.Collector do
 
   def new(%{process: nil}=_collector), do: {:error, @error_process}
 
-  def new(%{process: _, function: nil}=_collector) do
-    {:error, @error_function}
-  end
+  def new(%{process: _, function: nil}=_collector), do: {:error, @error_function}
 
   def new(%{process: process,
             function: function}=_collector) when is_atom(function) do
