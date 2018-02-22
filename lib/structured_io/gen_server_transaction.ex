@@ -4,7 +4,7 @@ defmodule StructuredIO.GenServerTransaction do
 
   You can call `transaction/3` directly, but this module is better incorporated
   into a `GenServer` via the `use` directive. Doing so defines a public function
-  in your module according to the following options:
+  in your module according to the following `t:options/0`:
 
   * `:function_name` — the name of the function to be defined in your module;
     defaults to `transaction`
@@ -89,6 +89,22 @@ defmodule StructuredIO.GenServerTransaction do
   A function around which transactional behavior will be wrapped.
   """
   @type operation :: (GenServer.server -> {commit_instruction, any} | any)
+
+
+  @typedoc """
+  Option values used in defining a transaction function.
+  """
+  @type option :: {:function_name, :atom | binary}          |
+                  {:server_name, :atom | binary}            |
+                  {:commit_instruction, commit_instruction} |
+                  {:append_to_doc, binary}                  |
+                  {:since, Version.version}
+
+
+  @typedoc """
+  Options used in defining a transaction function.
+  """
+  @type options :: [option]
 
 
   defmacro __using__(options) do
