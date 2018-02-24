@@ -205,7 +205,7 @@ defmodule StructuredIO.GenServerTransaction do
     {reply, new_state} = try do
                            case operation.(server_clone) do
                              {^commit_instruction, successful_result} ->
-                               {successful_result, get_state(server_clone)}
+                               {successful_result, :sys.get_state(server_clone)}
                              unsuccessful_result ->
                                {unsuccessful_result, state}
                            end
@@ -229,8 +229,4 @@ defmodule StructuredIO.GenServerTransaction do
     {module, :init, _} = Process.get(:"$initial_call")
     module
   end
-
-
-  @spec get_state(GenServer.server) :: any
-  defp get_state(server), do: :sys.get_state(server)
 end
