@@ -476,7 +476,7 @@ defmodule StructuredIO do
     request = {:read, count}
     structured_io
     |> GenServer.call(request, timeout)
-    |> convert_if_error
+    |> maybe_standardize_error
   end
 
 
@@ -603,7 +603,7 @@ defmodule StructuredIO do
     request = {:read_across, left, right}
     structured_io
     |> GenServer.call(request, timeout)
-    |> convert_if_error
+    |> maybe_standardize_error
   end
 
 
@@ -663,7 +663,7 @@ defmodule StructuredIO do
     request = {:read_across_ignoring_overlap, left, right}
     structured_io
     |> GenServer.call(request, timeout)
-    |> convert_if_error
+    |> maybe_standardize_error
   end
 
 
@@ -774,7 +774,7 @@ defmodule StructuredIO do
     request = {:read_between, left, right}
     structured_io
     |> GenServer.call(request, timeout)
-    |> convert_if_error
+    |> maybe_standardize_error
   end
 
 
@@ -834,7 +834,7 @@ defmodule StructuredIO do
     request = {:read_between_ignoring_overlap, left, right}
     structured_io
     |> GenServer.call(request, timeout)
-    |> convert_if_error
+    |> maybe_standardize_error
   end
 
 
@@ -939,7 +939,7 @@ defmodule StructuredIO do
     request = {:read_through, right}
     structured_io
     |> GenServer.call(request, timeout)
-    |> convert_if_error
+    |> maybe_standardize_error
   end
 
 
@@ -1050,7 +1050,7 @@ defmodule StructuredIO do
     request = {:read_to, right}
     structured_io
     |> GenServer.call(request, timeout)
-    |> convert_if_error
+    |> maybe_standardize_error
   end
 
 
@@ -1225,9 +1225,9 @@ defmodule StructuredIO do
   defp compute_mode(mode, _), do: {:error, "invalid mode #{inspect mode}"}
 
 
-  @spec convert_if_error(any) :: error | any
+  @spec maybe_standardize_error(any) :: error | any
 
-  defp convert_if_error({:error, error}) do
+  defp maybe_standardize_error({:error, error}) do
     if Exception.exception?(error) do
       type = error
              |> Map.fetch!(:__struct__)
@@ -1242,7 +1242,7 @@ defmodule StructuredIO do
     end
   end
 
-  defp convert_if_error(other), do: other
+  defp maybe_standardize_error(other), do: other
 
 
   @spec read_reply(nil | {Scanner.match, Scanner.remainder},
