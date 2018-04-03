@@ -1,5 +1,11 @@
 # Version history for the *StructuredIO* project
 
+## v1.4.0 and v0.11.0
+
+**Mon 4/02/2018**
+
+* Enhance *StructuredIO.read/3* to accept either an integer or a binary
+
 ## v1.3.0 and v0.10.0
 
 **Mon 2/19/2018**
