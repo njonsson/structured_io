@@ -352,11 +352,12 @@ defmodule StructuredIO do
 
 
   @doc """
-  Reads data from the specified `structured_io` in the specified quantity. In
-  binary mode, `count` is a number of bytes; in Unicode mode, `count` is a number
-  of graphemes.
+  Reads data from the specified `structured_io` in the specified quantity, or
+  beginning with the specified binary value. In binary mode, a numeric
+  `count_or_match` denotes a number of bytes; in Unicode mode, a numeric
+  `count_or_match` denotes a number of graphemes.
 
-  If the data in the process does not contain at least the expected quantity of
+  If the data in the process does not contain at least the expected (quantity of)
   data, the result is an empty binary (`""`).
 
   ## Examples
@@ -398,6 +399,30 @@ defmodule StructuredIO do
       ""
 
       iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:unicode)
+      iex> StructuredIO.write structured_io,
+      ...>                    "fo"
+      :ok
+      iex> StructuredIO.read structured_io,
+      ...>                   "foo"
+      ""
+      iex> StructuredIO.write structured_io,
+      ...>                    "obar"
+      :ok
+      iex> StructuredIO.read structured_io,
+      ...>                   "foo"
+      "foo"
+      iex> StructuredIO.read structured_io,
+      ...>                   "foo"
+      ""
+      iex> StructuredIO.read structured_io,
+      ...>                   "bar"
+      "bar"
+      iex> StructuredIO.read structured_io,
+      ...>                   "bar"
+      ""
+
+      iex> {:ok,
       ...>  structured_io} = StructuredIO.start_link(:binary)
       iex> <<fragment1::binary-size(3), fragment2::binary>> = "😕"
       iex> StructuredIO.write structured_io,
@@ -414,6 +439,25 @@ defmodule StructuredIO do
       "😕"
       iex> StructuredIO.read structured_io,
       ...>                   4
+      ""
+
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:binary)
+      iex> <<fragment1::binary-size(3), fragment2::binary>> = "😕"
+      iex> StructuredIO.write structured_io,
+      ...>                    fragment1
+      :ok
+      iex> StructuredIO.read structured_io,
+      ...>                   "😕"
+      ""
+      iex> StructuredIO.write structured_io,
+      ...>                    fragment2
+      :ok
+      iex> StructuredIO.read structured_io,
+      ...>                   "😕"
+      "😕"
+      iex> StructuredIO.read structured_io,
+      ...>                   "😕"
       ""
 
       iex> {:ok,
@@ -436,12 +480,32 @@ defmodule StructuredIO do
       ...>                   1
       ""
 
+      iex> {:ok,
+      ...>  structured_io} = StructuredIO.start_link(:unicode)
+      iex> <<fragment1::binary-size(3), fragment2::binary>> = "😕"
+      iex> StructuredIO.write structured_io,
+      ...>                    fragment1
+      :ok
+      iex> StructuredIO.read structured_io,
+      ...>                   "😕"
+      {:error,
+       "UnicodeConversionError: incomplete encoding starting at \#{inspect fragment1}"}
+      iex> StructuredIO.write structured_io,
+      ...>                    fragment2
+      :ok
+      iex> StructuredIO.read structured_io,
+      ...>                   "😕"
+      "😕"
+      iex> StructuredIO.read structured_io,
+      ...>                   "😕"
+      ""
+
   See `mode/1`.
   """
   @since "1.1.0"
-  @spec read(GenServer.server, count, timeout) :: match | error
-  def read(structured_io, count, timeout \\ 5000) do
-    request = {:read, count}
+  @spec read(GenServer.server, count | match, timeout) :: match | error
+  def read(structured_io, count_or_match, timeout \\ 5000) do
+    request = {:read, count_or_match}
     structured_io
     |> GenServer.call(request, timeout)
     |> maybe_standardize_error
@@ -1096,9 +1160,28 @@ defmodule StructuredIO do
   def handle_call(:mode, _from, %{mode: mode}=state), do: {:reply, mode, state}
 
 
-  def handle_call({:read, count}, _from, state) do
+  def handle_call({:read, count=count_or_match}, _from, state)
+      when is_integer(count_or_match) do
     unit = scan_unit(state)
     scan(state, :scan, [unit, count])
+  end
+
+  def handle_call({:read, match=count_or_match}, _from, state)
+      when is_binary(count_or_match) do
+    case binary_data(state) do
+      {:error, _}=error ->
+        {:reply, error, state}
+      {:ok, binary} ->
+        unit = scan_unit(state)
+        count = measure(match, state)
+        binary
+        |> Scanner.scan(unit, count)
+        |> case do
+             {^match, _}=result -> result
+             _                  -> nil
+           end
+        |> read_reply(state)
+    end
   end
 
 
@@ -1188,6 +1271,13 @@ defmodule StructuredIO do
   end
 
   defp maybe_standardize_error(other), do: other
+
+
+  @spec measure(binary, State.t) :: non_neg_integer
+
+  defp measure(binary, %{mode: :binary}), do: byte_size(binary)
+
+  defp measure(binary, %{mode: :unicode}), do: String.length(binary)
 
 
   @spec read_reply(nil | {Scanner.match, Scanner.remainder},
