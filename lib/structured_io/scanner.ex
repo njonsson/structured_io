@@ -191,13 +191,13 @@ defmodule StructuredIO.Scanner do
   def scan_across(_data, _left, ""=_right), do: nil
 
   def scan_across(data, left, right) do
-    with data_after_left when is_binary(data_after_left) <-
-           after_beginning(data, left),
-         {match, remainder} <-
-           scan(%Enclosed{data: data_after_left,
-                          left: left,
-                          right: right,
-                          count: 1}) do
+    with data_after_left when is_binary(data_after_left)
+           <- after_beginning(data, left),
+         {match, remainder}
+           <- scan(%Enclosed{data: data_after_left,
+                             left: left,
+                             right: right,
+                             count: 1}) do
       {left <> match, remainder}
     end
   end
@@ -246,9 +246,10 @@ defmodule StructuredIO.Scanner do
   def scan_across_ignoring_overlap(_data, _left, ""=_right), do: nil
 
   def scan_across_ignoring_overlap(data, left, right) do
-    with data_after_left when is_binary(data_after_left) <-
-           after_beginning(data, left),
-         {match, remainder} <- scan_through(data_after_left, right) do
+    with data_after_left when is_binary(data_after_left)
+           <- after_beginning(data, left),
+         {match, remainder}
+           <- scan_through(data_after_left, right) do
       {left <> match, remainder}
     end
   end
@@ -308,13 +309,13 @@ defmodule StructuredIO.Scanner do
   def scan_between(_data, _left, ""=_right), do: nil
 
   def scan_between(data, left, right) do
-    with data_after_left when is_binary(data_after_left) <-
-           after_beginning(data, left),
-         {match, remainder} <-
-           scan(%Enclosed{data: data_after_left,
-                          left: left,
-                          right: right,
-                          count: 1}) do
+    with data_after_left when is_binary(data_after_left)
+           <- after_beginning(data, left),
+         {match, remainder}
+           <- scan(%Enclosed{data: data_after_left,
+                             left: left,
+                             right: right,
+                             count: 1}) do
       match_without_right = binary_part(match,
                                         0,
                                         byte_size(match) - byte_size(right))
@@ -366,8 +367,8 @@ defmodule StructuredIO.Scanner do
   def scan_between_ignoring_overlap(_data, _left, ""=_right), do: nil
 
   def scan_between_ignoring_overlap(data, left, right) do
-    with data_after_left when is_binary(data_after_left) <-
-           after_beginning(data, left) do
+    with data_after_left when is_binary(data_after_left)
+           <- after_beginning(data, left) do
       scan %Terminated{data: data_after_left, right: right}
     end
   end
