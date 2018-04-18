@@ -184,7 +184,8 @@ defmodule StructuredIO do
   @doc """
   Returns a value that can be passed to functions such as `Enum.map/2` for
   reading data elements from the specified `structured_io`, using the specified
-  `#{inspect __MODULE__}` `function`, and the specified `left` and/or `right`.
+  `#{inspect __MODULE__}` `function`, and the specified `left` and/or
+  `right`/`operation`.
 
   Note that enumeration is not a purely functional operation; it consumes data
   elements from the underlying `#{inspect __MODULE__}` process.
