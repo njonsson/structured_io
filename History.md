@@ -1,5 +1,12 @@
 # Version history for the *StructuredIO* project
 
+## v1.5.0 and v0.12.0
+
+**Wed 4/18/2018**
+
+* Introduce *StructuredIO.Behaviour* and *StructuredIO.Enumerator.Behaviour* in
+  support of mocking via [*Mox*][HexDocs-Plataformatec-Mox]
+
 ## v1.4.0 and v0.11.0
 
 **Mon 4/02/2018**
@@ -116,6 +123,7 @@
 
 (First release)
 
+[HexDocs-Plataformatec-Mox]:             https://hexdocs.pm/mox                                "Plataformatec’s ‘Mox’ library at HexDocs"
 [HexDocs-Elixir-Enumerable]:             https://hexdocs.pm/elixir/Enumerable.html             "Elixir’s ‘Enumerable’ protocol at HexDocs"
 [HexDocs-Elixir-Logger]:                 https://hexdocs.pm/logger/Logger.html                 "Elixir’s ‘Logger’ module at HexDocs"
 [HexDocs-Elixir-Collectable]:            https://hexdocs.pm/elixir/Collectable.html            "Elixir’s ‘Collectable’ protocol at HexDocs"
