@@ -80,6 +80,9 @@ defmodule StructuredIO.Enumerator do
   """
 
 
+  @behaviour StructuredIO.Enumerator.Behaviour
+
+
   # TODO: Consider eliminating needless fields in v2: `:process` and `:additional_arguments`
   @enforce_keys ~w{process function additional_arguments arguments}a
   defstruct process: nil,
@@ -252,6 +255,7 @@ defmodule StructuredIO.Enumerator do
       ...>                                 nil
       enumerator
   """
+  @impl true
   @since "0.7.0"
   @spec timeout(t, timeout | nil) :: t
   def timeout(%__MODULE__{}=enumerator, timeout) do

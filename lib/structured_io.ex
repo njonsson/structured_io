@@ -26,6 +26,8 @@ defmodule StructuredIO do
 
 
   use GenServer
+
+  @impl true
   use StructuredIO.GenServerTransaction, function_name: "read_complex",
                                          server_name: "structured_io",
                                          commit_instruction: :ok,
@@ -95,6 +97,9 @@ defmodule StructuredIO do
       ...>                           read_tag_length_value
       ""
   """
+
+
+  @behaviour StructuredIO.Behaviour
 
 
   alias StructuredIO.{Collector,Enumerator,Scanner}
@@ -172,6 +177,7 @@ defmodule StructuredIO do
       ...>                           "</elem>"
       ""
   """
+  @impl true
   @since "0.6.0"
   @spec collect(GenServer.server) :: Collector.t
   def collect(structured_io) do
@@ -279,6 +285,7 @@ defmodule StructuredIO do
   `StructuredIO.Enumerator.timeout/2` as shown above.
   """
 
+  @impl true
   @since "0.6.0"
   @spec enumerate_with(GenServer.server,
                        :read_across                  |
@@ -300,6 +307,7 @@ defmodule StructuredIO do
     enumerator
   end
 
+  @impl true
   @since "0.6.0"
   @spec enumerate_with(GenServer.server,
                        :read_through | :read_to,
@@ -315,6 +323,7 @@ defmodule StructuredIO do
     enumerator
   end
 
+  @impl true
   @since "1.3.0"
   @spec enumerate_with(GenServer.server,
                        :read_complex,
@@ -344,6 +353,7 @@ defmodule StructuredIO do
       iex> StructuredIO.mode structured_io
       :unicode
   """
+  @impl true
   @since "0.5.0"
   @spec mode(GenServer.server) :: mode
   def mode(structured_io) do
@@ -503,6 +513,7 @@ defmodule StructuredIO do
 
   See `mode/1`.
   """
+  @impl true
   @since "1.1.0"
   @spec read(GenServer.server, count | match, timeout) :: match | error
   def read(structured_io, count_or_match, timeout \\ 5000) do
@@ -630,6 +641,7 @@ defmodule StructuredIO do
       ...>                          "</elem>"
       ""
   """
+  @impl true
   @since "0.1.0"
   @spec read_across(GenServer.server, left, right, timeout) :: match | error
   def read_across(structured_io, left, right, timeout \\ 5000) do
@@ -684,6 +696,7 @@ defmodule StructuredIO do
       ...>                                           "</elem>"
       "<elem>foo<elem>bar</elem>"
   """
+  @impl true
   @since "0.7.0"
   @spec read_across_ignoring_overlap(GenServer.server,
                                      left,
@@ -801,6 +814,7 @@ defmodule StructuredIO do
       ...>                           "</elem>"
       ""
   """
+  @impl true
   @since "0.2.0"
   @spec read_between(GenServer.server, left, right, timeout) :: match | error
   def read_between(structured_io, left, right, timeout \\ 5000) do
@@ -855,6 +869,7 @@ defmodule StructuredIO do
       ...>                                            "</elem>"
       "foo<elem>bar"
   """
+  @impl true
   @since "0.7.0"
   @spec read_between_ignoring_overlap(GenServer.server,
                                       left,
@@ -966,6 +981,7 @@ defmodule StructuredIO do
       ...>                           "<br/>"
       ""
   """
+  @impl true
   @since "0.2.0"
   @spec read_through(GenServer.server, right, timeout) :: match | error
   def read_through(structured_io, right, timeout \\ 5000) do
@@ -1077,6 +1093,7 @@ defmodule StructuredIO do
       ...>                      "<br/>"
       ""
   """
+  @impl true
   @since "0.2.0"
   @spec read_to(GenServer.server, right, timeout) :: match | error
   def read_to(structured_io, right, timeout \\ 5000) do
@@ -1099,6 +1116,7 @@ defmodule StructuredIO do
 
   See `start_link/2`.
   """
+  @impl true
   @since "0.5.0"
   @spec start(mode, GenServer.options) :: GenServer.on_start
   def start(mode, options \\ []) do
@@ -1120,6 +1138,7 @@ defmodule StructuredIO do
 
   See `mode/1` and the `read*` functions for more examples.
   """
+  @impl true
   @since "0.5.0"
   @spec start_link(mode, GenServer.options) :: GenServer.on_start
   def start_link(mode, options \\ []) do
@@ -1132,6 +1151,7 @@ defmodule StructuredIO do
   @doc """
   Stops the specified `structured_io` process.
   """
+  @impl true
   @since "0.1.0"
   @spec stop(GenServer.server, term, timeout) :: :ok
   def stop(structured_io, reason \\ :normal, timeout \\ :infinity) do
@@ -1146,6 +1166,7 @@ defmodule StructuredIO do
 
   See the `read*` functions for examples.
   """
+  @impl true
   @since "0.1.0"
   @spec write(GenServer.server,
               iodata | IO.chardata | String.Chars.t) :: :ok | error
@@ -1157,6 +1178,8 @@ defmodule StructuredIO do
 
   # Callbacks
 
+
+  @impl true
 
   def handle_call(:mode, _from, %{mode: mode}=state), do: {:reply, mode, state}
 
@@ -1218,6 +1241,7 @@ defmodule StructuredIO do
   end
 
 
+  @impl true
   def handle_cast({:write, new_data}, %{data: data}=state) do
     new_state = %{state | data: [data, new_data]}
 
@@ -1226,6 +1250,7 @@ defmodule StructuredIO do
 
 
   @doc false
+  @impl true
   def init(args), do: {:ok, args}
 
 
