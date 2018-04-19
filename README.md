@@ -151,7 +151,7 @@ dependencies in your project’s *mix.exs* file:
 # ...
 def deps do
   [
-    {:structured_io, "~> 1.4.0"}
+    {:structured_io, "~> 1.5.0"}
   ]
 end
 # ...
