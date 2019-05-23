@@ -12,6 +12,8 @@ otp_release:
 env:
   - MIX_ENV=test
 matrix:
+  allow_failures:
+    - otp_release: 18.0
   exclude:
     - elixir: 1.4
       otp_release: 21.0
