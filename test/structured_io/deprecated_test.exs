@@ -3,7 +3,7 @@ defmodule StructuredIO.DeprecatedTest do
   doctest StructuredIO.Deprecated
 
   setup do
-    {:ok, structured_io} = StructuredIO.start_link
+    {:ok, structured_io} = StructuredIO.start_link()
     {:ok, structured_io: structured_io}
   end
 
@@ -27,9 +27,9 @@ defmodule StructuredIO.DeprecatedTest do
       closer = "</elem>"
       scan_data = opener <> "foo" <> closer
       :ok = StructuredIO.write(structured_io, scan_data)
+
       assert StructuredIO.binread_across(structured_io, opener, closer) ==
-             {:error,
-              "In Unicode mode -- call StructuredIO.read_across/3 instead"}
+               {:error, "In Unicode mode -- call StructuredIO.read_across/3 instead"}
     end
   end
 
@@ -45,9 +45,9 @@ defmodule StructuredIO.DeprecatedTest do
       closer = "</elem>"
       scan_data = opener <> "foo" <> closer
       :ok = StructuredIO.write(structured_io, scan_data)
+
       assert StructuredIO.binread_between(structured_io, opener, closer) ==
-             {:error,
-              "In Unicode mode -- call StructuredIO.read_between/3 instead"}
+               {:error, "In Unicode mode -- call StructuredIO.read_between/3 instead"}
     end
   end
 
@@ -61,9 +61,9 @@ defmodule StructuredIO.DeprecatedTest do
       delimiter = "<br/>"
       scan_data = "foo" <> delimiter
       :ok = StructuredIO.write(structured_io, scan_data)
+
       assert StructuredIO.binread_through(structured_io, delimiter) ==
-             {:error,
-              "In Unicode mode -- call StructuredIO.read_through/2 instead"}
+               {:error, "In Unicode mode -- call StructuredIO.read_through/2 instead"}
     end
   end
 
@@ -77,8 +77,9 @@ defmodule StructuredIO.DeprecatedTest do
       opener = "<elem>"
       scan_data = "foo" <> opener
       :ok = StructuredIO.write(structured_io, scan_data)
+
       assert StructuredIO.binread_to(structured_io, opener) ==
-             {:error, "In Unicode mode -- call StructuredIO.read_to/2 instead"}
+               {:error, "In Unicode mode -- call StructuredIO.read_to/2 instead"}
     end
   end
 

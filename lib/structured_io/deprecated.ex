@@ -8,9 +8,7 @@ defmodule StructuredIO.Deprecated do
   `t:StructuredIO.error/0`.
   """
 
-
-  alias StructuredIO.{Scanner,State}
-
+  alias StructuredIO.{Scanner, State}
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
@@ -75,19 +73,21 @@ defmodule StructuredIO.Deprecated do
       ...>                             "</elem>"
       ""
   """
-  @deprecated "Call #{inspect StructuredIO}.read_across in binary mode instead"
+  @deprecated "Call #{inspect(StructuredIO)}.read_across in binary mode instead"
   @since "0.1.0"
-  @spec binread_across(GenServer.server,
-                       StructuredIO.left,
-                       StructuredIO.right,
-                       timeout) :: StructuredIO.match | StructuredIO.error
+  @spec binread_across(
+          GenServer.server(),
+          StructuredIO.left(),
+          StructuredIO.right(),
+          timeout
+        ) :: StructuredIO.match() | StructuredIO.error()
   def binread_across(structured_io, left, right, timeout \\ 5000) do
     request = {:deprecated_binread_across, left, right}
+
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
   end
-
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
@@ -152,19 +152,21 @@ defmodule StructuredIO.Deprecated do
       ...>                              "</elem>"
       ""
   """
-  @deprecated "Call #{inspect StructuredIO}.read_between in binary mode instead"
+  @deprecated "Call #{inspect(StructuredIO)}.read_between in binary mode instead"
   @since "0.1.0"
-  @spec binread_between(GenServer.server,
-                        StructuredIO.left,
-                        StructuredIO.right,
-                        timeout) :: StructuredIO.match | StructuredIO.error
+  @spec binread_between(
+          GenServer.server(),
+          StructuredIO.left(),
+          StructuredIO.right(),
+          timeout
+        ) :: StructuredIO.match() | StructuredIO.error()
   def binread_between(structured_io, left, right, timeout \\ 5000) do
     request = {:deprecated_binread_between, left, right}
+
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
   end
-
 
   @doc """
   Reads data from the specified `structured_io` if and until the specified
@@ -217,18 +219,20 @@ defmodule StructuredIO.Deprecated do
       ...>                              "<br/>"
       ""
   """
-  @deprecated "Call #{inspect StructuredIO}.read_through in binary mode instead"
+  @deprecated "Call #{inspect(StructuredIO)}.read_through in binary mode instead"
   @since "0.1.0"
-  @spec binread_through(GenServer.server,
-                        StructuredIO.right,
-                        timeout) :: StructuredIO.match | StructuredIO.error
+  @spec binread_through(
+          GenServer.server(),
+          StructuredIO.right(),
+          timeout
+        ) :: StructuredIO.match() | StructuredIO.error()
   def binread_through(structured_io, right, timeout \\ 5000) do
     request = {:deprecated_binread_through, right}
+
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
   end
-
 
   @doc """
   Reads data from the specified `structured_io` if and until the specified
@@ -284,34 +288,36 @@ defmodule StructuredIO.Deprecated do
       ...>                         "<br/>"
       ""
   """
-  @deprecated "Call #{inspect StructuredIO}.read_to in binary mode instead"
+  @deprecated "Call #{inspect(StructuredIO)}.read_to in binary mode instead"
   @since "0.1.0"
-  @spec binread_to(GenServer.server,
-                   StructuredIO.right,
-                   timeout) :: StructuredIO.match | StructuredIO.error
+  @spec binread_to(
+          GenServer.server(),
+          StructuredIO.right(),
+          timeout
+        ) :: StructuredIO.match() | StructuredIO.error()
   def binread_to(structured_io, right, timeout \\ 5000) do
     request = {:deprecated_binread_to, right}
+
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
   end
-
 
   @doc """
   Writes the specified `iodata` to the specified `structured_io`.
 
   See the `binread_*` functions for examples.
   """
-  @deprecated "Call #{inspect StructuredIO}.write in binary mode instead"
+  @deprecated "Call #{inspect(StructuredIO)}.write in binary mode instead"
   @since "0.1.0"
-  @spec binwrite(GenServer.server, iodata) :: :ok | StructuredIO.error
+  @spec binwrite(GenServer.server(), iodata) :: :ok | StructuredIO.error()
   def binwrite(structured_io, iodata) do
     request = {:deprecated_binwrite, iodata}
+
     structured_io
     |> GenServer.call(request)
     |> convert_if_error
   end
-
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
@@ -377,19 +383,21 @@ defmodule StructuredIO.Deprecated do
       ...>                          "</elem>"
       ""
   """
-  @deprecated "Call #{inspect StructuredIO}.read_across in Unicode mode instead"
+  @deprecated "Call #{inspect(StructuredIO)}.read_across in Unicode mode instead"
   @since "0.1.0"
-  @spec read_across(GenServer.server,
-                    StructuredIO.left,
-                    StructuredIO.right,
-                    timeout) :: StructuredIO.match | StructuredIO.error
+  @spec read_across(
+          GenServer.server(),
+          StructuredIO.left(),
+          StructuredIO.right(),
+          timeout
+        ) :: StructuredIO.match() | StructuredIO.error()
   def read_across(structured_io, left, right, timeout \\ 5000) do
     request = {:deprecated_read_across, left, right}
+
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
   end
-
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
@@ -455,19 +463,21 @@ defmodule StructuredIO.Deprecated do
       ...>                           "</elem>"
       ""
   """
-  @deprecated "Call #{inspect StructuredIO}.read_between in Unicode mode instead"
+  @deprecated "Call #{inspect(StructuredIO)}.read_between in Unicode mode instead"
   @since "0.1.0"
-  @spec read_between(GenServer.server,
-                     StructuredIO.left,
-                     StructuredIO.right,
-                     timeout) :: StructuredIO.match | StructuredIO.error
+  @spec read_between(
+          GenServer.server(),
+          StructuredIO.left(),
+          StructuredIO.right(),
+          timeout
+        ) :: StructuredIO.match() | StructuredIO.error()
   def read_between(structured_io, left, right, timeout \\ 5000) do
     request = {:deprecated_read_between, left, right}
+
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
   end
-
 
   @doc """
   Reads data from the specified `structured_io` if and until the specified
@@ -521,18 +531,20 @@ defmodule StructuredIO.Deprecated do
       ...>                           "<br/>"
       ""
   """
-  @deprecated "Call #{inspect StructuredIO}.read_through in Unicode mode instead"
+  @deprecated "Call #{inspect(StructuredIO)}.read_through in Unicode mode instead"
   @since "0.1.0"
-  @spec read_through(GenServer.server,
-                     StructuredIO.right,
-                     timeout) :: StructuredIO.match | StructuredIO.error
+  @spec read_through(
+          GenServer.server(),
+          StructuredIO.right(),
+          timeout
+        ) :: StructuredIO.match() | StructuredIO.error()
   def read_through(structured_io, right, timeout \\ 5000) do
     request = {:deprecated_read_through, right}
+
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
   end
-
 
   @doc """
   Reads data from the specified `structured_io` if and until the specified
@@ -589,155 +601,169 @@ defmodule StructuredIO.Deprecated do
       ...>                      "<br/>"
       ""
   """
-  @deprecated "Call #{inspect StructuredIO}.read_to in Unicode mode instead"
+  @deprecated "Call #{inspect(StructuredIO)}.read_to in Unicode mode instead"
   @since "0.1.0"
-  @spec read_to(GenServer.server,
-                StructuredIO.right,
-                timeout) :: StructuredIO.match | StructuredIO.error
+  @spec read_to(
+          GenServer.server(),
+          StructuredIO.right(),
+          timeout
+        ) :: StructuredIO.match() | StructuredIO.error()
   def read_to(structured_io, right, timeout \\ 5000) do
     request = {:deprecated_read_to, right}
+
     structured_io
     |> GenServer.call(request, timeout)
     |> convert_if_error
   end
 
-
   @doc """
-  Starts a `#{inspect StructuredIO}` process without links (outside a
+  Starts a `#{inspect(StructuredIO)}` process without links (outside a
   supervision tree).
 
   See `start_link/0`.
   """
-  @deprecated "Call #{inspect StructuredIO}.start/1 instead"
+  @deprecated "Call #{inspect(StructuredIO)}.start/1 instead"
   @since "0.1.0"
-  @spec start :: GenServer.on_start
+  @spec start :: GenServer.on_start()
   def start, do: GenServer.start(StructuredIO, %State{}, [])
 
-
   @doc """
-  Starts a `#{inspect StructuredIO}` process linked to the current process.
+  Starts a `#{inspect(StructuredIO)}` process linked to the current process.
 
   See the `binread_*` and `read_*` functions for examples.
   """
-  @deprecated "Call #{inspect StructuredIO}.start_link/1 instead"
+  @deprecated "Call #{inspect(StructuredIO)}.start_link/1 instead"
   @since "0.1.0"
-  @spec start_link :: GenServer.on_start
+  @spec start_link :: GenServer.on_start()
   def start_link, do: GenServer.start(StructuredIO, %State{}, [])
-
 
   # Callbacks
 
-
   @doc false
-  def handle_call({:deprecated_binread_across, _, _},
-                  _from,
-                  %{mode: :unicode}=state) do
+  def handle_call(
+        {:deprecated_binread_across, _, _},
+        _from,
+        %{mode: :unicode} = state
+      ) do
     reply = mode_error("Unicode", "read_across/3")
 
     {:reply, reply, state}
   end
 
   @doc false
-  def handle_call({:deprecated_binread_across, left, right},
-                  _from,
-                  %{data: iodata}=state) do
+  def handle_call(
+        {:deprecated_binread_across, left, right},
+        _from,
+        %{data: iodata} = state
+      ) do
     iodata
-    |> IO.iodata_to_binary
+    |> IO.iodata_to_binary()
     |> Scanner.scan_across(left, right)
     |> read_reply(state)
   end
 
-
   @doc false
-  def handle_call({:deprecated_binread_between, _, _},
-                  _from,
-                  %{mode: :unicode}=state) do
+  def handle_call(
+        {:deprecated_binread_between, _, _},
+        _from,
+        %{mode: :unicode} = state
+      ) do
     reply = mode_error("Unicode", "read_between/3")
 
     {:reply, reply, state}
   end
 
   @doc false
-  def handle_call({:deprecated_binread_between, left, right},
-                  _from,
-                  %{data: iodata}=state) do
+  def handle_call(
+        {:deprecated_binread_between, left, right},
+        _from,
+        %{data: iodata} = state
+      ) do
     iodata
-    |> IO.iodata_to_binary
+    |> IO.iodata_to_binary()
     |> Scanner.scan_between(left, right)
     |> read_reply(state)
   end
 
-
   @doc false
-  def handle_call({:deprecated_binread_through, _},
-                  _from,
-                  %{mode: :unicode}=state) do
+  def handle_call(
+        {:deprecated_binread_through, _},
+        _from,
+        %{mode: :unicode} = state
+      ) do
     reply = mode_error("Unicode", "read_through/2")
 
     {:reply, reply, state}
   end
 
   @doc false
-  def handle_call({:deprecated_binread_through, right},
-                  _from,
-                  %{data: iodata}=state) do
+  def handle_call(
+        {:deprecated_binread_through, right},
+        _from,
+        %{data: iodata} = state
+      ) do
     iodata
-    |> IO.iodata_to_binary
+    |> IO.iodata_to_binary()
     |> Scanner.scan_through(right)
     |> read_reply(state)
   end
 
-
   @doc false
-  def handle_call({:deprecated_binread_to, _},
-                  _from,
-                  %{mode: :unicode}=state) do
+  def handle_call(
+        {:deprecated_binread_to, _},
+        _from,
+        %{mode: :unicode} = state
+      ) do
     reply = mode_error("Unicode", "read_to/2")
 
     {:reply, reply, state}
   end
 
   @doc false
-  def handle_call({:deprecated_binread_to, right},
-                  _from,
-                  %{data: iodata}=state) do
+  def handle_call(
+        {:deprecated_binread_to, right},
+        _from,
+        %{data: iodata} = state
+      ) do
     iodata
-    |> IO.iodata_to_binary
+    |> IO.iodata_to_binary()
     |> Scanner.scan_to(right)
     |> read_reply(state)
   end
 
-
   @doc false
-  def handle_call({:deprecated_binwrite, _}, _from, %{mode: :unicode}=state) do
+  def handle_call({:deprecated_binwrite, _}, _from, %{mode: :unicode} = state) do
     reply = mode_error("Unicode", "write/2")
 
     {:reply, reply, state}
   end
 
   @doc false
-  def handle_call({:deprecated_binwrite, _}=request, _from, state) do
-    GenServer.cast self(), request
+  def handle_call({:deprecated_binwrite, _} = request, _from, state) do
+    GenServer.cast(self(), request)
 
     {:reply, :ok, state}
   end
 
-
   @doc false
-  def handle_call({:deprecated_read_across, _, _},
-                  _from,
-                  %{mode: :binary}=state) do
+  def handle_call(
+        {:deprecated_read_across, _, _},
+        _from,
+        %{mode: :binary} = state
+      ) do
     reply = mode_error("binary", "binread_across/3")
 
     {:reply, reply, state}
   end
 
   @doc false
-  def handle_call({:deprecated_read_across, left, right},
-                  _from,
-                  %{data: chardata}=state) do
+  def handle_call(
+        {:deprecated_read_across, left, right},
+        _from,
+        %{data: chardata} = state
+      ) do
     try do
-      IO.chardata_to_string chardata
+      IO.chardata_to_string(chardata)
     rescue
       e in UnicodeConversionError -> {:reply, {:error, e}, state}
     else
@@ -748,22 +774,25 @@ defmodule StructuredIO.Deprecated do
     end
   end
 
-
   @doc false
-  def handle_call({:deprecated_read_between, _, _},
-                  _from,
-                  %{mode: :binary}=state) do
+  def handle_call(
+        {:deprecated_read_between, _, _},
+        _from,
+        %{mode: :binary} = state
+      ) do
     reply = mode_error("binary", "binread_between/3")
 
     {:reply, reply, state}
   end
 
   @doc false
-  def handle_call({:deprecated_read_between, left, right},
-                  _from,
-                  %{data: chardata}=state) do
+  def handle_call(
+        {:deprecated_read_between, left, right},
+        _from,
+        %{data: chardata} = state
+      ) do
     try do
-      IO.chardata_to_string chardata
+      IO.chardata_to_string(chardata)
     rescue
       e in UnicodeConversionError -> {:reply, {:error, e}, state}
     else
@@ -774,22 +803,25 @@ defmodule StructuredIO.Deprecated do
     end
   end
 
-
   @doc false
-  def handle_call({:deprecated_read_through, _},
-                  _from,
-                  %{mode: :binary}=state) do
+  def handle_call(
+        {:deprecated_read_through, _},
+        _from,
+        %{mode: :binary} = state
+      ) do
     reply = mode_error("binary", "binread_through/2")
 
     {:reply, reply, state}
   end
 
   @doc false
-  def handle_call({:deprecated_read_through, right},
-                  _from,
-                  %{data: chardata}=state) do
+  def handle_call(
+        {:deprecated_read_through, right},
+        _from,
+        %{data: chardata} = state
+      ) do
     try do
-      IO.chardata_to_string chardata
+      IO.chardata_to_string(chardata)
     rescue
       e in UnicodeConversionError -> {:reply, {:error, e}, state}
     else
@@ -800,20 +832,21 @@ defmodule StructuredIO.Deprecated do
     end
   end
 
-
   @doc false
-  def handle_call({:deprecated_read_to, _}, _from, %{mode: :binary}=state) do
+  def handle_call({:deprecated_read_to, _}, _from, %{mode: :binary} = state) do
     reply = mode_error("binary", "binread_to/2")
 
     {:reply, reply, state}
   end
 
   @doc false
-  def handle_call({:deprecated_read_to, read_to},
-                  _from,
-                  %{data: chardata}=state) do
+  def handle_call(
+        {:deprecated_read_to, read_to},
+        _from,
+        %{data: chardata} = state
+      ) do
     try do
-      IO.chardata_to_string chardata
+      IO.chardata_to_string(chardata)
     rescue
       e in UnicodeConversionError -> {:reply, {:error, e}, state}
     else
@@ -824,25 +857,25 @@ defmodule StructuredIO.Deprecated do
     end
   end
 
-
   @doc false
-  def handle_call({:deprecated_write, _}, _from, %{mode: :binary}=state) do
+  def handle_call({:deprecated_write, _}, _from, %{mode: :binary} = state) do
     reply = mode_error("binary", "binwrite/2")
 
     {:reply, reply, state}
   end
 
   @doc false
-  def handle_call({:deprecated_write, _}=request, _from, state) do
-    GenServer.cast self(), request
+  def handle_call({:deprecated_write, _} = request, _from, state) do
+    GenServer.cast(self(), request)
 
     {:reply, :ok, state}
   end
 
-
   @doc false
-  def handle_cast({:deprecated_binwrite, iodata},
-                  %{data: data}=state) do
+  def handle_cast(
+        {:deprecated_binwrite, iodata},
+        %{data: data} = state
+      ) do
     new_data = [data, iodata]
     new_mode = Map.get(state, :mode) || :binary
     new_state = %{state | data: new_data, mode: new_mode}
@@ -850,9 +883,8 @@ defmodule StructuredIO.Deprecated do
     {:noreply, new_state}
   end
 
-
   @doc false
-  def handle_cast({:deprecated_write, chardata}, %{data: data}=state) do
+  def handle_cast({:deprecated_write, chardata}, %{data: data} = state) do
     new_data = [data, chardata]
     new_mode = Map.get(state, :mode) || :unicode
     new_state = %{state | data: new_data, mode: new_mode}
@@ -860,14 +892,15 @@ defmodule StructuredIO.Deprecated do
     {:noreply, new_state}
   end
 
-
-  @spec convert_if_error(any) :: StructuredIO.error | any
+  @spec convert_if_error(any) :: StructuredIO.error() | any
 
   defp convert_if_error({:error, error}) do
     if Exception.exception?(error) do
-      type = error
-             |> Map.fetch!(:__struct__)
-             |> inspect
+      type =
+        error
+        |> Map.fetch!(:__struct__)
+        |> inspect
+
       {:error, "#{type}: #{error.message}"}
     else
       if is_atom(error) do
@@ -880,16 +913,15 @@ defmodule StructuredIO.Deprecated do
 
   defp convert_if_error(other), do: other
 
-
-  @spec mode_error(binary, binary) :: StructuredIO.error
+  @spec mode_error(binary, binary) :: StructuredIO.error()
   defp mode_error(mode_name, correct_fun_name) do
-    {:error,
-     "In #{mode_name} mode -- call #{inspect StructuredIO}.#{correct_fun_name} instead"}
+    {:error, "In #{mode_name} mode -- call #{inspect(StructuredIO)}.#{correct_fun_name} instead"}
   end
 
-
-  @spec read_reply(nil | {Scanner.match, Scanner.remainder},
-                   State.t) :: {:reply, Scanner.match, State.t}
+  @spec read_reply(
+          nil | {Scanner.match(), Scanner.remainder()},
+          State.t()
+        ) :: {:reply, Scanner.match(), State.t()}
 
   defp read_reply(nil, state), do: {:reply, "", state}
 
