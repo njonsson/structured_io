@@ -32,15 +32,13 @@ defmodule StructuredIO.Collector do
       ""
   """
 
-
   @enforce_keys [:process, :function]
   defstruct process: nil, function: nil
 
   @typedoc """
-  A `#{inspect __MODULE__}` struct.
+  A `#{inspect(__MODULE__)}` struct.
   """
-  @type t :: %__MODULE__{process: GenServer.server, function: atom}
-
+  @type t :: %__MODULE__{process: GenServer.server(), function: atom}
 
   defimpl Collectable do
     def into(original) do
@@ -58,14 +56,14 @@ defmodule StructuredIO.Collector do
     defp collector(_collector, :halt), do: :ok
   end
 
-
-  @error_process "#{inspect __MODULE__} :process field is required"
-  @error_function "#{inspect __MODULE__} :function field must be the name of a #{inspect StructuredIO} public function"
-
+  @error_process "#{inspect(__MODULE__)} :process field is required"
+  @error_function "#{inspect(__MODULE__)} :function field must be the name of a #{
+                    inspect(StructuredIO)
+                  } public function"
 
   @doc """
-  Builds a new `#{inspect __MODULE__}` for the specified
-  `#{inspect StructuredIO}` `process` and `function`.
+  Builds a new `#{inspect(__MODULE__)}` for the specified
+  `#{inspect(StructuredIO)}` `process` and `function`.
 
   ## Examples
 
@@ -78,11 +76,11 @@ defmodule StructuredIO.Collector do
 
       iex> StructuredIO.Collector.new %{function: :write}
       {:error,
-       #{inspect @error_process}}
+       #{inspect(@error_process)}}
 
       iex> StructuredIO.Collector.new %{process: :a_process}
       {:error,
-       #{inspect @error_function}}
+       #{inspect(@error_function)}}
 
       iex> StructuredIO.Collector.new %{process: :a_process,
       ...>                              function: :not_a_function}
@@ -90,25 +88,24 @@ defmodule StructuredIO.Collector do
        "function StructuredIO.not_a_function/2 is undefined or private"}
   """
   @since "0.6.0"
-  @spec new(%{process: GenServer.server,
-              function: atom}) :: {:ok, t} | StructuredIO.error
+  @spec new(%{process: GenServer.server(), function: atom}) :: {:ok, t} | StructuredIO.error()
 
-  def new(%{process: nil}=_collector), do: {:error, @error_process}
+  def new(%{process: nil} = _collector), do: {:error, @error_process}
 
-  def new(%{process: _, function: nil}=_collector), do: {:error, @error_function}
+  def new(%{process: _, function: nil} = _collector), do: {:error, @error_function}
 
-  def new(%{process: process,
-            function: function}=_collector) when is_atom(function) do
+  def new(%{process: process, function: function} = _collector) when is_atom(function) do
     function_arity = 2
+
     if function_exported?(StructuredIO, function, function_arity) do
       {:ok, struct(__MODULE__, process: process, function: function)}
     else
       {:error,
-       "function #{inspect StructuredIO}.#{function}/#{function_arity} is undefined or private"}
+       "function #{inspect(StructuredIO)}.#{function}/#{function_arity} is undefined or private"}
     end
   end
 
-  def new(%{function: _}=_collector), do: {:error, @error_process}
+  def new(%{function: _} = _collector), do: {:error, @error_process}
 
-  def new(%{process: _}=_collector), do: {:error, @error_function}
+  def new(%{process: _} = _collector), do: {:error, @error_function}
 end

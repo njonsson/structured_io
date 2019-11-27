@@ -79,9 +79,7 @@ defmodule StructuredIO.Enumerator do
       false
   """
 
-
   @behaviour StructuredIO.Enumerator.Behaviour
-
 
   # TODO: Consider eliminating needless fields in v2: `:process` and `:additional_arguments`
   @enforce_keys ~w{process function additional_arguments arguments}a
@@ -92,23 +90,22 @@ defmodule StructuredIO.Enumerator do
             arguments: nil
 
   @typedoc """
-  A `#{inspect __MODULE__}` struct.
+  A `#{inspect(__MODULE__)}` struct.
   """
-  @type t :: %__MODULE__{process: GenServer.server,
-                         function: atom,
-                         timeout: nil | timeout,
-                         additional_arguments: [any],
-                         arguments: [any]}
-
+  @type t :: %__MODULE__{
+          process: GenServer.server(),
+          function: atom,
+          timeout: nil | timeout,
+          additional_arguments: [any],
+          arguments: [any]
+        }
 
   defimpl Enumerable do
     # Use the default implementation of Enumerable.count/1.
     def count(_enumerator), do: {:error, __MODULE__}
 
-
     # Use the default implementation of Enumerable.member?/2.
     def member?(_enumerator, _element), do: {:error, __MODULE__}
-
 
     def reduce(_enumerator, {:halt, acc}, _fun), do: {:halted, acc}
 
@@ -118,9 +115,9 @@ defmodule StructuredIO.Enumerator do
 
     def reduce(enumerator, {:cont, acc}, fun) do
       case apply(StructuredIO, enumerator.function, enumerator.arguments) do
-        {:error, _}=error -> {:done, error}
-        ""                -> {:done, acc}
-        element           -> reduce(enumerator, fun.(element, acc), fun)
+        {:error, _} = error -> {:done, error}
+        "" -> {:done, acc}
+        element -> reduce(enumerator, fun.(element, acc), fun)
       end
     end
 
@@ -128,13 +125,13 @@ defmodule StructuredIO.Enumerator do
     def slice(_enumerator), do: {:error, __MODULE__}
   end
 
-
-  @error_process "#{inspect __MODULE__} :process field is required"
-  @error_function "#{inspect __MODULE__} :function field must be the name of a #{inspect StructuredIO} public function"
-
+  @error_process "#{inspect(__MODULE__)} :process field is required"
+  @error_function "#{inspect(__MODULE__)} :function field must be the name of a #{
+                    inspect(StructuredIO)
+                  } public function"
 
   @doc """
-  Builds a new `#{inspect __MODULE__}` for the specified `StructuredIO`
+  Builds a new `#{inspect(__MODULE__)}` for the specified `StructuredIO`
   `process`, `function`, and `additional_arguments` to that function.
 
   ## Examples
@@ -157,20 +154,20 @@ defmodule StructuredIO.Enumerator do
       ...>                               additional_arguments: ["<elem>",
       ...>                                                      "</elem>"]}
       {:error,
-       #{inspect @error_process}}
+       #{inspect(@error_process)}}
 
       iex> StructuredIO.Enumerator.new %{process: :a_process,
       ...>                               additional_arguments: ["<elem>",
       ...>                                                      "</elem>"]}
       {:error,
-       #{inspect @error_function}}
+       #{inspect(@error_function)}}
 
       iex> StructuredIO.Enumerator.new %{process: :a_process,
       ...>                               function: "read_across",
       ...>                               additional_arguments: ["<elem>",
       ...>                                                      "</elem>"]}
       {:error,
-       #{inspect @error_function}}
+       #{inspect(@error_function)}}
 
       iex> StructuredIO.Enumerator.new %{process: :a_process,
       ...>                               function: :not_a_function}
@@ -189,40 +186,43 @@ defmodule StructuredIO.Enumerator do
        "function StructuredIO.read_across/2 is undefined or private"}
   """
   @since "0.6.0"
-  @spec new(%{process: GenServer.server,
-              function: atom,
-              additional_arguments: any}) :: {:ok, t} | StructuredIO.error
+  @spec new(%{process: GenServer.server(), function: atom, additional_arguments: any}) ::
+          {:ok, t} | StructuredIO.error()
 
-  def new(%{process: nil}=_enumerator), do: {:error, @error_process}
+  def new(%{process: nil} = _enumerator), do: {:error, @error_process}
 
-  def new(%{function: nil}=_enumerator), do: {:error, @error_function}
+  def new(%{function: nil} = _enumerator), do: {:error, @error_function}
 
-  def new(%{process: process,
-            function: function}=enumerator) when is_atom(function) do
-    addl_args = enumerator
-                |> Map.get(:additional_arguments)
-                |> List.wrap
+  def new(%{process: process, function: function} = enumerator) when is_atom(function) do
+    addl_args =
+      enumerator
+      |> Map.get(:additional_arguments)
+      |> List.wrap()
+
     function_arity = length(addl_args) + 1
+
     if function_exported?(StructuredIO, function, function_arity) do
       {:ok,
-       struct(__MODULE__, process: process,
-                          function: function,
-                          additional_arguments: addl_args,
-                          arguments: [process | addl_args])}
+       struct(__MODULE__,
+         process: process,
+         function: function,
+         additional_arguments: addl_args,
+         arguments: [process | addl_args]
+       )}
     else
       {:error,
-       "function #{inspect StructuredIO}.#{function}/#{function_arity} is undefined or private"}
+       "function #{inspect(StructuredIO)}.#{function}/#{function_arity} is undefined or private"}
     end
   end
 
-  def new(%{process: _, function: _}=_enumerator), do: {:error, @error_function}
+  def new(%{process: _, function: _} = _enumerator), do: {:error, @error_function}
 
-  def new(%{function: _}=_enumerator), do: {:error, @error_process}
+  def new(%{function: _} = _enumerator), do: {:error, @error_process}
 
-  def new(%{process: _}=_enumerator), do: {:error, @error_function}
+  def new(%{process: _} = _enumerator), do: {:error, @error_function}
 
   @doc """
-  Sets a timeout for the specified `#{inspect __MODULE__}`. This value is passed
+  Sets a timeout for the specified `#{inspect(__MODULE__)}`. This value is passed
   in each call to the `StructuredIO.read*` function.
 
   ## Examples
@@ -258,17 +258,22 @@ defmodule StructuredIO.Enumerator do
   @impl true
   @since "0.7.0"
   @spec timeout(t, timeout | nil) :: t
-  def timeout(%__MODULE__{}=enumerator, timeout) do
-    new_arguments = cond do
-                      enumerator.timeout && timeout ->
-                        List.replace_at enumerator.arguments, -1, timeout
-                      timeout ->
-                        List.insert_at enumerator.arguments, -1, timeout
-                      enumerator.timeout ->
-                        List.delete_at enumerator.arguments, -1
-                      :else ->
-                        enumerator.arguments
-                    end
+  def timeout(%__MODULE__{} = enumerator, timeout) do
+    new_arguments =
+      cond do
+        enumerator.timeout && timeout ->
+          List.replace_at(enumerator.arguments, -1, timeout)
+
+        timeout ->
+          List.insert_at(enumerator.arguments, -1, timeout)
+
+        enumerator.timeout ->
+          List.delete_at(enumerator.arguments, -1)
+
+        :else ->
+          enumerator.arguments
+      end
+
     %{enumerator | arguments: new_arguments, timeout: timeout}
   end
 end

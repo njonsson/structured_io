@@ -77,56 +77,56 @@ defmodule StructuredIO.GenServerTransaction do
       2
   """
 
-
   @typedoc """
   The label of a tuple returned from `t:operation/0` that indicates it was
   successful.
   """
   @type commit_instruction :: atom
 
-
   @typedoc """
   A function around which transactional behavior will be wrapped.
   """
-  @type operation :: (GenServer.server -> {commit_instruction, any} | any)
-
+  @type operation :: (GenServer.server() -> {commit_instruction, any} | any)
 
   @typedoc """
   Option values used in defining a transaction function.
   """
-  @type option :: {:function_name, :atom | binary}          |
-                  {:server_name, :atom | binary}            |
-                  {:commit_instruction, commit_instruction} |
-                  {:append_to_doc, binary}                  |
-                  {:since, Version.version}
-
+  @type option ::
+          {:function_name, :atom | binary}
+          | {:server_name, :atom | binary}
+          | {:commit_instruction, commit_instruction}
+          | {:append_to_doc, binary}
+          | {:since, Version.version()}
 
   @typedoc """
   Options used in defining a transaction function.
   """
   @type options :: [option]
 
-
   defmacro __using__(options) do
-    function_name = options
-                    |> Keyword.get(:function_name, "transaction")
-                    |> to_string
-                    |> String.to_atom
+    function_name =
+      options
+      |> Keyword.get(:function_name, "transaction")
+      |> to_string
+      |> String.to_atom()
 
-    server_name = options
-                  |> Keyword.get(:server_name, "server")
-                  |> to_string
-                  |> String.to_atom
+    server_name =
+      options
+      |> Keyword.get(:server_name, "server")
+      |> to_string
+      |> String.to_atom()
+
     # This is Elixir AST for a bareword.
     server_name_barename = {server_name, [], Elixir}
 
     commit_instruction = Keyword.get(options, :commit_instruction, :commit)
 
     append_to_doc = Keyword.get(options, :append_to_doc)
+
     doc = """
     Invokes the specified `operation`, changing the state of the specified
     `#{server_name}` only if the `operation` is successful. Success is indicated
-    when the `operation` returns `{#{inspect commit_instruction}, term}`, in
+    when the `operation` returns `{#{inspect(commit_instruction)}, term}`, in
     which case only the `term` is returned.
 
     **Note:** Within the `operation`, you must not send messages to the
@@ -134,46 +134,53 @@ defmodule StructuredIO.GenServerTransaction do
     is an argument to the `operation`.#{append_to_doc}
     """
 
-    since_assignment = case Keyword.get(options, :since) do
-      nil ->
-        []
-      since ->
-        # This is Elixir AST for a module attribute assignment.
-        {:@,
-         [context: Elixir, import: Kernel],
-         [{:since, [context: Elixir], [since]}]}
-    end
+    since_assignment =
+      case Keyword.get(options, :since) do
+        nil ->
+          []
+
+        since ->
+          # This is Elixir AST for a module attribute assignment.
+          {:@, [context: Elixir, import: Kernel], [{:since, [context: Elixir], [since]}]}
+      end
 
     quote do
       @typedoc """
-      A function around which `#{unquote function_name}/3` behavior will be
+      A function around which `#{unquote(function_name)}/3` behavior will be
       wrapped.
       """
-      @type operation :: (GenServer.server -> {unquote(commit_instruction), any} |
-                                              any)
+      @type operation ::
+              (GenServer.server() ->
+                 {unquote(commit_instruction), any}
+                 | any)
 
       @doc unquote(doc)
       unquote(since_assignment)
-      @spec unquote(function_name)(GenServer.server, operation, timeout) :: any
-      def unquote(function_name)(unquote(server_name_barename),
-                                 operation,
-                                 timeout \\ 5000) do
-        unquote(__MODULE__).transaction unquote(server_name_barename),
-                                        unquote(commit_instruction),
-                                        operation,
-                                        timeout
+      @spec unquote(function_name)(GenServer.server(), operation, timeout) :: any
+      def unquote(function_name)(
+            unquote(server_name_barename),
+            operation,
+            timeout \\ 5000
+          ) do
+        unquote(__MODULE__).transaction(
+          unquote(server_name_barename),
+          unquote(commit_instruction),
+          operation,
+          timeout
+        )
       end
 
       # Explicitly delegate because `defdelegate` does not support
       # pattern-matching beyond arity.
-      def handle_call({:transaction, commit_instruction, operation}=request,
-                      from,
-                      state) do
-        unquote(__MODULE__).handle_call request, from, state
+      def handle_call(
+            {:transaction, commit_instruction, operation} = request,
+            from,
+            state
+          ) do
+        unquote(__MODULE__).handle_call(request, from, state)
       end
     end
   end
-
 
   @doc """
   Invokes the specified `operation`, changing the state of the specified `server`
@@ -186,35 +193,41 @@ defmodule StructuredIO.GenServerTransaction do
   `operation`.
   """
   @since "1.2.0"
-  @spec transaction(GenServer.server,
-                    commit_instruction,
-                    operation,
-                    timeout) :: any
+  @spec transaction(
+          GenServer.server(),
+          commit_instruction,
+          operation,
+          timeout
+        ) :: any
   def transaction(server, commit_instruction, operation, timeout \\ 5000) do
     request = {:transaction, commit_instruction, operation}
-    GenServer.call server, request, timeout
+    GenServer.call(server, request, timeout)
   end
-
 
   @doc false
-  @spec handle_call({:transaction, commit_instruction, operation},
-                    GenServer.from,
-                    any) :: {:reply, any, any}
+  @spec handle_call(
+          {:transaction, commit_instruction, operation},
+          GenServer.from(),
+          any
+        ) :: {:reply, any, any}
   def handle_call({:transaction, commit_instruction, operation}, _from, state) do
     server_clone = clone_server(state)
-    {reply, new_state} = try do
-                           case operation.(server_clone) do
-                             {^commit_instruction, successful_result} ->
-                               {successful_result, :sys.get_state(server_clone)}
-                             unsuccessful_result ->
-                               {unsuccessful_result, state}
-                           end
-                         after
-                           GenServer.stop server_clone
-                         end
+
+    {reply, new_state} =
+      try do
+        case operation.(server_clone) do
+          {^commit_instruction, successful_result} ->
+            {successful_result, :sys.get_state(server_clone)}
+
+          unsuccessful_result ->
+            {unsuccessful_result, state}
+        end
+      after
+        GenServer.stop(server_clone)
+      end
+
     {:reply, reply, new_state}
   end
-
 
   @spec clone_server(any) :: pid
   defp clone_server(state) do
@@ -222,7 +235,6 @@ defmodule StructuredIO.GenServerTransaction do
     {:ok, pid} = GenServer.start_link(module, state)
     pid
   end
-
 
   @spec get_module :: module
   defp get_module do

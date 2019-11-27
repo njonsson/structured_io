@@ -12,7 +12,6 @@ defmodule StructuredIO do
   `t:error/0` if the data read is not properly encoded Unicode data.
   """
 
-
   defmodule State do
     @moduledoc false
 
@@ -20,114 +19,109 @@ defmodule StructuredIO do
     defstruct data: [], mode: nil
 
     @typedoc false
-    @type t :: %__MODULE__{data: iodata | IO.chardata | String.Chars.t,
-                           mode: StructuredIO.mode}
+    @type t :: %__MODULE__{
+            data: iodata | IO.chardata() | String.Chars.t(),
+            mode: StructuredIO.mode()
+          }
   end
-
 
   use GenServer
 
   @impl true
-  use StructuredIO.GenServerTransaction, function_name: "read_complex",
-                                         server_name: "structured_io",
-                                         commit_instruction: :ok,
-                                         since: "1.2.0",
-                                         append_to_doc: """
+  use StructuredIO.GenServerTransaction,
+    function_name: "read_complex",
+    server_name: "structured_io",
+    commit_instruction: :ok,
+    since: "1.2.0",
+    append_to_doc: """
 
-  ## Examples
+    ## Examples
 
-  In the following example, a Tag-Length-Value data element is composed of:
+    In the following example, a Tag-Length-Value data element is composed of:
 
-  * A fixed-length Tag expression between `<<1>>` and `<<255>>` (one byte)
-  * A fixed-length Length expression between 0 and 255 (one byte)
-  * A variable-length Value expression whose length is the Length
+    * A fixed-length Tag expression between `<<1>>` and `<<255>>` (one byte)
+    * A fixed-length Length expression between 0 and 255 (one byte)
+    * A variable-length Value expression whose length is the Length
 
-  Following the convention of built-in functions such as `read_across/4`, if the
-  whole element is not present then the result of the operation is an empty
-  binary (`""`).
+    Following the convention of built-in functions such as `read_across/4`, if the
+    whole element is not present then the result of the operation is an empty
+    binary (`""`).
 
-      iex> {:ok,
-      ...>  structured_io} = StructuredIO.start_link(:binary)
-      iex> read_tag_length_value = fn s ->
-      ...>   with tag
-      ...>          when not (tag in ["", <<0>>])
-      ...>          <- StructuredIO.read(s, 1),
-      ...>        <<length::size(8)>>
-      ...>          <- StructuredIO.read(s, 1),
-      ...>        value
-      ...>          when (length == 0) or
-      ...>               (value != "")
-      ...>          <- StructuredIO.read(s, length) do
-      ...>     {:ok,
-      ...>      %{tag: tag,
-      ...>        length: length,
-      ...>        value: value}}
-      ...>   end
-      ...> end
-      iex> StructuredIO.read_complex structured_io,
-      ...>                           read_tag_length_value
-      ""
-      iex> StructuredIO.write structured_io,
-      ...>                    <<111>>
-      iex> StructuredIO.read_complex structured_io,
-      ...>                           read_tag_length_value
-      ""
-      iex> StructuredIO.write structured_io,
-      ...>                    0
-      iex> StructuredIO.read_complex structured_io,
-      ...>                           read_tag_length_value
-      %{tag: <<111>>,
-        length: 0,
-        value: ""}
-      iex> StructuredIO.read_complex structured_io,
-      ...>                           read_tag_length_value
-      ""
-      iex> StructuredIO.write structured_io,
-      ...>                    <<222>>
-      iex> StructuredIO.write structured_io,
-      ...>                    byte_size("foo")
-      iex> StructuredIO.write structured_io,
-      ...>                    "foo"
-      iex> StructuredIO.read_complex structured_io,
-      ...>                           read_tag_length_value
-      %{tag: <<222>>,
-        length: 3,
-        value: "foo"}
-      iex> StructuredIO.read_complex structured_io,
-      ...>                           read_tag_length_value
-      ""
-  """
-
+        iex> {:ok,
+        ...>  structured_io} = StructuredIO.start_link(:binary)
+        iex> read_tag_length_value = fn s ->
+        ...>   with tag
+        ...>          when not (tag in ["", <<0>>])
+        ...>          <- StructuredIO.read(s, 1),
+        ...>        <<length::size(8)>>
+        ...>          <- StructuredIO.read(s, 1),
+        ...>        value
+        ...>          when (length == 0) or
+        ...>               (value != "")
+        ...>          <- StructuredIO.read(s, length) do
+        ...>     {:ok,
+        ...>      %{tag: tag,
+        ...>        length: length,
+        ...>        value: value}}
+        ...>   end
+        ...> end
+        iex> StructuredIO.read_complex structured_io,
+        ...>                           read_tag_length_value
+        ""
+        iex> StructuredIO.write structured_io,
+        ...>                    <<111>>
+        iex> StructuredIO.read_complex structured_io,
+        ...>                           read_tag_length_value
+        ""
+        iex> StructuredIO.write structured_io,
+        ...>                    0
+        iex> StructuredIO.read_complex structured_io,
+        ...>                           read_tag_length_value
+        %{tag: <<111>>,
+          length: 0,
+          value: ""}
+        iex> StructuredIO.read_complex structured_io,
+        ...>                           read_tag_length_value
+        ""
+        iex> StructuredIO.write structured_io,
+        ...>                    <<222>>
+        iex> StructuredIO.write structured_io,
+        ...>                    byte_size("foo")
+        iex> StructuredIO.write structured_io,
+        ...>                    "foo"
+        iex> StructuredIO.read_complex structured_io,
+        ...>                           read_tag_length_value
+        %{tag: <<222>>,
+          length: 3,
+          value: "foo"}
+        iex> StructuredIO.read_complex structured_io,
+        ...>                           read_tag_length_value
+        ""
+    """
 
   @behaviour StructuredIO.Behaviour
 
-
-  alias StructuredIO.{Collector,Enumerator,Scanner}
-
+  alias StructuredIO.{Collector, Enumerator, Scanner}
 
   @typedoc """
   A number of bytes or graphemes in a measured data element.
   """
-  @type count :: Scanner.count
-
+  @type count :: Scanner.count()
 
   @typedoc """
   An error result.
   """
   @type error :: {:error, atom | binary}
 
-
   @typedoc """
   A binary value which marks the beginning of an enclosed data element.
   """
-  @type left :: Scanner.left
-
+  @type left :: Scanner.left()
 
   @typedoc """
   The portion of a binary value matched in a read operation.
   """
-  @type match :: Scanner.match
-
+  @type match :: Scanner.match()
 
   @typedoc """
   A mode of operation for the process: either binary or Unicode.
@@ -136,12 +130,10 @@ defmodule StructuredIO do
 
   @valid_modes [:binary, :unicode]
 
-
   @typedoc """
   A binary value which marks the end of an enclosed or terminated data element.
   """
-  @type right :: Scanner.right
-
+  @type right :: Scanner.right()
 
   @doc """
   Returns a value that can be passed to `Enum.into/2` or `Enum.into/3` for
@@ -179,22 +171,20 @@ defmodule StructuredIO do
   """
   @impl true
   @since "0.6.0"
-  @spec collect(GenServer.server) :: Collector.t
+  @spec collect(GenServer.server()) :: Collector.t()
   def collect(structured_io) do
-    {:ok, collector} = Collector.new(%{process: structured_io,
-                                       function: :write})
+    {:ok, collector} = Collector.new(%{process: structured_io, function: :write})
     collector
   end
-
 
   @doc """
   Returns a value that can be passed to functions such as `Enum.map/2` for
   reading data elements from the specified `structured_io`, using the specified
-  `#{inspect __MODULE__}` `function`, and the specified `left` and/or
+  `#{inspect(__MODULE__)}` `function`, and the specified `left` and/or
   `right`/`operation`.
 
   Note that enumeration is not a purely functional operation; it consumes data
-  elements from the underlying `#{inspect __MODULE__}` process.
+  elements from the underlying `#{inspect(__MODULE__)}` process.
 
   ## Examples
 
@@ -287,56 +277,81 @@ defmodule StructuredIO do
 
   @impl true
   @since "0.6.0"
-  @spec enumerate_with(GenServer.server,
-                       :read_across                  |
-                       :read_across_ignoring_overlap |
-                       :read_between                 |
-                       :read_between_ignoring_overlap,
-                       left,
-                       right) :: Enumerator.t
-  def enumerate_with(structured_io,
-                     function,
-                     left,
-                     right) when function in ~w{read_across
+  @spec enumerate_with(
+          GenServer.server(),
+          :read_across
+          | :read_across_ignoring_overlap
+          | :read_between
+          | :read_between_ignoring_overlap,
+          left,
+          right
+        ) :: Enumerator.t()
+  def enumerate_with(
+        structured_io,
+        function,
+        left,
+        right
+      )
+      when function in ~w{read_across
                                                 read_across_ignoring_overlap
                                                 read_between
                                                 read_between_ignoring_overlap}a do
-    {:ok, enumerator} = Enumerator.new(%{process: structured_io,
-                                         function: function,
-                                         additional_arguments: [left, right]})
+    {:ok, enumerator} =
+      Enumerator.new(%{
+        process: structured_io,
+        function: function,
+        additional_arguments: [left, right]
+      })
+
     enumerator
   end
 
   @impl true
   @since "0.6.0"
-  @spec enumerate_with(GenServer.server,
-                       :read_through | :read_to,
-                       right) :: Enumerator.t
-  def enumerate_with(structured_io,
-                     function,
-                     right_or_operation) when function in [:read_through,
-                                                           :read_to] and
-                                              is_binary(right_or_operation) do
-    {:ok, enumerator} = Enumerator.new(%{process: structured_io,
-                                         function: function,
-                                         additional_arguments: right_or_operation})
+  @spec enumerate_with(
+          GenServer.server(),
+          :read_through | :read_to,
+          right
+        ) :: Enumerator.t()
+  def enumerate_with(
+        structured_io,
+        function,
+        right_or_operation
+      )
+      when function in [:read_through, :read_to] and
+             is_binary(right_or_operation) do
+    {:ok, enumerator} =
+      Enumerator.new(%{
+        process: structured_io,
+        function: function,
+        additional_arguments: right_or_operation
+      })
+
     enumerator
   end
 
   @impl true
   @since "1.3.0"
-  @spec enumerate_with(GenServer.server,
-                       :read_complex,
-                       operation) :: Enumerator.t
-  def enumerate_with(structured_io,
-                     :read_complex=function,
-                     right_or_operation) when is_function(right_or_operation) do
-    {:ok, enumerator} = Enumerator.new(%{process: structured_io,
-                                         function: function,
-                                         additional_arguments: right_or_operation})
+  @spec enumerate_with(
+          GenServer.server(),
+          :read_complex,
+          operation
+        ) :: Enumerator.t()
+  def enumerate_with(
+        structured_io,
+        :read_complex = function,
+        right_or_operation
+      )
+      when is_function(right_or_operation) do
+    {:ok, enumerator} =
+      Enumerator.new(%{
+        process: structured_io,
+        function: function,
+        additional_arguments: right_or_operation
+      })
+
     enumerator
   end
-
 
   @doc """
   Gets the mode of the specified `structured_io`.
@@ -355,12 +370,11 @@ defmodule StructuredIO do
   """
   @impl true
   @since "0.5.0"
-  @spec mode(GenServer.server) :: mode
+  @spec mode(GenServer.server()) :: mode
   def mode(structured_io) do
     request = :mode
-    GenServer.call structured_io, request
+    GenServer.call(structured_io, request)
   end
-
 
   @doc """
   Reads data from the specified `structured_io` in the specified quantity, or
@@ -515,14 +529,14 @@ defmodule StructuredIO do
   """
   @impl true
   @since "1.1.0"
-  @spec read(GenServer.server, count | match, timeout) :: match | error
+  @spec read(GenServer.server(), count | match, timeout) :: match | error
   def read(structured_io, count_or_match, timeout \\ 5000) do
     request = {:read, count_or_match}
+
     structured_io
     |> GenServer.call(request, timeout)
     |> maybe_standardize_error
   end
-
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
@@ -643,14 +657,14 @@ defmodule StructuredIO do
   """
   @impl true
   @since "0.1.0"
-  @spec read_across(GenServer.server, left, right, timeout) :: match | error
+  @spec read_across(GenServer.server(), left, right, timeout) :: match | error
   def read_across(structured_io, left, right, timeout \\ 5000) do
     request = {:read_across, left, right}
+
     structured_io
     |> GenServer.call(request, timeout)
     |> maybe_standardize_error
   end
-
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
@@ -698,20 +712,24 @@ defmodule StructuredIO do
   """
   @impl true
   @since "0.7.0"
-  @spec read_across_ignoring_overlap(GenServer.server,
-                                     left,
-                                     right,
-                                     timeout) :: match | error
-  def read_across_ignoring_overlap(structured_io,
-                                   left,
-                                   right,
-                                   timeout \\ 5000) do
+  @spec read_across_ignoring_overlap(
+          GenServer.server(),
+          left,
+          right,
+          timeout
+        ) :: match | error
+  def read_across_ignoring_overlap(
+        structured_io,
+        left,
+        right,
+        timeout \\ 5000
+      ) do
     request = {:read_across_ignoring_overlap, left, right}
+
     structured_io
     |> GenServer.call(request, timeout)
     |> maybe_standardize_error
   end
-
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
@@ -816,14 +834,14 @@ defmodule StructuredIO do
   """
   @impl true
   @since "0.2.0"
-  @spec read_between(GenServer.server, left, right, timeout) :: match | error
+  @spec read_between(GenServer.server(), left, right, timeout) :: match | error
   def read_between(structured_io, left, right, timeout \\ 5000) do
     request = {:read_between, left, right}
+
     structured_io
     |> GenServer.call(request, timeout)
     |> maybe_standardize_error
   end
-
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
@@ -871,20 +889,24 @@ defmodule StructuredIO do
   """
   @impl true
   @since "0.7.0"
-  @spec read_between_ignoring_overlap(GenServer.server,
-                                      left,
-                                      right,
-                                      timeout) :: match | error
-  def read_between_ignoring_overlap(structured_io,
-                                    left,
-                                    right,
-                                    timeout \\ 5000) do
+  @spec read_between_ignoring_overlap(
+          GenServer.server(),
+          left,
+          right,
+          timeout
+        ) :: match | error
+  def read_between_ignoring_overlap(
+        structured_io,
+        left,
+        right,
+        timeout \\ 5000
+      ) do
     request = {:read_between_ignoring_overlap, left, right}
+
     structured_io
     |> GenServer.call(request, timeout)
     |> maybe_standardize_error
   end
-
 
   @doc """
   Reads data from the specified `structured_io` if and until the specified
@@ -983,14 +1005,14 @@ defmodule StructuredIO do
   """
   @impl true
   @since "0.2.0"
-  @spec read_through(GenServer.server, right, timeout) :: match | error
+  @spec read_through(GenServer.server(), right, timeout) :: match | error
   def read_through(structured_io, right, timeout \\ 5000) do
     request = {:read_through, right}
+
     structured_io
     |> GenServer.call(request, timeout)
     |> maybe_standardize_error
   end
-
 
   @doc """
   Reads data from the specified `structured_io` if and until the specified
@@ -1095,17 +1117,17 @@ defmodule StructuredIO do
   """
   @impl true
   @since "0.2.0"
-  @spec read_to(GenServer.server, right, timeout) :: match | error
+  @spec read_to(GenServer.server(), right, timeout) :: match | error
   def read_to(structured_io, right, timeout \\ 5000) do
     request = {:read_to, right}
+
     structured_io
     |> GenServer.call(request, timeout)
     |> maybe_standardize_error
   end
 
-
   @doc """
-  Starts a `#{inspect __MODULE__}` process without links (outside a supervision
+  Starts a `#{inspect(__MODULE__)}` process without links (outside a supervision
   tree) with the specified `mode` and `options`.
 
   ## Examples
@@ -1118,16 +1140,15 @@ defmodule StructuredIO do
   """
   @impl true
   @since "0.5.0"
-  @spec start(mode, GenServer.options) :: GenServer.on_start
+  @spec start(mode, GenServer.options()) :: GenServer.on_start()
   def start(mode, options \\ []) do
     with {:ok, mode} <- compute_mode(mode, :start) do
-      GenServer.start __MODULE__, %State{mode: mode}, options
+      GenServer.start(__MODULE__, %State{mode: mode}, options)
     end
   end
 
-
   @doc """
-  Starts a `#{inspect __MODULE__}` process linked to the current process with
+  Starts a `#{inspect(__MODULE__)}` process linked to the current process with
   the specified `mode` and `options`.
 
   ## Examples
@@ -1140,24 +1161,22 @@ defmodule StructuredIO do
   """
   @impl true
   @since "0.5.0"
-  @spec start_link(mode, GenServer.options) :: GenServer.on_start
+  @spec start_link(mode, GenServer.options()) :: GenServer.on_start()
   def start_link(mode, options \\ []) do
     with {:ok, mode} <- compute_mode(mode, :start_link) do
-      GenServer.start_link __MODULE__, %State{mode: mode}, options
+      GenServer.start_link(__MODULE__, %State{mode: mode}, options)
     end
   end
-
 
   @doc """
   Stops the specified `structured_io` process.
   """
   @impl true
   @since "0.1.0"
-  @spec stop(GenServer.server, term, timeout) :: :ok
+  @spec stop(GenServer.server(), term, timeout) :: :ok
   def stop(structured_io, reason \\ :normal, timeout \\ :infinity) do
-    GenServer.stop structured_io, reason, timeout
+    GenServer.stop(structured_io, reason, timeout)
   end
-
 
   @doc """
   Writes the specified `data` to the specified `structured_io`.
@@ -1168,93 +1187,87 @@ defmodule StructuredIO do
   """
   @impl true
   @since "0.1.0"
-  @spec write(GenServer.server,
-              iodata | IO.chardata | String.Chars.t) :: :ok | error
+  @spec write(
+          GenServer.server(),
+          iodata | IO.chardata() | String.Chars.t()
+        ) :: :ok | error
   def write(structured_io, data) do
     request = {:write, data}
-    GenServer.cast structured_io, request
+    GenServer.cast(structured_io, request)
   end
-
 
   # Callbacks
 
-
   @impl true
 
-  def handle_call(:mode, _from, %{mode: mode}=state), do: {:reply, mode, state}
+  def handle_call(:mode, _from, %{mode: mode} = state), do: {:reply, mode, state}
 
-
-  def handle_call({:read, count=count_or_match}, _from, state)
+  def handle_call({:read, count = count_or_match}, _from, state)
       when is_integer(count_or_match) do
     unit = scan_unit(state)
     scan(state, :scan, [unit, count])
   end
 
-  def handle_call({:read, match=count_or_match}, _from, state)
+  def handle_call({:read, match = count_or_match}, _from, state)
       when is_binary(count_or_match) do
     case binary_data(state) do
-      {:error, _}=error ->
+      {:error, _} = error ->
         {:reply, error, state}
+
       {:ok, binary} ->
         unit = scan_unit(state)
         count = measure(match, state)
+
         binary
         |> Scanner.scan(unit, count)
         |> case do
-             {^match, _}=result -> result
-             _                  -> nil
-           end
+          {^match, _} = result -> result
+          _ -> nil
+        end
         |> read_reply(state)
     end
   end
-
 
   def handle_call({:read_across, left, right}, _from, state) do
     scan(state, :scan_across, [left, right])
   end
 
-
   def handle_call({:read_across_ignoring_overlap, left, right}, _from, state) do
     scan(state, :scan_across_ignoring_overlap, [left, right])
   end
-
 
   def handle_call({:read_between, left, right}, _from, state) do
     scan(state, :scan_between, [left, right])
   end
 
-
-  def handle_call({:read_between_ignoring_overlap, left, right},
-                  _from,
-                  state) do
+  def handle_call(
+        {:read_between_ignoring_overlap, left, right},
+        _from,
+        state
+      ) do
     scan(state, :scan_between_ignoring_overlap, [left, right])
   end
-
 
   def handle_call({:read_through, right}, _from, state) do
     scan(state, :scan_through, [right])
   end
 
-
   def handle_call({:read_to, right}, _from, state) do
     scan(state, :scan_to, [right])
   end
 
-
   @impl true
-  def handle_cast({:write, new_data}, %{data: data}=state) do
+  def handle_cast({:write, new_data}, %{data: data} = state) do
     new_state = %{state | data: [data, new_data]}
 
     {:noreply, new_state}
   end
 
-
   @doc false
   @impl true
   def init(args), do: {:ok, args}
 
-
-  @spec binary_data(State.t) :: {:ok, binary} | error
+  @spec binary_data(State.t()) :: {:ok, binary} | error
 
   defp binary_data(%{data: iodata, mode: :binary}) do
     {:ok, IO.iodata_to_binary(iodata)}
@@ -1262,7 +1275,7 @@ defmodule StructuredIO do
 
   defp binary_data(%{data: chardata, mode: :unicode}) do
     try do
-      IO.chardata_to_string chardata
+      IO.chardata_to_string(chardata)
     rescue
       e in UnicodeConversionError -> {:error, e}
     else
@@ -1271,21 +1284,21 @@ defmodule StructuredIO do
     end
   end
 
-
   @spec compute_mode(mode, atom) :: {:ok, mode} | error
 
   defp compute_mode(mode, _) when mode in @valid_modes, do: {:ok, mode}
 
-  defp compute_mode(mode, _), do: {:error, "invalid mode #{inspect mode}"}
-
+  defp compute_mode(mode, _), do: {:error, "invalid mode #{inspect(mode)}"}
 
   @spec maybe_standardize_error(any) :: error | any
 
   defp maybe_standardize_error({:error, error}) do
     if Exception.exception?(error) do
-      type = error
-             |> Map.fetch!(:__struct__)
-             |> inspect
+      type =
+        error
+        |> Map.fetch!(:__struct__)
+        |> inspect
+
       {:error, "#{type}: #{error.message}"}
     else
       if is_atom(error) do
@@ -1298,16 +1311,16 @@ defmodule StructuredIO do
 
   defp maybe_standardize_error(other), do: other
 
-
-  @spec measure(binary, State.t) :: non_neg_integer
+  @spec measure(binary, State.t()) :: non_neg_integer
 
   defp measure(binary, %{mode: :binary}), do: byte_size(binary)
 
   defp measure(binary, %{mode: :unicode}), do: String.length(binary)
 
-
-  @spec read_reply(nil | {Scanner.match, Scanner.remainder},
-                   State.t) :: {:reply, Scanner.match, State.t}
+  @spec read_reply(
+          nil | {Scanner.match(), Scanner.remainder()},
+          State.t()
+        ) :: {:reply, Scanner.match(), State.t()}
 
   defp read_reply(nil, state), do: {:reply, "", state}
 
@@ -1317,12 +1330,12 @@ defmodule StructuredIO do
     {:reply, match, new_state}
   end
 
-
-  @spec scan(State.t, atom, [any]) :: {:reply, Scanner.match | error, State.t}
+  @spec scan(State.t(), atom, [any]) :: {:reply, Scanner.match() | error, State.t()}
   defp scan(state, function, arguments) do
     case binary_data(state) do
-      {:error, _}=error ->
+      {:error, _} = error ->
         {:reply, error, state}
+
       {:ok, binary} ->
         Scanner
         |> apply(function, [binary | arguments])
@@ -1330,10 +1343,9 @@ defmodule StructuredIO do
     end
   end
 
+  @spec scan_unit(State.t()) :: Scanner.unit()
 
-  @spec scan_unit(State.t) :: Scanner.unit
+  defp scan_unit(%{mode: :binary} = _state), do: :bytes
 
-  defp scan_unit(%{mode: :binary}=_state), do: :bytes
-
-  defp scan_unit(%{mode: :unicode}=_state), do: :graphemes
+  defp scan_unit(%{mode: :unicode} = _state), do: :graphemes
 end
