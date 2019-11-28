@@ -185,7 +185,7 @@ defmodule StructuredIO.Enumerator do
       {:error,
        "function StructuredIO.read_across/2 is undefined or private"}
   """
-  @since "0.6.0"
+  @doc since: "0.6.0"
   @spec new(%{process: GenServer.server(), function: atom, additional_arguments: any}) ::
           {:ok, t} | StructuredIO.error()
 
@@ -255,8 +255,8 @@ defmodule StructuredIO.Enumerator do
       ...>                                 nil
       enumerator
   """
+  @doc since: "0.7.0"
   @impl true
-  @since "0.7.0"
   @spec timeout(t, timeout | nil) :: t
   def timeout(%__MODULE__{} = enumerator, timeout) do
     new_arguments =

@@ -9,7 +9,7 @@ defmodule StructuredIO.Enumerator.Behaviour do
   Sets a timeout for the specified `#{inspect(Enumerator)}`. This value is passed
   in each call to the `StructuredIO.read*` function.
   """
-  @since "0.7.0"
+  @doc since: "0.7.0"
   @callback timeout(
               enumerator :: Enumerator.t(),
               timeout :: timeout | nil
