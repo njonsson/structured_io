@@ -87,7 +87,7 @@ defmodule StructuredIO.Collector do
       {:error,
        "function StructuredIO.not_a_function/2 is undefined or private"}
   """
-  @since "0.6.0"
+  @doc since: "0.6.0"
   @spec new(%{process: GenServer.server(), function: atom}) :: {:ok, t} | StructuredIO.error()
 
   def new(%{process: nil} = _collector), do: {:error, @error_process}

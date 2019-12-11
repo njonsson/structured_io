@@ -74,7 +74,7 @@ defmodule StructuredIO.Deprecated do
       ""
   """
   @deprecated "Call #{inspect(StructuredIO)}.read_across in binary mode instead"
-  @since "0.1.0"
+  @doc since: "0.1.0"
   @spec binread_across(
           GenServer.server(),
           StructuredIO.left(),
@@ -153,7 +153,7 @@ defmodule StructuredIO.Deprecated do
       ""
   """
   @deprecated "Call #{inspect(StructuredIO)}.read_between in binary mode instead"
-  @since "0.1.0"
+  @doc since: "0.1.0"
   @spec binread_between(
           GenServer.server(),
           StructuredIO.left(),
@@ -220,7 +220,7 @@ defmodule StructuredIO.Deprecated do
       ""
   """
   @deprecated "Call #{inspect(StructuredIO)}.read_through in binary mode instead"
-  @since "0.1.0"
+  @doc since: "0.1.0"
   @spec binread_through(
           GenServer.server(),
           StructuredIO.right(),
@@ -289,7 +289,7 @@ defmodule StructuredIO.Deprecated do
       ""
   """
   @deprecated "Call #{inspect(StructuredIO)}.read_to in binary mode instead"
-  @since "0.1.0"
+  @doc since: "0.1.0"
   @spec binread_to(
           GenServer.server(),
           StructuredIO.right(),
@@ -309,7 +309,7 @@ defmodule StructuredIO.Deprecated do
   See the `binread_*` functions for examples.
   """
   @deprecated "Call #{inspect(StructuredIO)}.write in binary mode instead"
-  @since "0.1.0"
+  @doc since: "0.1.0"
   @spec binwrite(GenServer.server(), iodata) :: :ok | StructuredIO.error()
   def binwrite(structured_io, iodata) do
     request = {:deprecated_binwrite, iodata}
@@ -384,7 +384,7 @@ defmodule StructuredIO.Deprecated do
       ""
   """
   @deprecated "Call #{inspect(StructuredIO)}.read_across in Unicode mode instead"
-  @since "0.1.0"
+  @doc since: "0.1.0"
   @spec read_across(
           GenServer.server(),
           StructuredIO.left(),
@@ -464,7 +464,7 @@ defmodule StructuredIO.Deprecated do
       ""
   """
   @deprecated "Call #{inspect(StructuredIO)}.read_between in Unicode mode instead"
-  @since "0.1.0"
+  @doc since: "0.1.0"
   @spec read_between(
           GenServer.server(),
           StructuredIO.left(),
@@ -532,7 +532,7 @@ defmodule StructuredIO.Deprecated do
       ""
   """
   @deprecated "Call #{inspect(StructuredIO)}.read_through in Unicode mode instead"
-  @since "0.1.0"
+  @doc since: "0.1.0"
   @spec read_through(
           GenServer.server(),
           StructuredIO.right(),
@@ -602,7 +602,7 @@ defmodule StructuredIO.Deprecated do
       ""
   """
   @deprecated "Call #{inspect(StructuredIO)}.read_to in Unicode mode instead"
-  @since "0.1.0"
+  @doc since: "0.1.0"
   @spec read_to(
           GenServer.server(),
           StructuredIO.right(),
@@ -623,7 +623,7 @@ defmodule StructuredIO.Deprecated do
   See `start_link/0`.
   """
   @deprecated "Call #{inspect(StructuredIO)}.start/1 instead"
-  @since "0.1.0"
+  @doc since: "0.1.0"
   @spec start :: GenServer.on_start()
   def start, do: GenServer.start(StructuredIO, %State{}, [])
 
@@ -633,7 +633,7 @@ defmodule StructuredIO.Deprecated do
   See the `binread_*` and `read_*` functions for examples.
   """
   @deprecated "Call #{inspect(StructuredIO)}.start_link/1 instead"
-  @since "0.1.0"
+  @doc since: "0.1.0"
   @spec start_link :: GenServer.on_start()
   def start_link, do: GenServer.start(StructuredIO, %State{}, [])
 

@@ -15,7 +15,7 @@ defmodule StructuredIO.GenServerTransaction do
   * `:append_to_doc` — content to be appended to the defined function’s default
     `@doc` attribute, such as example code
   * `:since` — the version expression to be assigned to the defined function’s
-    `@since` attribute
+    `@doc since:` attribute
 
   ## Examples
 
@@ -141,7 +141,11 @@ defmodule StructuredIO.GenServerTransaction do
 
         since ->
           # This is Elixir AST for a module attribute assignment.
-          {:@, [context: Elixir, import: Kernel], [{:since, [context: Elixir], [since]}]}
+          {
+            :@,
+            [context: Elixir, import: Kernel],
+            [{:doc, [context: Elixir], [[since: since]]}]
+          }
       end
 
     quote do
@@ -192,7 +196,7 @@ defmodule StructuredIO.GenServerTransaction do
   Send messages instead to the `t:GenServer.server/0` which is an argument to the
   `operation`.
   """
-  @since "0.9.0"
+  @doc since: "0.9.0"
   @spec transaction(
           GenServer.server(),
           commit_instruction,

@@ -9,7 +9,7 @@ defmodule StructuredIO.Behaviour do
   Returns a value that can be passed to `Enum.into/2` or `Enum.into/3` for
   writing data to the specified `structured_io`.
   """
-  @since "0.6.0"
+  @doc since: "0.6.0"
   @callback collect(structured_io :: GenServer.server()) :: Collector.t()
 
   @doc """
@@ -18,7 +18,7 @@ defmodule StructuredIO.Behaviour do
   `StructuredIO` `function`, and the specified `left` and/or `right`/`operation`.
   """
 
-  @since "0.6.0"
+  @doc since: "0.6.0"
   @callback enumerate_with(
               structured_io :: GenServer.server(),
               function ::
@@ -30,14 +30,14 @@ defmodule StructuredIO.Behaviour do
               right :: StructuredIO.right()
             ) :: Enumerator.t()
 
-  @since "0.6.0"
+  @doc since: "0.6.0"
   @callback enumerate_with(
               structured_io :: GenServer.server(),
               function :: :read_through | :read_to,
               right :: StructuredIO.right()
             ) :: Enumerator.t()
 
-  @since "1.3.0"
+  @doc since: "1.3.0"
   @callback enumerate_with(
               structured_io :: GenServer.server(),
               function :: :read_complex,
@@ -47,14 +47,14 @@ defmodule StructuredIO.Behaviour do
   @doc """
   Gets the mode of the specified `structured_io`.
   """
-  @since "0.5.0"
+  @doc since: "0.5.0"
   @callback mode(structured_io :: GenServer.server()) :: StructuredIO.mode()
 
   @doc """
   Reads data from the specified `structured_io` in the specified quantity, or
   beginning with the specified binary value.
   """
-  @since "1.1.0"
+  @doc since: "1.1.0"
   @callback read(
               structured_io :: GenServer.server(),
               count_or_match :: StructuredIO.count() | StructuredIO.match(),
@@ -66,7 +66,7 @@ defmodule StructuredIO.Behaviour do
   `left` and ending with the occurrence of the specified `right` that
   corresponds to it, inclusive.
   """
-  @since "0.1.0"
+  @doc since: "0.1.0"
   @callback read_across(
               structured_io :: GenServer.server(),
               left :: StructuredIO.left(),
@@ -81,7 +81,7 @@ defmodule StructuredIO.Behaviour do
   `left` and ending with the first occurrence of the specified `right`,
   inclusive.
   """
-  @since "0.7.0"
+  @doc since: "0.7.0"
   @callback read_across_ignoring_overlap(
               structured_io :: GenServer.server(),
               left :: StructuredIO.left(),
@@ -96,7 +96,7 @@ defmodule StructuredIO.Behaviour do
   `left` and ending with the occurrence of the specified `right` that
   corresponds to it, exclusive.
   """
-  @since "0.2.0"
+  @doc since: "0.2.0"
   @callback read_between(
               structured_io :: GenServer.server(),
               left :: StructuredIO.left(),
@@ -111,7 +111,7 @@ defmodule StructuredIO.Behaviour do
   `left` and ending with the first occurrence of the specified `right`,
   exclusive.
   """
-  @since "0.7.0"
+  @doc since: "0.7.0"
   @callback read_between_ignoring_overlap(
               structured_io :: GenServer.server(),
               left :: StructuredIO.left(),
@@ -127,7 +127,7 @@ defmodule StructuredIO.Behaviour do
   when the `operation` returns `{:ok, term}`, in which case only the `term` is
   returned.
   """
-  @since "1.2.0"
+  @doc since: "1.2.0"
   @callback read_complex(
               structured_io :: GenServer.server(),
               operation :: StructuredIO.operation(),
@@ -138,7 +138,7 @@ defmodule StructuredIO.Behaviour do
   Reads data from the specified `structured_io` if and until the specified
   `right` is encountered, including `right`.
   """
-  @since "0.2.0"
+  @doc since: "0.2.0"
   @callback read_through(
               structured_io :: GenServer.server(),
               right :: StructuredIO.right(),
@@ -151,7 +151,7 @@ defmodule StructuredIO.Behaviour do
   Reads data from the specified `structured_io` if and until the specified
   `right` is encountered, excluding `right`.
   """
-  @since "0.2.0"
+  @doc since: "0.2.0"
   @callback read_to(
               structured_io :: GenServer.server(),
               right :: StructuredIO.right(),
@@ -164,7 +164,7 @@ defmodule StructuredIO.Behaviour do
   Starts a `StructuredIO` process without links (outside a supervision tree) with
   the specified `mode` and `options`.
   """
-  @since "0.5.0"
+  @doc since: "0.5.0"
   @callback start(
               mode :: StructuredIO.mode(),
               options :: GenServer.options()
@@ -174,7 +174,7 @@ defmodule StructuredIO.Behaviour do
   Starts a `StructuredIO` process linked to the current process with the
   specified `mode` and `options`.
   """
-  @since "0.5.0"
+  @doc since: "0.5.0"
   @callback start_link(
               mode :: StructuredIO.mode(),
               options :: GenServer.options()
@@ -183,7 +183,7 @@ defmodule StructuredIO.Behaviour do
   @doc """
   Stops the specified `structured_io` process.
   """
-  @since "0.1.0"
+  @doc since: "0.1.0"
   @callback stop(
               structured_io :: GenServer.server(),
               reason :: term,
@@ -193,7 +193,7 @@ defmodule StructuredIO.Behaviour do
   @doc """
   Writes the specified `data` to the specified `structured_io`.
   """
-  @since "0.1.0"
+  @doc since: "0.1.0"
   @callback write(
               structured_io :: GenServer.server(),
               data ::
