@@ -72,9 +72,7 @@ defmodule StructuredIO.Behaviour do
               left :: StructuredIO.left(),
               right :: StructuredIO.right(),
               timeout :: timeout
-            ) ::
-              StructuredIO.match()
-              | StructuredIO.error()
+            ) :: StructuredIO.match() | StructuredIO.error()
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
@@ -87,9 +85,7 @@ defmodule StructuredIO.Behaviour do
               left :: StructuredIO.left(),
               right :: StructuredIO.right(),
               timeout :: timeout
-            ) ::
-              StructuredIO.match()
-              | StructuredIO.error()
+            ) :: StructuredIO.match() | StructuredIO.error()
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
@@ -102,9 +98,7 @@ defmodule StructuredIO.Behaviour do
               left :: StructuredIO.left(),
               right :: StructuredIO.right(),
               timeout :: timeout
-            ) ::
-              StructuredIO.match()
-              | StructuredIO.error()
+            ) :: StructuredIO.match() | StructuredIO.error()
 
   @doc """
   Reads data from the specified `structured_io` beginning with the specified
@@ -117,9 +111,7 @@ defmodule StructuredIO.Behaviour do
               left :: StructuredIO.left(),
               right :: StructuredIO.right(),
               timeout :: timeout
-            ) ::
-              StructuredIO.match()
-              | StructuredIO.error()
+            ) :: StructuredIO.match() | StructuredIO.error()
 
   @doc """
   Invokes the specified `operation`, changing the state of the specified
@@ -143,9 +135,7 @@ defmodule StructuredIO.Behaviour do
               structured_io :: GenServer.server(),
               right :: StructuredIO.right(),
               timeout :: timeout
-            ) ::
-              StructuredIO.match()
-              | StructuredIO.error()
+            ) :: StructuredIO.match() | StructuredIO.error()
 
   @doc """
   Reads data from the specified `structured_io` if and until the specified
@@ -156,9 +146,7 @@ defmodule StructuredIO.Behaviour do
               structured_io :: GenServer.server(),
               right :: StructuredIO.right(),
               timeout :: timeout
-            ) ::
-              StructuredIO.match()
-              | StructuredIO.error()
+            ) :: StructuredIO.match() | StructuredIO.error()
 
   @doc """
   Starts a `StructuredIO` process without links (outside a supervision tree) with

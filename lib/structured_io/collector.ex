@@ -88,20 +88,33 @@ defmodule StructuredIO.Collector do
        "function StructuredIO.not_a_function/2 is undefined or private"}
   """
   @doc since: "0.6.0"
-  @spec new(%{process: GenServer.server(), function: atom}) :: {:ok, t} | StructuredIO.error()
+  @spec new(%{
+          process: GenServer.server(),
+          function: atom
+        }) :: {:ok, t} | StructuredIO.error()
 
   def new(%{process: nil} = _collector), do: {:error, @error_process}
 
-  def new(%{process: _, function: nil} = _collector), do: {:error, @error_function}
+  def new(%{process: _, function: nil} = _collector) do
+    {:error, @error_function}
+  end
 
-  def new(%{process: process, function: function} = _collector) when is_atom(function) do
+  def new(
+        %{
+          process: process,
+          function: function
+        } = _collector
+      )
+      when is_atom(function) do
     function_arity = 2
 
     if function_exported?(StructuredIO, function, function_arity) do
       {:ok, struct(__MODULE__, process: process, function: function)}
     else
-      {:error,
-       "function #{inspect(StructuredIO)}.#{function}/#{function_arity} is undefined or private"}
+      message =
+        "function #{inspect(StructuredIO)}.#{function}/#{function_arity} is undefined or private"
+
+      {:error, message}
     end
   end
 

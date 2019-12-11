@@ -153,10 +153,7 @@ defmodule StructuredIO.GenServerTransaction do
       A function around which `#{unquote(function_name)}/3` behavior will be
       wrapped.
       """
-      @type operation ::
-              (GenServer.server() ->
-                 {unquote(commit_instruction), any}
-                 | any)
+      @type operation :: (GenServer.server() -> {unquote(commit_instruction), any} | any)
 
       @doc unquote(doc)
       unquote(since_assignment)

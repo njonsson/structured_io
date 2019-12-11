@@ -43,8 +43,8 @@ defmodule StructuredIO do
     * A fixed-length Length expression between 0 and 255 (one byte)
     * A variable-length Value expression whose length is the Length
 
-    Following the convention of built-in functions such as `read_across/4`, if the
-    whole element is not present then the result of the operation is an empty
+    Following the convention of built-in functions such as `read_across/4`, if
+    the whole element is not present then the result of the operation is an empty
     binary (`""`).
 
         iex> {:ok,
@@ -292,10 +292,12 @@ defmodule StructuredIO do
         left,
         right
       )
-      when function in ~w{read_across
-                                                read_across_ignoring_overlap
-                                                read_between
-                                                read_between_ignoring_overlap}a do
+      when function in ~w{
+    read_across
+    read_across_ignoring_overlap
+    read_between
+    read_between_ignoring_overlap
+  }a do
     {:ok, enumerator} =
       Enumerator.new(%{
         process: structured_io,
@@ -1202,13 +1204,27 @@ defmodule StructuredIO do
 
   def handle_call(:mode, _from, %{mode: mode} = state), do: {:reply, mode, state}
 
-  def handle_call({:read, count = count_or_match}, _from, state)
+  def handle_call(
+        {
+          :read,
+          count = count_or_match
+        },
+        _from,
+        state
+      )
       when is_integer(count_or_match) do
     unit = scan_unit(state)
     scan(state, :scan, [unit, count])
   end
 
-  def handle_call({:read, match = count_or_match}, _from, state)
+  def handle_call(
+        {
+          :read,
+          match = count_or_match
+        },
+        _from,
+        state
+      )
       when is_binary(count_or_match) do
     case binary_data(state) do
       {:error, _} = error ->
@@ -1221,8 +1237,11 @@ defmodule StructuredIO do
         binary
         |> Scanner.scan(unit, count)
         |> case do
-          {^match, _} = result -> result
-          _ -> nil
+          {^match, _} = result ->
+            result
+
+          _ ->
+            nil
         end
         |> read_reply(state)
     end
@@ -1330,7 +1349,11 @@ defmodule StructuredIO do
     {:reply, match, new_state}
   end
 
-  @spec scan(State.t(), atom, [any]) :: {:reply, Scanner.match() | error, State.t()}
+  @spec scan(State.t(), atom, [any]) :: {
+          :reply,
+          Scanner.match() | error,
+          State.t()
+        }
   defp scan(state, function, arguments) do
     case binary_data(state) do
       {:error, _} = error ->

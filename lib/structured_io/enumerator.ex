@@ -92,13 +92,14 @@ defmodule StructuredIO.Enumerator do
   @typedoc """
   A `#{inspect(__MODULE__)}` struct.
   """
-  @type t :: %__MODULE__{
-          process: GenServer.server(),
-          function: atom,
-          timeout: nil | timeout,
-          additional_arguments: [any],
-          arguments: [any]
-        }
+  @type t ::
+          %__MODULE__{
+            process: GenServer.server(),
+            function: atom,
+            timeout: nil | timeout,
+            additional_arguments: [any],
+            arguments: [any]
+          }
 
   defimpl Enumerable do
     # Use the default implementation of Enumerable.count/1.
@@ -115,9 +116,14 @@ defmodule StructuredIO.Enumerator do
 
     def reduce(enumerator, {:cont, acc}, fun) do
       case apply(StructuredIO, enumerator.function, enumerator.arguments) do
-        {:error, _} = error -> {:done, error}
-        "" -> {:done, acc}
-        element -> reduce(enumerator, fun.(element, acc), fun)
+        {:error, _} = error ->
+          {:done, error}
+
+        "" ->
+          {:done, acc}
+
+        element ->
+          reduce(enumerator, fun.(element, acc), fun)
       end
     end
 
@@ -186,14 +192,23 @@ defmodule StructuredIO.Enumerator do
        "function StructuredIO.read_across/2 is undefined or private"}
   """
   @doc since: "0.6.0"
-  @spec new(%{process: GenServer.server(), function: atom, additional_arguments: any}) ::
-          {:ok, t} | StructuredIO.error()
+  @spec new(%{
+          process: GenServer.server(),
+          function: atom,
+          additional_arguments: any
+        }) :: {:ok, t} | StructuredIO.error()
 
   def new(%{process: nil} = _enumerator), do: {:error, @error_process}
 
   def new(%{function: nil} = _enumerator), do: {:error, @error_function}
 
-  def new(%{process: process, function: function} = enumerator) when is_atom(function) do
+  def new(
+        %{
+          process: process,
+          function: function
+        } = enumerator
+      )
+      when is_atom(function) do
     addl_args =
       enumerator
       |> Map.get(:additional_arguments)
@@ -202,20 +217,27 @@ defmodule StructuredIO.Enumerator do
     function_arity = length(addl_args) + 1
 
     if function_exported?(StructuredIO, function, function_arity) do
-      {:ok,
-       struct(__MODULE__,
-         process: process,
-         function: function,
-         additional_arguments: addl_args,
-         arguments: [process | addl_args]
-       )}
+      {
+        :ok,
+        struct(
+          __MODULE__,
+          process: process,
+          function: function,
+          additional_arguments: addl_args,
+          arguments: [process | addl_args]
+        )
+      }
     else
-      {:error,
-       "function #{inspect(StructuredIO)}.#{function}/#{function_arity} is undefined or private"}
+      message =
+        "function #{inspect(StructuredIO)}.#{function}/#{function_arity} is undefined or private"
+
+      {:error, message}
     end
   end
 
-  def new(%{process: _, function: _} = _enumerator), do: {:error, @error_function}
+  def new(%{process: _, function: _} = _enumerator) do
+    {:error, @error_function}
+  end
 
   def new(%{function: _} = _enumerator), do: {:error, @error_process}
 
