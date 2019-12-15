@@ -915,7 +915,8 @@ defmodule StructuredIO.Deprecated do
 
   @spec mode_error(binary, binary) :: StructuredIO.error()
   defp mode_error(mode_name, correct_fun_name) do
-    {:error, "In #{mode_name} mode -- call #{inspect(StructuredIO)}.#{correct_fun_name} instead"}
+    message = "In #{mode_name} mode -- call #{inspect(StructuredIO)}.#{correct_fun_name} instead"
+    {:error, message}
   end
 
   @spec read_reply(

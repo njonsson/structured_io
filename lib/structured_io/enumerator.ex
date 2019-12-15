@@ -186,14 +186,23 @@ defmodule StructuredIO.Enumerator do
        "function StructuredIO.read_across/2 is undefined or private"}
   """
   @doc since: "0.6.0"
-  @spec new(%{process: GenServer.server(), function: atom, additional_arguments: any}) ::
-          {:ok, t} | StructuredIO.error()
+  @spec new(%{
+          process: GenServer.server(),
+          function: atom,
+          additional_arguments: any
+        }) :: {:ok, t} | StructuredIO.error()
 
   def new(%{process: nil} = _enumerator), do: {:error, @error_process}
 
   def new(%{function: nil} = _enumerator), do: {:error, @error_function}
 
-  def new(%{process: process, function: function} = enumerator) when is_atom(function) do
+  def new(
+        %{
+          process: process,
+          function: function
+        } = enumerator
+      )
+      when is_atom(function) do
     addl_args =
       enumerator
       |> Map.get(:additional_arguments)
@@ -210,12 +219,16 @@ defmodule StructuredIO.Enumerator do
          arguments: [process | addl_args]
        )}
     else
-      {:error,
-       "function #{inspect(StructuredIO)}.#{function}/#{function_arity} is undefined or private"}
+      message =
+        "function #{inspect(StructuredIO)}.#{function}/#{function_arity} is undefined or private"
+
+      {:error, message}
     end
   end
 
-  def new(%{process: _, function: _} = _enumerator), do: {:error, @error_function}
+  def new(%{process: _, function: _} = _enumerator) do
+    {:error, @error_function}
+  end
 
   def new(%{function: _} = _enumerator), do: {:error, @error_process}
 

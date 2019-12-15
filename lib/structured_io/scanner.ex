@@ -125,9 +125,7 @@ defmodule StructuredIO.Scanner do
         unit,
         count
       )
-      when unit in @valid_units and
-             is_integer(count) and
-             0 <= count do
+      when unit in @valid_units and is_integer(count) and 0 <= count do
     nil
   end
 
@@ -136,9 +134,7 @@ defmodule StructuredIO.Scanner do
         unit,
         count
       )
-      when unit in @valid_units and
-             is_integer(count) and
-             0 <= count do
+      when unit in @valid_units and is_integer(count) and 0 <= count do
     scan(%Measured{data: data, unit: unit, count: count})
   end
 
@@ -187,7 +183,12 @@ defmodule StructuredIO.Scanner do
     with data_after_left when is_binary(data_after_left) <-
            after_beginning(data, left),
          {match, remainder} <-
-           scan(%Enclosed{data: data_after_left, left: left, right: right, count: 1}) do
+           scan(%Enclosed{
+             data: data_after_left,
+             left: left,
+             right: right,
+             count: 1
+           }) do
       {left <> match, remainder}
     end
   end
@@ -302,7 +303,12 @@ defmodule StructuredIO.Scanner do
     with data_after_left when is_binary(data_after_left) <-
            after_beginning(data, left),
          {match, remainder} <-
-           scan(%Enclosed{data: data_after_left, left: left, right: right, count: 1}) do
+           scan(%Enclosed{
+             data: data_after_left,
+             left: left,
+             right: right,
+             count: 1
+           }) do
       match_without_right =
         binary_part(
           match,
@@ -463,7 +469,13 @@ defmodule StructuredIO.Scanner do
   defp scan(%Enclosed{data: ""}), do: nil
 
   defp scan(
-         %Enclosed{before: before, data: data, left: left, right: right, count: count} = arguments
+         %Enclosed{
+           before: before,
+           data: data,
+           left: left,
+           right: right,
+           count: count
+         } = arguments
        ) do
     case after_beginning(data, left) do
       nil ->
@@ -473,11 +485,21 @@ defmodule StructuredIO.Scanner do
             scan(%{arguments | before: before <> data_first, data: data_rest})
 
           after_right ->
-            scan(%{arguments | before: before <> right, data: after_right, count: count - 1})
+            scan(%{
+              arguments
+              | before: before <> right,
+                data: after_right,
+                count: count - 1
+            })
         end
 
       after_left ->
-        scan(%{arguments | before: before <> left, data: after_left, count: count + 1})
+        scan(%{
+          arguments
+          | before: before <> left,
+            data: after_left,
+            count: count + 1
+        })
     end
   end
 
@@ -494,10 +516,22 @@ defmodule StructuredIO.Scanner do
     end
   end
 
-  defp scan(%Measured{before: before, data: data, unit: :graphemes, count: count} = arguments) do
+  defp scan(
+         %Measured{
+           before: before,
+           data: data,
+           unit: :graphemes,
+           count: count
+         } = arguments
+       ) do
     case String.next_grapheme(data) do
       {match, remaining} ->
-        scan(%{arguments | before: before <> match, data: remaining, count: count - 1})
+        scan(%{
+          arguments
+          | before: before <> match,
+            data: remaining,
+            count: count - 1
+        })
 
       nil ->
         {before, data}
