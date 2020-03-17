@@ -32,7 +32,7 @@ defmodule StructuredIO.Mixfile do
 
   defp deps do
     [
-      {:dialyxir, "~> 0.5", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.0", only: :dev, runtime: false},
       {:excoveralls, "~> 0.8", only: :test, runtime: false},
       {:ex_doc, "~> 0.18", only: :dev, runtime: false}
     ]
