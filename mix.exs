@@ -56,10 +56,10 @@ defmodule StructuredIO.Mixfile do
   defp package do
     [
       files: ~w{History.md
-                     License.md
-                     README.md
-                     lib
-                     mix.exs},
+                License.md
+                README.md
+                lib
+                mix.exs},
       maintainers: ["Nils Jonsson <structured-io@nilsjonsson.com>"],
       licenses: ["MIT"],
       links: %{
